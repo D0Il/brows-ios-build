@@ -182,19 +182,30 @@ struct BottomRail: View {
                 }
                 .buttonStyle(.plain)
 
-                TextField("SEARCH", text: $model.addressText)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 15))
-                    .foregroundColor(Theme.ink)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                    .keyboardType(.webSearch)
-                    .submitLabel(.go)
-                    .onTapGesture { model.isEditingAddress = true }
-                    .onSubmit {
-                        model.isEditingAddress = false
-                        model.navigate(to: model.addressText)
+                ZStack(alignment: .leading) {
+                    // The app runs dark, so SwiftUI's own placeholder would be light
+                    // grey on the white pill. This is the desktop's muted ink instead.
+                    if model.addressText.isEmpty {
+                        Text("SEARCH")
+                            .font(.system(size: 15))
+                            .foregroundColor(Theme.muted)
+                            .allowsHitTesting(false)
                     }
+
+                    TextField("", text: $model.addressText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 15))
+                        .foregroundColor(Theme.ink)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .keyboardType(.webSearch)
+                        .submitLabel(.go)
+                        .onTapGesture { model.isEditingAddress = true }
+                        .onSubmit {
+                            model.isEditingAddress = false
+                            model.navigate(to: model.addressText)
+                        }
+                }
 
                 Button {
                     model.toggleBookmark()
