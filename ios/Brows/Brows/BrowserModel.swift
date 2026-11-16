@@ -416,11 +416,20 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             return value
         }
 
-        return tabs
-            .map { (tab: $0, score: score($0)) }
-            .filter { $0.score > 0 }
-            .sorted { $0.score == $1.score ? $0.tab.title < $1.tab.title : $0.score > $1.score }
-            .map { $0.tab }
+        var scored: [(tab: Tab, score: Int)] = []
+        for tab in tabs {
+            let value = score(tab)
+            if value > 0 {
+                scored.append((tab: tab, score: value))
+            }
+        }
+        scored.sort { lhs, rhs in
+            if lhs.score == rhs.score {
+                return lhs.tab.title < rhs.tab.title
+            }
+            return lhs.score > rhs.score
+        }
+        return scored.map { $0.tab }
     }
 
     func workspaceName(for tab: Tab) -> String {
@@ -683,8 +692,8 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                   let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let text = dict["text"] as? String, text.count > 200 else {
                 DispatchQueue.main.async {
-                    self?.readerContent = nil
-                    self?.readerFailed = true
+                    self.readerContent = nil
+                    self.readerFailed = true
                 }
                 return
             }
@@ -694,7 +703,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                 text: text,
                 html: dict["html"] as? String ?? ""
             )
-            DispatchQueue.main.async { self?.readerContent = content }
+            DispatchQueue.main.async { self.readerContent = content }
         }
     }
 
