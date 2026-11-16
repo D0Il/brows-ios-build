@@ -102,6 +102,54 @@ final class BrowsUITests: XCTestCase {
         app.buttons["Done"].tap()
     }
 
+    private func open(_ url: String, in app: XCUIApplication) {
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        field.tap()
+        field.typeText(url + "\n")
+        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 25))
+    }
+
+    /// Find reads matches out of the loaded page.
+    func testFindInPage() {
+        let app = makeApp()
+        open("example.com", in: app)
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        let findRow = app.staticTexts["Find in page"]
+        XCTAssertTrue(findRow.waitForExistence(timeout: 10))
+        findRow.tap()
+
+        let find = app.textFields["Find in page"]
+        XCTAssertTrue(find.waitForExistence(timeout: 10), "find bar did not open")
+        find.tap()
+        find.typeText("Domain")
+
+        let counted = app.staticTexts.matching(NSPredicate(format: "label CONTAINS ' of '")).firstMatch
+        XCTAssertTrue(counted.waitForExistence(timeout: 10), "find did not report a match count")
+    }
+
+    /// Per-site blocking is a real toggle and it flips its own label back.
+    func testSiteBlockingToggle() {
+        let app = makeApp()
+        open("example.com", in: app)
+
+        app.buttons["rail.siteInfo"].tap()
+        XCTAssertTrue(app.navigationBars["Site information"].waitForExistence(timeout: 10))
+
+        let off = app.buttons["Turn off blocking on this site"]
+        XCTAssertTrue(off.waitForExistence(timeout: 10), "no per-site blocking toggle")
+        off.tap()
+
+        XCTAssertTrue(
+            app.buttons["Turn on blocking on this site"].waitForExistence(timeout: 10),
+            "blocking toggle did not flip"
+        )
+        app.buttons["Done"].tap()
+    }
+
     func testStartPageSearchField() {
         let app = makeApp()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15), "no web view")

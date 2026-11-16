@@ -207,6 +207,7 @@ struct BottomRail: View {
                     SiteBadge(host: model.activeHost)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("rail.siteInfo")
 
                 ZStack(alignment: .leading) {
                     // The app runs dark, so SwiftUI's own placeholder would be light
