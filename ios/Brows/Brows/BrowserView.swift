@@ -180,11 +180,10 @@ struct BottomRail: View {
         return compact ? 92 : 150
     }
 
-    /// Extras fold only when the row is actually short of space: with no back or
-    /// forward to show, reload and the zoom cluster fit even on a small phone.
-    private var showExtras: Bool {
-        !compact || (!canBack && !canForward)
-    }
+    /// On a narrow phone the zoom cluster folds into the menu (the desktop strip
+    /// folds it too). Reload stays in the row, because it is the control you reach
+    /// for constantly and the pill needs its width more than the cluster does.
+    private var showZoom: Bool { !compact }
 
     var body: some View {
         HStack(spacing: 6) {
@@ -241,6 +240,7 @@ struct BottomRail: View {
             }
             .padding(.horizontal, 9)
             .frame(height: 40)
+            .frame(minWidth: 126)
             .background(Capsule().fill(Theme.pill))
             .layoutPriority(2)
 
@@ -250,10 +250,11 @@ struct BottomRail: View {
                     .layoutPriority(0)
             }
 
-            if showExtras {
-                railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise") {
-                    model.reloadOrStop()
-                }
+            railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise") {
+                model.reloadOrStop()
+            }
+
+            if showZoom {
                 zoomCluster
             }
 
