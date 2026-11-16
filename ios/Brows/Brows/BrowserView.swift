@@ -137,22 +137,18 @@ struct TopStrip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(Color.white.opacity(0.14))
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.white.opacity(0.55), Color.white.opacity(0.16)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [Theme.tabActiveTop, Theme.tabActiveBottom],
+                            startPoint: .top,
+                            endPoint: .bottom
                         )
-                }
+                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.82), lineWidth: 1)
+                    .strokeBorder(Theme.tabBorder, lineWidth: 1)
             )
             .frame(maxWidth: 230, alignment: .leading)
 
@@ -246,6 +242,8 @@ struct BottomRail: View {
                         .foregroundColor(Theme.ink)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("rail.star")
+                .accessibilityValue(model.isBookmarked(model.activeTab?.url) ? "bookmarked" : "not bookmarked")
             }
             .padding(.horizontal, 9)
             .frame(height: 40)

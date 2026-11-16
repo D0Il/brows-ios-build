@@ -40,6 +40,55 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(address.waitForExistence(timeout: 5), "rail did not come back")
     }
 
+    /// Private is a mode with a persistent mark, as on the desktop.
+    func testPrivateTabBadge() {
+        let app = XCUIApplication()
+        app.launch()
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["New private tab"].waitForExistence(timeout: 10))
+        app.staticTexts["New private tab"].tap()
+
+        XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10), "no PRIVATE badge on a private tab")
+    }
+
+    /// The star writes the same bookmark list the rail chips read.
+    func testBookmarkStar() {
+        let app = XCUIApplication()
+        app.launch()
+
+        let star = app.buttons["rail.star"]
+        XCTAssertTrue(star.waitForExistence(timeout: 15))
+        XCTAssertEqual(star.value as? String, "not bookmarked")
+        star.tap()
+
+        let deadline = Date().addingTimeInterval(5)
+        var value = ""
+        while Date() < deadline {
+            value = (star.value as? String) ?? ""
+            if value == "bookmarked" { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertEqual(value, "bookmarked", "star did not record the bookmark")
+    }
+
+    /// The tab gallery searches the real tab list, with a live count.
+    func testTabGallerySearch() {
+        let app = XCUIApplication()
+        app.launch()
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+
+        let search = app.textFields["Search tabs"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("New")
+        XCTAssertTrue(app.staticTexts["1 of 1 tabs"].waitForExistence(timeout: 5), "tab search count did not update")
+
+        app.buttons["Done"].tap()
+    }
+
     func testStartPageSearchField() {
         let app = XCUIApplication()
         app.launch()
