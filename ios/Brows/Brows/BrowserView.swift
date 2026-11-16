@@ -139,8 +139,7 @@ struct TopStrip: View {
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                        .environment(\.colorScheme, .light)
+                        .fill(Color.white.opacity(0.14))
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
                         .fill(
                             LinearGradient(

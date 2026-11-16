@@ -28,9 +28,11 @@ struct GlassPane: View {
 
     var body: some View {
         ZStack {
+            // No material blur: a blur over the concrete collapses into a flat grey
+            // slab. The pane is a see-through tint, so the surface stays visible
+            // through it, with the top-lit wash giving the fall of light.
             Rectangle()
-                .fill(.ultraThinMaterial)
-                .environment(\.colorScheme, .light)
+                .fill(Color.white.opacity(0.16))
 
             LinearGradient(
                 colors: [
