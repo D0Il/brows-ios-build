@@ -301,6 +301,8 @@ struct BottomRail: View {
             Button { model.resetZoom() } label: {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 9, weight: .semibold))
+                    .lineLimit(1)
+                    .fixedSize()
             }
             Button { model.adjustZoom(by: 0.1) } label: {
                 Image(systemName: "plus").font(.system(size: 11, weight: .bold))
@@ -322,7 +324,7 @@ struct BottomRail: View {
 struct CompactControlStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 22, height: 28)
+            .frame(width: 30, height: 28)
             .background(
                 RoundedRectangle(cornerRadius: 7)
                     .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))

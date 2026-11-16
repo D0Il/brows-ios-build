@@ -30,8 +30,9 @@ struct GlassPane: View {
             // page, not the dark material a dark colour scheme would give.
             .fill(.ultraThinMaterial)
             .environment(\.colorScheme, .light)
+            // The desktop rail is a milky pane, not a smoked one.
             .overlay(
-                Rectangle().fill(Color.white.opacity(0.05))
+                Rectangle().fill(Color.white.opacity(0.24))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
