@@ -116,10 +116,12 @@ struct TopStrip: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text((model.activeWorkspace?.name ?? "Main").uppercased())
-                .font(.system(size: 10, weight: .semibold))
-                .tracking(1.2)
-                .foregroundColor(.white.opacity(0.85))
+            // The desktop tab strip's job: name the tab you are on. The workspace is
+            // the button at the end of the rail, not a second label here.
+            Text(model.activeTab?.title ?? "New Tab")
+                .font(.system(size: 11, weight: .medium))
+                .lineLimit(1)
+                .foregroundColor(.white.opacity(0.9))
 
             if model.activeTab?.isPrivate == true {
                 Text("PRIVATE")
