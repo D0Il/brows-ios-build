@@ -74,8 +74,12 @@ struct WebViewContainer: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { sync(webView) }
 
         private func sync(_ webView: WKWebView) {
-            let title = webView.title ?? webView.url?.host ?? "New Tab"
-            let url = webView.url
+            // The local start page is HTML, so WebKit reports it as about:blank.
+            // Map that back to the start tab so the pill keeps its placeholder.
+            let rawURL = webView.url
+            let isStart = rawURL == nil || rawURL?.absoluteString == "about:blank"
+            let url = isStart ? BrowserModel.home : rawURL
+            let title = isStart ? "New Tab" : (webView.title ?? rawURL?.host ?? "New Tab")
             let loading = webView.isLoading
             let canBack = webView.canGoBack
             let canForward = webView.canGoForward
@@ -91,7 +95,7 @@ struct WebViewContainer: UIViewRepresentable {
                     tab.canGoForward = canForward
                     tab.isSecure = secure
                 }
-                if let url { self.model?.recordVisit(url, title: title) }
+                if let url, url != BrowserModel.home { self.model?.recordVisit(url, title: title) }
                 self.model?.scheduleSave()
             }
         }
