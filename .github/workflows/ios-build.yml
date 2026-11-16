@@ -78,13 +78,11 @@ jobs:
           xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl install "$DEVICE" ios/Brows/build-sim/Build/Products/Debug-iphonesimulator/Brows.app
-          xcrun simctl launch --terminate-running-process "$DEVICE" dev.brows.ios || echo "LAUNCH_RC=$?"
-          sleep 3
-          perl -e 'alarm shift; exec @ARGV' 20 xcrun simctl launch --console-pty --terminate-running-process "$DEVICE" dev.brows.ios > launch.txt 2>&1 || true
-          sleep 3
+          xcrun simctl launch "$DEVICE" dev.brows.ios | tee launch.txt || echo "LAUNCH_RC=$?"
+          sleep 10
+          xcrun simctl spawn "$DEVICE" launchctl list | grep dev.brows.ios | tee -a launch.txt || echo "NOT RUNNING"
           xcrun simctl io "$DEVICE" screenshot brows-launch.png
-          xcrun simctl spawn "$DEVICE" launchctl list | grep dev.brows.ios || echo "NOT RUNNING"
-          xcrun simctl spawn "$DEVICE" log show --last 60s --style compact --predicate 'process == "Brows"' | tail -60 || true
+          xcrun simctl spawn "$DEVICE" log show --last 60s --style compact --predicate 'process == "Brows"' | tail -40 || true
           echo "---- launch console ----"
           cat launch.txt || true
           echo "---- crash reports ----"
