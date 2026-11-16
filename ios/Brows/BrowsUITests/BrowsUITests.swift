@@ -185,7 +185,15 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 10), "workspace was not created")
         row.tap()
 
-        XCTAssertTrue(app.staticTexts["WO"].waitForExistence(timeout: 10), "rail did not switch workspace")
+        XCTAssertTrue(app.buttons["rail.workspace"].waitForExistence(timeout: 10))
+        let deadline = Date().addingTimeInterval(8)
+        var name = ""
+        while Date() < deadline {
+            name = (app.buttons["rail.workspace"].value as? String) ?? ""
+            if name == "Work" { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertEqual(name, "Work", "rail did not switch workspace")
     }
 
     /// Reader takes a real article apart and shows it as text.

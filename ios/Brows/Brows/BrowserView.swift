@@ -275,6 +275,7 @@ struct BottomRail: View {
             }
             .buttonStyle(GlassCircleButtonStyle())
             .accessibilityIdentifier("rail.workspace")
+            .accessibilityValue(model.activeWorkspace?.name ?? "")
 
             Button {
                 model.showingTabSwitcher = true
