@@ -27,13 +27,9 @@ struct WebViewContainer: UIViewRepresentable {
 
         if webView.url == nil, let url = model.tabs.first(where: { $0.id == tabId })?.url {
             if url == BrowserModel.home {
-                webView.loadHTMLString(
-                    StartPage.html(
-                        workspace: model.workspaces.first(where: { $0.id == model.activeWorkspaceId })?.name ?? "Main",
-                        bookmarks: model.bookmarks
-                    ),
-                    baseURL: nil
-                )
+                if let start = StartPage.write(bookmarks: model.bookmarks) {
+                    webView.loadFileURL(start, allowingReadAccessTo: start.deletingLastPathComponent())
+                }
             } else {
                 webView.load(URLRequest(url: url))
             }

@@ -1,15 +1,47 @@
 import Foundation
 
-/// The phone's start page. A fresh tab shows the workspace, a search field that
-/// feeds the real address bar, and the same favourites that sit in the rail —
-/// rendered locally, so it works with no network.
+/// The start page, carrying the Brows new-tab identity rather than an invented
+/// landing page: the concrete texture ported byte-for-byte from
+/// `port/site/assets/concrete.png` (FAMEBROWZ.md:42) with the glass search bubble
+/// and the profile's search engine. Shortcuts are the same bookmarks the rail shows.
 enum StartPage {
-    static func html(workspace: String, bookmarks: [Bookmark]) -> String {
-        let chips = bookmarks.prefix(8).map { bookmark in
-            """
-            <a class="chip" href="\(escape(bookmark.url))">\(escape(bookmark.title))</a>
+    /// The page needs the texture beside it, so it is written to a directory and
+    /// loaded as a file URL (WebKit will not resolve bundle-relative images).
+    static func write(bookmarks: [Bookmark]) -> URL? {
+        let manager = FileManager.default
+        let folder = manager.temporaryDirectory.appendingPathComponent("brows-start", isDirectory: true)
+        try? manager.createDirectory(at: folder, withIntermediateDirectories: true)
+
+        if let source = Bundle.main.url(forResource: "concrete", withExtension: "png") {
+            let destination = folder.appendingPathComponent("concrete.png")
+            if !manager.fileExists(atPath: destination.path) {
+                try? manager.copyItem(at: source, to: destination)
+            }
+        }
+
+        let url = folder.appendingPathComponent("start.html")
+        do {
+            try html(bookmarks: bookmarks).write(to: url, atomically: true, encoding: .utf8)
+            return url
+        } catch {
+            return nil
+        }
+    }
+
+    static func html(bookmarks: [Bookmark]) -> String {
+        let tiles = bookmarks.prefix(8).map { bookmark -> String in
+            let host = URL(string: bookmark.url)?.host ?? ""
+            return """
+            <a class="tile" href="\(escape(bookmark.url))">
+              <span class="favicon" style="background-image:url('https://icons.duckduckgo.com/ip3/\(escape(host)).ico')"></span>
+              <span class="label">\(escape(bookmark.title))</span>
+            </a>
             """
         }.joined()
+
+        let shortcuts = tiles.isEmpty ? "" : """
+        <div class="shortcuts">\(tiles)</div>
+        """
 
         return """
         <!doctype html>
@@ -19,54 +51,100 @@ enum StartPage {
         <style>
           :root { color-scheme: dark; }
           * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+          html, body { height: 100%; }
           body {
-            margin: 0; min-height: 100vh;
+            margin: 0;
             font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
-            background: radial-gradient(120% 90% at 50% 0%, #17294a 0%, #080d18 62%, #05080f 100%);
-            color: #eef1f6; padding: 48px 22px 40px;
+            background-color: #6d6f72;
+            background-image: url("concrete.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
           }
-          .workspace {
-            font-size: 11px; letter-spacing: 2px; font-weight: 600;
-            color: #9aa3b2; margin-bottom: 26px;
+          .page {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 18vh 20px 40px;
           }
-          h1 { font-size: 30px; line-height: 1.15; font-weight: 700; margin: 0 0 22px; letter-spacing: -0.4px; }
-          .search {
-            display: flex; align-items: center; gap: 10px;
-            background: #fff; border-radius: 999px; padding: 0 8px 0 16px;
-            height: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+          /* The glass search bubble: translucent pane, real blur, white hairline. */
+          .bubble {
+            width: 100%;
+            max-width: 560px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 52px;
+            padding: 0 16px;
+            border-radius: 26px;
+            background: rgba(255, 255, 255, 0.30);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.62);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
           }
-          .search input {
-            flex: 1; border: 0; outline: none; font-size: 16px; color: #0e1320;
-            background: transparent; font-family: inherit;
+          .bubble svg { flex: 0 0 auto; opacity: 0.62; }
+          .bubble input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 16px;
+            color: #1b1f27;
           }
-          .search input::placeholder { color: #68717f; }
-          .search button {
-            border: 0; width: 36px; height: 36px; border-radius: 50%;
-            background: #0e1320; color: #fff; font-size: 15px; font-weight: 600;
+          .bubble input::placeholder { color: #68717f; }
+          .shortcuts {
+            width: 100%;
+            max-width: 560px;
+            margin-top: 34px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px 10px;
           }
-          .label { margin: 30px 0 10px; font-size: 10px; letter-spacing: 1.6px; color: #8892a3; font-weight: 600; }
-          .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-          .chip {
-            display: inline-block; max-width: 100%;
-            padding: 9px 14px; border-radius: 999px; text-decoration: none;
-            color: #0e1320; background: rgba(255,255,255,0.92);
-            font-size: 13px; font-weight: 500;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            border: 0.5px solid rgba(255,255,255,0.7);
+          .tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            overflow: hidden;
           }
-          .empty { color: #8892a3; font-size: 13px; }
+          .favicon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.86);
+            background-size: 32px 32px;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid rgba(255, 255, 255, 0.60);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+          }
+          .label {
+            max-width: 100%;
+            font-size: 11px;
+            font-weight: 500;
+            color: #f4f6f8;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
         </style>
         </head>
         <body>
-          <div class="workspace">\(escape(workspace.uppercased()))</div>
-          <h1>Where to?</h1>
-          <form class="search" onsubmit="event.preventDefault(); var q = document.getElementById('q').value.trim(); if (q) { window.webkit.messageHandlers.browsStart.postMessage(q); }">
-            <input id="q" type="search" placeholder="SEARCH" autocomplete="off" autocapitalize="none" spellcheck="false">
-            <button type="submit" aria-label="Go">→</button>
-          </form>
-          <div class="label">FAVOURITES</div>
-          <div class="chips">
-            \(chips.isEmpty ? "<span class=\"empty\">Star a page to put it here.</span>" : chips)
+          <div class="page">
+            <form class="bubble" onsubmit="event.preventDefault(); var q = document.getElementById('q').value.trim(); if (q) { window.webkit.messageHandlers.browsStart.postMessage(q); }">
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <circle cx="7.2" cy="7.2" r="5.4" stroke="#1b1f27" stroke-width="1.6"/>
+                <path d="M11.4 11.4L15.4 15.4" stroke="#1b1f27" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <input id="q" type="search" placeholder="SEARCH" autocomplete="off" autocapitalize="none" spellcheck="false">
+            </form>
+            \(shortcuts)
           </div>
         </body>
         </html>

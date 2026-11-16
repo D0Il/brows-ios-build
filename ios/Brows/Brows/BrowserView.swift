@@ -116,35 +116,46 @@ struct TopStrip: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            // The desktop tab strip's job: name the tab you are on. The workspace is
-            // the button at the end of the rail, not a second label here.
-            Text(model.activeTab?.title ?? "New Tab")
-                .font(.system(size: 11, weight: .medium))
-                .lineLimit(1)
-                .foregroundColor(.white.opacity(0.9))
+            // The desktop tab strip's job, at phone scale: the active tab is one
+            // translucent glass pane with a .72 white stroke over the page, not a
+            // full-width slab. The workspace is the rail button, not a label here.
+            HStack(spacing: 7) {
+                Text(model.activeTab?.title ?? "New Tab")
+                    .font(.system(size: 11, weight: .medium))
+                    .lineLimit(1)
+                    .foregroundColor(Theme.ink)
 
-            if model.activeTab?.isPrivate == true {
-                Text("PRIVATE")
-                    .font(.system(size: 9, weight: .bold))
-                    .tracking(1)
-                    .foregroundColor(Theme.muted)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3)
-                    .background(Capsule().fill(Color.white.opacity(0.14)))
+                if model.activeTab?.isPrivate == true {
+                    Text("PRIVATE")
+                        .font(.system(size: 8, weight: .bold))
+                        .tracking(1)
+                        .foregroundColor(Theme.muted)
+                }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .stroke(Theme.glassStroke, lineWidth: 0.72)
+            )
+            .frame(maxWidth: 230, alignment: .leading)
 
             Spacer(minLength: 0)
 
             if let progress = model.activeTab?.progress, model.activeTab?.isLoading == true {
                 ProgressView(value: progress)
                     .progressViewStyle(.linear)
-                    .frame(width: 64)
+                    .frame(width: 56)
                     .tint(.white)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .background(GlassPane().ignoresSafeArea(edges: .top))
+        .padding(.horizontal, 10)
+        .padding(.top, 6)
+        .padding(.bottom, 4)
     }
 }
 
