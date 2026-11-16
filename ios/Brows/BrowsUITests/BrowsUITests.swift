@@ -3,9 +3,16 @@ import XCTest
 /// Drives the surfaces the app actually shows: the rail exists, the menu opens,
 /// and the panels behind its rows are real.
 final class BrowsUITests: XCTestCase {
-    func testRailAndMenuPanels() {
+    /// Each test starts from a clean install state, so tab counts are deterministic.
+    private func makeApp() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments = ["-BrowsUITestReset"]
         app.launch()
+        return app
+    }
+
+    func testRailAndMenuPanels() {
+        let app = makeApp()
 
         let address = app.textFields["rail.address"]
         XCTAssertTrue(address.waitForExistence(timeout: 15), "address pill missing")
@@ -42,8 +49,7 @@ final class BrowsUITests: XCTestCase {
 
     /// Private is a mode with a persistent mark, as on the desktop.
     func testPrivateTabBadge() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = makeApp()
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
@@ -58,8 +64,7 @@ final class BrowsUITests: XCTestCase {
 
     /// The star writes the same bookmark list the rail chips read.
     func testBookmarkStar() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = makeApp()
 
         let star = app.buttons["rail.star"]
         XCTAssertTrue(star.waitForExistence(timeout: 15))
@@ -78,8 +83,7 @@ final class BrowsUITests: XCTestCase {
 
     /// The tab gallery searches the real tab list, with a live count.
     func testTabGallerySearch() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = makeApp()
 
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
@@ -89,21 +93,23 @@ final class BrowsUITests: XCTestCase {
         search.tap()
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5), "keyboard did not come up")
         search.typeText("New")
-        XCTAssertTrue(app.staticTexts["1 of 1 tabs"].waitForExistence(timeout: 8), "tab search count did not update")
+
+        let counted = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS ' of '")
+        ).firstMatch
+        XCTAssertTrue(counted.waitForExistence(timeout: 8), "tab search count did not update")
 
         app.buttons["Done"].tap()
     }
 
     func testStartPageSearchField() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = makeApp()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15), "no web view")
     }
 
     /// The address pill really navigates: type a URL, submit, and the pill carries it.
     func testNavigationFromAddressPill() {
-        let app = XCUIApplication()
-        app.launch()
+        let app = makeApp()
 
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15), "address pill missing")

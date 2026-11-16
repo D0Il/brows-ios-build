@@ -218,6 +218,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     override init() {
         super.init()
+        if CommandLine.arguments.contains("-BrowsUITestReset") {
+            for key in [tabsKey, bookmarksKey, workspacesKey, historyKey,
+                        downloadsKey, credentialsKey, settingsKey, activeKey,
+                        "brows.blockerExceptions"] {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+        }
         load()
         loadCredentials()
         blockerExceptions = UserDefaults.standard.stringArray(forKey: "brows.blockerExceptions") ?? []
@@ -943,7 +950,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func save() {
-        let rows = tabs.compactMap { tab in
+        // Private tabs are never written to disk: closing the app must leave no trace
+        // of them, the same as closing a private window on the desktop.
+        let rows = tabs.filter { !$0.isPrivate }.compactMap { tab in
             tab.url.map { PersistedTab(url: $0.absoluteString, workspaceId: tab.workspaceId) }
         }
         if let data = try? JSONEncoder().encode(rows) {
