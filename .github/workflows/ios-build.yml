@@ -83,6 +83,19 @@ jobs:
           xcrun simctl spawn "$DEVICE" launchctl list | grep dev.brows.ios | tee -a launch.txt || echo "NOT RUNNING"
           xcrun simctl io "$DEVICE" screenshot brows-launch.png
           xcrun simctl spawn "$DEVICE" log show --last 60s --style compact --predicate 'process == "Brows"' | tail -40 || true
+          echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
+
+      - name: Run UI tests
+        working-directory: ios/Brows
+        run: |
+          xcodebuild test \
+            -project Brows.xcodeproj \
+            -scheme Brows \
+            -destination "id=$DEVICE" \
+            -derivedDataPath build-test \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
           echo "---- launch console ----"
           cat launch.txt || true
           echo "---- crash reports ----"

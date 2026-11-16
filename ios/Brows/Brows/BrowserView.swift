@@ -195,6 +195,7 @@ struct BottomRail: View {
                     }
 
                     TextField("", text: $model.addressText)
+                        .accessibilityIdentifier("rail.address")
                         .textFieldStyle(.plain)
                         .font(.system(size: 15))
                         .foregroundColor(Theme.ink)
@@ -244,6 +245,7 @@ struct BottomRail: View {
                     .tracking(0.5)
             }
             .buttonStyle(GlassCircleButtonStyle())
+            .accessibilityIdentifier("rail.workspace")
 
             Button {
                 model.showingTabSwitcher = true
@@ -254,6 +256,7 @@ struct BottomRail: View {
                 }
             }
             .buttonStyle(GlassCircleButtonStyle())
+            .accessibilityIdentifier("rail.tabs")
 
             Button {
                 model.showingMenu = true
@@ -261,6 +264,7 @@ struct BottomRail: View {
                 Image(systemName: "line.3.horizontal")
             }
             .buttonStyle(GlassCircleButtonStyle())
+            .accessibilityIdentifier("rail.menu")
         }
         .padding(.horizontal, 8)
         .padding(.top, 8)

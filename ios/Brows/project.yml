@@ -49,10 +49,29 @@ targets:
         CODE_SIGNING_ALLOWED: NO
         CODE_SIGNING_REQUIRED: NO
         CODE_SIGN_IDENTITY: ""
+  BrowsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: BrowsUITests
+    dependencies:
+      - target: Brows
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.brows.ios.uitests
+        TEST_TARGET_NAME: Brows
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
 schemes:
   Brows:
     build:
       targets:
         Brows: all
+        BrowsUITests: [test]
     run:
       config: Release
+    test:
+      config: Debug
+      targets:
+        - BrowsUITests
