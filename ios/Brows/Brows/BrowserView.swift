@@ -11,17 +11,19 @@ struct BrowserView: View {
         ZStack(alignment: .bottom) {
             Theme.backdrop.ignoresSafeArea()
 
-            if model.settings.addressBarBottom {
-                VStack(spacing: 0) {
-                    TopStrip()
-                    page
+            // The page runs full-bleed under the chrome, so the tab pane and the
+            // rail are glass over the page — the desktop treatment — rather than
+            // translucent bars sitting on an app background.
+            page.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                TopStrip()
+                if !model.settings.addressBarBottom {
                     BottomRail(compact: compactRail)
                 }
-            } else {
-                VStack(spacing: 0) {
-                    TopStrip()
+                Spacer(minLength: 0)
+                if model.settings.addressBarBottom {
                     BottomRail(compact: compactRail)
-                    page
                 }
             }
 

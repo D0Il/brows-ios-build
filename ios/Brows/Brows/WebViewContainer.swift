@@ -73,7 +73,9 @@ struct WebViewContainer: UIViewRepresentable {
             // The local start page is HTML, so WebKit reports it as about:blank.
             // Map that back to the start tab so the pill keeps its placeholder.
             let rawURL = webView.url
-            let isStart = rawURL == nil || rawURL?.absoluteString == "about:blank"
+            let isStart = rawURL == nil
+                || rawURL?.absoluteString == "about:blank"
+                || rawURL?.isFileURL == true
             let url = isStart ? BrowserModel.home : rawURL
             let title = isStart ? "New Tab" : (webView.title ?? rawURL?.host ?? "New Tab")
             let loading = webView.isLoading
