@@ -76,12 +76,16 @@ jobs:
           xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl install "$DEVICE" ios/Brows/build-sim/Build/Products/Debug-iphonesimulator/Brows.app
-          xcrun simctl launch "$DEVICE" dev.brows.ios
-          sleep 8
+          (xcrun simctl launch --console-pty "$DEVICE" dev.brows.ios > launch.txt 2>&1 &) || true
+          sleep 12
           xcrun simctl io "$DEVICE" screenshot brows-launch.png
           xcrun simctl spawn "$DEVICE" launchctl list | grep dev.brows.ios || echo "NOT RUNNING"
+          echo "---- launch console ----"
+          cat launch.txt || true
+          echo "---- crash reports ----"
+          find ~/Library/Logs/DiagnosticReports -name "Brows*" -mmin -10 2>/dev/null | head -5 | while read -r f; do echo "### $f"; head -80 "$f"; done
           xcrun simctl spawn "$DEVICE" log show --last 2m --predicate 'process == "Brows"' > brows-sim.log || true
-          tail -40 brows-sim.log
+          tail -60 brows-sim.log
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -90,3 +94,4 @@ jobs:
           path: |
             brows-launch.png
             brows-sim.log
+            launch.txt

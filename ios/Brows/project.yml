@@ -24,6 +24,8 @@ targets:
         CFBundleVersion: "1"
         UILaunchScreen:
           UIColorName: LaunchBackground
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
