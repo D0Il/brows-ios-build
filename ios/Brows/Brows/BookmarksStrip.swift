@@ -1,31 +1,32 @@
 import SwiftUI
 
-/// Favourites as chips inside the toolbar rail, fed by the same bookmark list
-/// the star writes to.
+/// app.css `.brows-bookmark`: favourites are chips inside the toolbar row, never a
+/// second row. Each chip is 28px tall, 7px radius, max 118px wide, 0/8px padding,
+/// 12px text in rgba(74,84,102,.72), on a transparent chip with a 6px gap.
 struct BookmarksStrip: View {
     @EnvironmentObject var model: BrowserModel
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 ForEach(model.bookmarks) { bookmark in
                     Button {
                         model.navigate(to: bookmark.url)
                     } label: {
                         Text(bookmark.title)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(Theme.ink)
+                            .font(.system(size: 12))
+                            .foregroundColor(Theme.chipInk)
                             .lineLimit(1)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Capsule().fill(Color.white.opacity(0.92)))
-                            .overlay(Capsule().stroke(Theme.glassStroke, lineWidth: 0.5))
+                            .padding(.horizontal, 8)
+                            .frame(height: 28)
+                            .frame(maxWidth: 118, alignment: .leading)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 2)
         }
-        .frame(height: 30)
+        .frame(height: 28)
     }
 }

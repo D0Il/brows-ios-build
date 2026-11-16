@@ -246,10 +246,27 @@ struct BottomRail: View {
                 .accessibilityIdentifier("rail.star")
                 .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
             }
-            .padding(.horizontal, 9)
+            .padding(.horizontal, 12)
             .frame(height: 40)
             .frame(minWidth: 126)
-            .background(Capsule().fill(Theme.pill))
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                        .fill(Theme.pillWash)
+                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Theme.pillTop, Theme.pillBottom],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .stroke(Theme.pillBorder, lineWidth: 1)
+            )
             .layoutPriority(2)
 
             if !model.bookmarks.isEmpty {
@@ -300,6 +317,18 @@ struct BottomRail: View {
         .padding(.top, 8)
         .padding(.bottom, 4)
         .background(GlassPane().ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
+        // app.css: the band's own `border-top: 1px rgba(72,84,102,.07)` and
+        // `inset 0 -1px 0 rgba(67,78,96,.14)` edge the glass without filling it.
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color(red: 72 / 255, green: 84 / 255, blue: 102 / 255).opacity(0.07))
+                .frame(height: 1)
+        }
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color(red: 67 / 255, green: 78 / 255, blue: 96 / 255).opacity(0.14))
+                .frame(height: 1)
+        }
     }
 
     /// Zoom cluster, same fold as the desktop strip: −, the % is the reset, +.

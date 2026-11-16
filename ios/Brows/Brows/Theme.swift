@@ -11,7 +11,20 @@ enum Theme {
     static let glassStroke = Color.white.opacity(0.72)
     static let backdropTop = Color(red: 0.09, green: 0.16, blue: 0.28)
     static let backdropBottom = Color(red: 0.03, green: 0.05, blue: 0.10)
-    static let pill = Color.white
+
+    /// location_bar.css: the address pill is a whiter glass capsule, not a solid
+    /// white bar — `linear-gradient(180deg, rgba(255,255,255,.18),
+    /// rgba(255,255,255,.065)), rgba(255,255,255,.035)`, 1px `rgba(255,255,255,.42)`
+    /// hairline, `--border-radius: 10px`, `padding-inline: 12px`.
+    static let pillTop = Color.white.opacity(0.18)
+    static let pillBottom = Color.white.opacity(0.065)
+    static let pillWash = Color.white.opacity(0.035)
+    static let pillBorder = Color.white.opacity(0.42)
+    static let pillRadius: CGFloat = 10
+
+    /// app.css `.brows-bookmark` — 28px tall, 7px radius, 6px gap, max 118px,
+    /// 2px/8px padding, 12px text in `rgba(74,84,102,.72)`, no chip fill.
+    static let chipInk = Color(red: 74 / 255, green: 84 / 255, blue: 102 / 255).opacity(0.72)
 
     /// brows_glass.h: `SkColorSetRGB(0xF0, 0xF5, 0xFA)` at the clarity alpha.
     /// Default clarity is "foggy" = 0x7B (0.48).
@@ -81,9 +94,14 @@ struct GlassPane: View {
     }
 }
 
-/// `PaintRailBubble`: a translucent white bubble, not a solid white disc.
+/// toolbar_button.css: every rail control is a glass bubble with an 8px radius, a
+/// 1px `rgba(255,255,255,.30)` hairline, the `.18 → .035` lit gradient over
+/// `rgba(247,250,253,.025)`, plus the two insets and two soft drops. The desktop
+/// bubble is 30px; on a phone the touch frame is 36 so it stays tappable.
 struct GlassCircleButtonStyle: ButtonStyle {
     var enabled: Bool = true
+    private let bubbleRadius: CGFloat = 8
+    private let drop = Color(red: 24 / 255, green: 31 / 255, blue: 44 / 255)
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -92,25 +110,38 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .frame(width: 36, height: 36)
             .background(
                 ZStack {
-                    Circle().fill(Theme.bubbleWash)
-                    Circle().fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
-                                Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
+                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                        .fill(Theme.bubbleWash)
+                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
+                                    Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
                 }
             )
             .overlay(
-                Circle().stroke(
-                    Color.white.opacity(configuration.isPressed ? 0.19 : 0.30),
-                    lineWidth: 1
-                )
+                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                    .stroke(Color.white.opacity(configuration.isPressed ? 0.19 : 0.30), lineWidth: 1)
             )
+            .overlay(alignment: .top) {
+                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                    .stroke(Color.white.opacity(0.56), lineWidth: 1)
+                    .mask(
+                        LinearGradient(
+                            colors: [.white, .clear],
+                            startPoint: .top,
+                            endPoint: UnitPoint(x: 0.5, y: 0.45)
+                        )
+                    )
+            }
+            .shadow(color: drop.opacity(0.075), radius: 1, x: 0, y: 1)
+            .shadow(color: drop.opacity(0.045), radius: 6, x: 0, y: 4)
             .opacity(enabled ? 1 : 0.55)
     }
 }

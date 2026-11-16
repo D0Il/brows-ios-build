@@ -19,8 +19,8 @@ struct SiteBadge: View {
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(Color.white.opacity(0.16))
+            // location_icon.css: `background-color: transparent` — the glyph sits
+            // directly on the glass pill; a filled chip reads as a white circle.
             if let host, let icon = URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico") {
                 AsyncImage(url: icon) { phase in
                     if let image = phase.image {
