@@ -45,4 +45,25 @@ final class BrowsUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15), "no web view")
     }
+
+    /// The address pill really navigates: type a URL, submit, and the pill carries it.
+    func testNavigationFromAddressPill() {
+        let app = XCUIApplication()
+        app.launch()
+
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15), "address pill missing")
+        field.tap()
+        field.typeText("example.com\n")
+
+        let deadline = Date().addingTimeInterval(20)
+        var value = ""
+        while Date() < deadline {
+            value = (field.value as? String) ?? ""
+            if value.contains("example.com") { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        }
+        XCTAssertTrue(value.contains("example.com"), "pill did not take the navigation: \(value)")
+        XCTAssertTrue(app.webViews.firstMatch.exists, "no web view after navigation")
+    }
 }
