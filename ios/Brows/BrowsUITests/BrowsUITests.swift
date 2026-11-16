@@ -220,7 +220,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
-        app.swipeUp()
+        // Downloads sits in the menu's second section, above the fold.
         let downloads = app.staticTexts["Downloads"]
         XCTAssertTrue(downloads.waitForExistence(timeout: 10))
         downloads.tap()
