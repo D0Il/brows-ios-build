@@ -132,6 +132,9 @@ jobs:
           curl -sSf http://localhost:8000/sample.bin
           curl -sSf http://localhost:8000/login.html > /dev/null
           curl -sSf http://localhost:8000/article.html > /dev/null
+          # The server step above changed into fixtures/; the screenshot belongs at
+          # the workspace root so upload-artifact picks it up.
+          cd "$GITHUB_WORKSPACE"
           xcrun simctl terminate "$DEVICE" dev.brows.ios || true
           xcrun simctl launch "$DEVICE" dev.brows.ios -BrowsOpenURL http://localhost:8000/article.html > /dev/null
           sleep 8
