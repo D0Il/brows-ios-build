@@ -149,9 +149,17 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["browsuser"].exists, "stored username missing")
         app.buttons["Done"].tap()
 
-        // Leave the origin, then return: the form must arrive filled.
+        // Leave the origin in a fresh tab, then return in another fresh tab: this is
+        // a later navigation, not the page that produced the save prompt.
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+        app.buttons["tab.add"].tap()
         open("http://localhost:8000/other.html", in: app)
         XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20))
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+        app.buttons["tab.add"].tap()
         open("http://localhost:8000/login.html", in: app)
 
         let deadline = Date().addingTimeInterval(15)
