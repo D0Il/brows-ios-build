@@ -212,6 +212,25 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 5))
     }
 
+    /// A real octet-stream navigation must land in the download list, not as text
+    /// in the page. The workflow serves sample.bin on port 8000 for this test.
+    func testDownloadStarts() {
+        let app = makeApp()
+        open("http://localhost:8000/sample.bin", in: app)
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        let downloads = app.staticTexts["Downloads"]
+        XCTAssertTrue(downloads.waitForExistence(timeout: 10))
+        downloads.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["sample.bin"].waitForExistence(timeout: 20),
+            "download did not start or was not listed"
+        )
+    }
+
     func testStartPageSearchField() {
         let app = makeApp()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15), "no web view")
