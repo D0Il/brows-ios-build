@@ -150,6 +150,60 @@ final class BrowsUITests: XCTestCase {
         app.buttons["Done"].tap()
     }
 
+    /// Closing from the gallery decrements the real tab list.
+    func testCloseTab() {
+        let app = makeApp()
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+        app.buttons["tab.add"].tap()
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10))
+        let closes = app.buttons.matching(identifier: "tab.close")
+        XCTAssertTrue(closes.firstMatch.waitForExistence(timeout: 10))
+        closes.firstMatch.tap()
+
+        XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10), "closing a tab did not update the count")
+        app.buttons["Done"].tap()
+    }
+
+    /// A workspace is created and then becomes the one the rail names.
+    func testWorkspaceSwitch() {
+        let app = makeApp()
+
+        app.buttons["rail.workspace"].tap()
+        XCTAssertTrue(app.navigationBars["Workspaces"].waitForExistence(timeout: 10))
+
+        let field = app.textFields["New workspace"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText("Work")
+        app.buttons["workspace.add"].tap()
+
+        let row = app.staticTexts["Work"]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "workspace was not created")
+        row.tap()
+
+        XCTAssertTrue(app.staticTexts["WO"].waitForExistence(timeout: 10), "rail did not switch workspace")
+    }
+
+    /// Reader takes a real article apart and shows it as text.
+    func testReaderMode() {
+        let app = makeApp()
+        open("https://en.wikipedia.org/wiki/Web_browser", in: app)
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        let readerRow = app.staticTexts["Reader mode"]
+        XCTAssertTrue(readerRow.waitForExistence(timeout: 10))
+        readerRow.tap()
+
+        XCTAssertTrue(app.navigationBars["Reader"].waitForExistence(timeout: 10), "reader did not open")
+        XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 5))
+    }
+
     func testStartPageSearchField() {
         let app = makeApp()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15), "no web view")

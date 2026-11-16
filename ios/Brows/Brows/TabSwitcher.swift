@@ -121,6 +121,8 @@ struct TabSwitcher: View {
                         .foregroundColor(Theme.muted)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Close tab")
+                .accessibilityIdentifier("tab.close")
             }
 
             Text(tab.url?.host ?? "New Tab")
@@ -201,5 +203,6 @@ struct TabSwitcher: View {
             .foregroundColor(.white)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("tab.add")
     }
 }

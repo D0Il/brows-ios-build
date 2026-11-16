@@ -39,6 +39,7 @@ struct WorkspacesSheet: View {
                             Image(systemName: "plus")
                         }
                         .buttonStyle(GlassCircleButtonStyle())
+                        .accessibilityIdentifier("workspace.add")
                         .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
