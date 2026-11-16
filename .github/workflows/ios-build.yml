@@ -53,3 +53,40 @@ jobs:
         with:
           name: Brows-ipa
           path: ios/Brows/Brows.ipa
+
+      - name: Build for simulator
+        working-directory: ios/Brows
+        run: |
+          xcodebuild \
+            -project Brows.xcodeproj \
+            -scheme Brows \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -derivedDataPath build-sim \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Launch in simulator and capture
+        run: |
+          set -e
+          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print([x['udid'] for xs in d.values() for x in xs if 'iPhone' in x['name']][0])")
+          echo "device: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" ios/Brows/build-sim/Build/Products/Debug-iphonesimulator/Brows.app
+          xcrun simctl launch "$DEVICE" dev.brows.ios
+          sleep 8
+          xcrun simctl io "$DEVICE" screenshot brows-launch.png
+          xcrun simctl spawn "$DEVICE" launchctl list | grep dev.brows.ios || echo "NOT RUNNING"
+          xcrun simctl spawn "$DEVICE" log show --last 2m --predicate 'process == "Brows"' > brows-sim.log || true
+          tail -40 brows-sim.log
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Brows-simulator
+          path: |
+            brows-launch.png
+            brows-sim.log
