@@ -137,13 +137,23 @@ struct TopStrip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .environment(\.colorScheme, .light)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .environment(\.colorScheme, .light)
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.55), Color.white.opacity(0.16)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .stroke(Theme.glassStroke, lineWidth: 0.72)
+                    .strokeBorder(Color.white.opacity(0.82), lineWidth: 1)
             )
             .frame(maxWidth: 230, alignment: .leading)
 

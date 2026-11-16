@@ -19,25 +19,43 @@ enum Theme {
     }
 }
 
-/// Translucent see-through pane, the same material treatment the desktop rail
-/// uses for tab glass and the floating chrome.
+/// The desktop's glass recipe (`MEMORY/31-state-ui-passes-a.md:56`): a translucent
+/// pane, a **top-lit** wash (bright at the top edge, fading down), and a 1px white
+/// hairline. A flat alpha fill is not glass — the light has to fall across it.
 struct GlassPane: View {
     var cornerRadius: CGFloat = 0
+    var hairline: Bool = true
 
     var body: some View {
-        Rectangle()
-            // Force the light material: Brows' rail glass is a milky pane over the
-            // page, not the dark material a dark colour scheme would give.
-            .fill(.ultraThinMaterial)
-            .environment(\.colorScheme, .light)
-            // The desktop rail is a milky pane, not a smoked one.
-            .overlay(
-                Rectangle().fill(Color.white.opacity(0.24))
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .light)
+
+            LinearGradient(
+                colors: [
+                    Color.white.opacity(0.58),
+                    Color.white.opacity(0.30),
+                    Color.white.opacity(0.12)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
-            .overlay(
+
+            if hairline {
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.85))
+                        .frame(height: 1)
+                    Spacer(minLength: 0)
+                }
+            }
+
+            if cornerRadius > 0 {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Theme.glassStroke, lineWidth: cornerRadius > 0 ? 1 : 0)
-            )
+                    .stroke(Theme.glassStroke, lineWidth: 1)
+            }
+        }
     }
 }
 
