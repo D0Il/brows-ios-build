@@ -87,6 +87,12 @@ struct PasswordsSheet: View {
                 .tracking(1.2)
                 .foregroundColor(.white.opacity(0.7))
 
+            if let error = model.credentialError {
+                Text(error)
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.85))
+            }
+
             if model.credentials.isEmpty {
                 Text("No passwords saved.")
                     .font(.system(size: 12))

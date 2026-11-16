@@ -141,7 +141,11 @@ final class BrowsUITests: XCTestCase {
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10))
         app.staticTexts["Passwords"].tap()
-        XCTAssertTrue(app.staticTexts["localhost:8000"].waitForExistence(timeout: 10), "credential was not stored")
+        let stored = app.staticTexts["localhost:8000"].waitForExistence(timeout: 10)
+        let diag = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'Keychain' OR label BEGINSWITH 'Not saved'")
+        ).firstMatch
+        XCTAssertTrue(stored, "credential was not stored; diag: \(diag.exists ? diag.label : "none")")
         XCTAssertTrue(app.staticTexts["browsuser"].exists, "stored username missing")
         app.buttons["Done"].tap()
 

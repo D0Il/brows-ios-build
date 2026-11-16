@@ -1,12 +1,14 @@
 import Foundation
 import Security
 
-/// Password secrets live in the Keychain, never in UserDefaults or the repo.
+/// Secrets live in the Keychain, never in UserDefaults. `save` reports the raw
+/// OSStatus so a failed write can be shown instead of silently dropping a password.
 enum Vault {
     private static let service = "dev.brows.ios.credentials"
 
-    static func save(_ secret: String, id: UUID) -> Bool {
-        guard let data = secret.data(using: .utf8) else { return false }
+    @discardableResult
+    static func save(_ secret: String, id: UUID) -> OSStatus {
+        guard let data = secret.data(using: .utf8) else { return errSecParam }
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -17,7 +19,7 @@ enum Vault {
         var attributes = query
         attributes[kSecValueData as String] = data
         attributes[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        return SecItemAdd(attributes as CFDictionary, nil) == errSecSuccess
+        return SecItemAdd(attributes as CFDictionary, nil)
     }
 
     static func read(id: UUID) -> String? {

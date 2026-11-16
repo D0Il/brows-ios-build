@@ -186,6 +186,8 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// overwrite what they are typing.
     @Published var isEditingAddress = false
     @Published var pendingCredential: PendingCredential?
+    /// Why the last password write failed, shown by the Passwords sheet.
+    @Published var credentialError: String?
     @Published var blockerExceptions: [String] = []
 
     @Published var showingTabSwitcher = false
@@ -620,9 +622,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func addCredential(host: String, username: String, secret: String) -> Bool {
         let trimmedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedUser = username.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedHost.isEmpty, !trimmedUser.isEmpty, !secret.isEmpty else { return false }
+        guard !trimmedHost.isEmpty, !trimmedUser.isEmpty, !secret.isEmpty else {
+            credentialError = "Not saved: a site, a username and a password are all required."
+            return false
+        }
         let credential = Credential(host: trimmedHost, username: trimmedUser)
-        guard Vault.save(secret, id: credential.id) else { return false }
+        let status = Vault.save(secret, id: credential.id)
+        guard status == errSecSuccess else {
+            credentialError = "Keychain error \(status)"
+            return false
+        }
+        credentialError = nil
         credentials.append(credential)
         persistCredentials()
         return true
@@ -918,6 +928,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         guard let pending = pendingCredential else { return }
         addCredential(host: pending.host, username: pending.username, secret: pending.secret)
         pendingCredential = nil
+    }
+
+    /// The save alert's outcome, so a failure is visible instead of assumed.
+    var pendingCredentialSaved: Bool {
+        credentialError == nil
     }
 
     func discardPendingCredential() {
