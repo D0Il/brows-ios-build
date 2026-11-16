@@ -106,8 +106,66 @@ final class BrowsUITests: XCTestCase {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         field.tap()
+        // The pill carries the current URL once a page is open; clear it first.
+        let current = (field.value as? String) ?? ""
+        if !current.isEmpty && current != "SEARCH" {
+            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count + 3))
+        }
         field.typeText(url + "\n")
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 25))
+    }
+
+    /// End to end password manager: submit a served login form, save it, leave the
+    /// origin, come back, and assert the fields hold the stored credentials.
+    func testPasswordSaveAndAutofill() {
+        let app = makeApp()
+        open("http://localhost:8000/login.html", in: app)
+
+        let username = app.webViews.textFields["Username"]
+        XCTAssertTrue(username.waitForExistence(timeout: 15), "login fixture fields missing")
+        username.tap()
+        username.typeText("browsuser")
+
+        let password = app.webViews.secureTextFields["Password"]
+        XCTAssertTrue(password.exists, "fixture password field missing")
+        password.tap()
+        password.typeText("browssecret")
+
+        app.webViews.buttons["Log in"].tap()
+
+        let alert = app.alerts["Save password?"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 10), "submitted login was not offered for saving")
+        alert.buttons["Save"].tap()
+
+        // The credential is in the app's own store, filed under origin and port.
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10))
+        app.staticTexts["Passwords"].tap()
+        XCTAssertTrue(app.staticTexts["localhost:8000"].waitForExistence(timeout: 10), "credential was not stored")
+        XCTAssertTrue(app.staticTexts["browsuser"].exists, "stored username missing")
+        app.buttons["Done"].tap()
+
+        // Leave the origin, then return: the form must arrive filled.
+        open("http://localhost:8000/other.html", in: app)
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20))
+        open("http://localhost:8000/login.html", in: app)
+
+        let deadline = Date().addingTimeInterval(15)
+        var filledUser = ""
+        while Date() < deadline {
+            filledUser = (app.webViews.textFields["Username"].value as? String) ?? ""
+            if filledUser == "browsuser" { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertEqual(filledUser, "browsuser", "username was not autofilled on return")
+        XCTAssertFalse(
+            ((app.webViews.secureTextFields["Password"].value as? String) ?? "").isEmpty,
+            "password field was left empty"
+        )
+        XCTAssertTrue(
+            app.webViews.staticTexts["U=browsuser P=browssecret"].waitForExistence(timeout: 10),
+            "the page does not hold the stored secret"
+        )
     }
 
     /// Find reads matches out of the loaded page.

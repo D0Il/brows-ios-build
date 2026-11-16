@@ -98,6 +98,30 @@ enum PageTools {
         """
     }
 
+    /// Load-time fill: only touches an empty login form, so reloading the page
+    /// after the user typed something never overwrites it.
+    static func autofillJS(username: String, password: String) -> String {
+        """
+        (function(){
+          var user = \(jsString(username));
+          var secret = \(jsString(password));
+          var passwordField = document.querySelector('input[type="password"]');
+          if (!passwordField || passwordField.value) { return false; }
+          var scope = passwordField.form || document;
+          var userField = scope.querySelector('input[autocomplete="username"], input[type="email"], input[type="text"]');
+          if (userField && !userField.value) {
+            userField.value = user;
+            userField.dispatchEvent(new Event('input', {bubbles: true}));
+            userField.dispatchEvent(new Event('change', {bubbles: true}));
+          }
+          passwordField.value = secret;
+          passwordField.dispatchEvent(new Event('input', {bubbles: true}));
+          passwordField.dispatchEvent(new Event('change', {bubbles: true}));
+          return true;
+        })();
+        """
+    }
+
     private static func jsString(_ value: String) -> String {
         let data = (try? JSONSerialization.data(withJSONObject: [value])) ?? Data("[]".utf8)
         let arrayText = String(data: data, encoding: .utf8) ?? "[\"\"]"

@@ -234,6 +234,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             tabs = []
             newTab()
         }
+        // `-BrowsOpenURL <url>`: open straight to a page, used by the CI capture of
+        // a text-heavy page. It is a launch argument, never a page-controlled route.
+        if let index = CommandLine.arguments.firstIndex(of: "-BrowsOpenURL"),
+           index + 1 < CommandLine.arguments.count,
+           let url = URL(string: CommandLine.arguments[index + 1]) {
+            newTab(url)
+        }
     }
 
     // MARK: Derived
@@ -920,6 +927,24 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func fillCredential(_ credential: Credential) {
         guard let secret = secret(for: credential) else { return }
         webViews[activeTabId]?.evaluateJavaScript(PageTools.fillJS(username: credential.username, password: secret))
+    }
+
+    /// The key a credential is filed under: `location.host` from the page, which
+    /// includes a non-default port (the fixture server runs on :8000).
+    private func siteKey(for url: URL) -> String? {
+        guard let host = url.host else { return nil }
+        if let port = url.port { return "\(host):\(port)" }
+        return host
+    }
+
+    /// Autofill on navigation: when a page on a saved origin finishes loading and
+    /// has an empty login form, put the stored username and password in it.
+    func autofillCredential(for webView: WKWebView, url: URL?, tabId: UUID) {
+        guard let tab = tabs.first(where: { $0.id == tabId }), !tab.isPrivate else { return }
+        guard let url, let key = siteKey(for: url) else { return }
+        guard let credential = credentials.first(where: { $0.host.caseInsensitiveCompare(key) == .orderedSame }),
+              let secret = secret(for: credential) else { return }
+        webView.evaluateJavaScript(PageTools.autofillJS(username: credential.username, password: secret))
     }
 
     // MARK: Tab state

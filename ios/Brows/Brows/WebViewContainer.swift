@@ -65,7 +65,10 @@ struct WebViewContainer: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { sync(webView) }
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { sync(webView) }
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { sync(webView) }
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            sync(webView)
+            model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
+        }
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { sync(webView) }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { sync(webView) }
 
