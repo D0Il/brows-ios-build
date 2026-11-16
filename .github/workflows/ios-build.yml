@@ -54,6 +54,9 @@ jobs:
           name: Brows-ipa
           path: ios/Brows/Brows.ipa
 
+      # Ad-hoc signed, with Brows.entitlements: an unsigned app has no keychain
+      # access group, so SecItemAdd fails with -34018 (errSecMissingEntitlement)
+      # and every password save is silently rejected.
       - name: Build for simulator
         working-directory: ios/Brows
         run: |
@@ -63,9 +66,9 @@ jobs:
             -sdk iphonesimulator \
             -configuration Debug \
             -derivedDataPath build-sim \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_ALLOWED=YES \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY="-" \
             build
 
       - name: Launch in simulator and capture
@@ -148,9 +151,9 @@ jobs:
             -scheme Brows \
             -destination "id=$DEVICE" \
             -derivedDataPath build-test \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_ALLOWED=YES \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="-"
           echo "---- launch console ----"
           cat launch.txt || true
           echo "---- crash reports ----"
