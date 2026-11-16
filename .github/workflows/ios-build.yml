@@ -72,18 +72,7 @@ jobs:
         run: |
           set -e
           xcrun simctl list runtimes
-          DEVICE=$(xcrun simctl list devices available --json | python3 -c "
-import json, re, sys
-runtimes = json.load(sys.stdin)['devices']
-def version(key):
-    m = re.search(r'iOS-(\d+)-(\d+)', key)
-    return tuple(map(int, m.groups())) if m else (0, 0)
-for key in sorted(runtimes, key=version, reverse=True):
-    for device in runtimes[key]:
-        if 'iPhone' in device['name']:
-            print(device['udid'])
-            sys.exit()
-")
+          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,re,sys;d=json.load(sys.stdin)['devices'];v=lambda k:tuple(map(int,re.search(r'iOS-(\d+)-(\d+)',k).groups())) if re.search(r'iOS-(\d+)-(\d+)',k) else (0,0);print(next(x['udid'] for k in sorted(d,key=v,reverse=True) for x in d[k] if 'iPhone' in x['name']))")
           echo "device: $DEVICE"
           xcrun simctl list devices | grep "$DEVICE" || true
           xcrun simctl boot "$DEVICE" || true
