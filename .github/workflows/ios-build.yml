@@ -71,8 +71,21 @@ jobs:
       - name: Launch in simulator and capture
         run: |
           set -e
-          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print([x['udid'] for xs in d.values() for x in xs if 'iPhone' in x['name']][0])")
+          xcrun simctl list runtimes
+          DEVICE=$(xcrun simctl list devices available --json | python3 -c "
+import json, re, sys
+runtimes = json.load(sys.stdin)['devices']
+def version(key):
+    m = re.search(r'iOS-(\d+)-(\d+)', key)
+    return tuple(map(int, m.groups())) if m else (0, 0)
+for key in sorted(runtimes, key=version, reverse=True):
+    for device in runtimes[key]:
+        if 'iPhone' in device['name']:
+            print(device['udid'])
+            sys.exit()
+")
           echo "device: $DEVICE"
+          xcrun simctl list devices | grep "$DEVICE" || true
           xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl install "$DEVICE" ios/Brows/build-sim/Build/Products/Debug-iphonesimulator/Brows.app
