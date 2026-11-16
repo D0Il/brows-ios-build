@@ -100,6 +100,7 @@ struct WorkspacesSheet: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("workspace.row.\(workspace.initials)")
         .contextMenu {
             Button("Delete workspace", role: .destructive) {
                 model.deleteWorkspace(workspace)

@@ -181,7 +181,7 @@ final class BrowsUITests: XCTestCase {
         field.typeText("Work")
         app.buttons["workspace.add"].tap()
 
-        let row = app.staticTexts["Work"]
+        let row = app.buttons["workspace.row.WO"]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "workspace was not created")
         row.tap()
 
