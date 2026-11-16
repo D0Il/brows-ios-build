@@ -46,8 +46,12 @@ final class BrowsUITests: XCTestCase {
         app.launch()
 
         app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["New private tab"].waitForExistence(timeout: 10))
-        app.staticTexts["New private tab"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        // The tab commands sit below the fold in the menu.
+        app.swipeUp()
+        let privateRow = app.staticTexts["New private tab"]
+        XCTAssertTrue(privateRow.waitForExistence(timeout: 10))
+        privateRow.tap()
 
         XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10), "no PRIVATE badge on a private tab")
     }
@@ -83,8 +87,9 @@ final class BrowsUITests: XCTestCase {
         let search = app.textFields["Search tabs"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5), "keyboard did not come up")
         search.typeText("New")
-        XCTAssertTrue(app.staticTexts["1 of 1 tabs"].waitForExistence(timeout: 5), "tab search count did not update")
+        XCTAssertTrue(app.staticTexts["1 of 1 tabs"].waitForExistence(timeout: 8), "tab search count did not update")
 
         app.buttons["Done"].tap()
     }

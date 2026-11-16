@@ -237,13 +237,13 @@ struct BottomRail: View {
                 Button {
                     model.toggleBookmark()
                 } label: {
-                    Image(systemName: model.isBookmarked(model.activeTab?.url) ? "star.fill" : "star")
+                    Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(Theme.ink)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("rail.star")
-                .accessibilityValue(model.isBookmarked(model.activeTab?.url) ? "bookmarked" : "not bookmarked")
+                .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
             }
             .padding(.horizontal, 9)
             .frame(height: 40)
