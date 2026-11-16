@@ -139,6 +139,7 @@ struct TopStrip: View {
             .background(
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
                     .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .light)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
@@ -177,6 +178,12 @@ struct BottomRail: View {
     private var chipWidth: CGFloat {
         if canBack || canForward { return 46 }
         return compact ? 92 : 150
+    }
+
+    /// Extras fold only when the row is actually short of space: with no back or
+    /// forward to show, reload and the zoom cluster fit even on a small phone.
+    private var showExtras: Bool {
+        !compact || (!canBack && !canForward)
     }
 
     var body: some View {
@@ -243,7 +250,7 @@ struct BottomRail: View {
                     .layoutPriority(0)
             }
 
-            if !compact {
+            if showExtras {
                 railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise") {
                     model.reloadOrStop()
                 }

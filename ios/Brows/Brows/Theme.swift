@@ -26,7 +26,10 @@ struct GlassPane: View {
 
     var body: some View {
         Rectangle()
+            // Force the light material: Brows' rail glass is a milky pane over the
+            // page, not the dark material a dark colour scheme would give.
             .fill(.ultraThinMaterial)
+            .environment(\.colorScheme, .light)
             .overlay(
                 Rectangle().fill(Color.white.opacity(0.05))
             )
