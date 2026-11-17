@@ -298,10 +298,11 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(downloads.waitForExistence(timeout: 10))
         downloads.tap()
 
-        XCTAssertTrue(
-            app.staticTexts["sample.bin"].waitForExistence(timeout: 20),
-            "download did not start or was not listed"
-        )
+        if !app.staticTexts["sample.bin"].waitForExistence(timeout: 20) {
+            let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
+            XCTFail("download did not start or was not listed; visible labels: \(labels)")
+            return
+        }
         XCTAssertTrue(
             app.buttons["download.share"].waitForExistence(timeout: 20),
             "download never finished (no share action on the row)"

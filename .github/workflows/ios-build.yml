@@ -196,5 +196,6 @@ jobs:
           path: |
             brows-launch.png
             brows-article.png
+            fixtures/server.log
             brows-sim.log
             launch.txt
