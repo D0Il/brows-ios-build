@@ -256,9 +256,12 @@ struct BottomRail: View {
             .layoutPriority(2)
 
             if !model.bookmarks.isEmpty {
+                // The strip is a real tap target, not a squeezed label: give it a
+                // floor width and priority above the trailing controls, otherwise
+                // the pill's minWidth pushes it into a clipped, unhittable sliver.
                 BookmarksStrip()
-                    .frame(maxWidth: chipWidth)
-                    .layoutPriority(0)
+                    .frame(minWidth: 56, maxWidth: chipWidth)
+                    .layoutPriority(1)
             }
 
             railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise") {
