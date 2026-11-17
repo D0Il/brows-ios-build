@@ -90,10 +90,13 @@ struct CredentialSaveOverlay: View {
     }
 }
 
-/// The browser's own HTTP authentication prompt. The challenge completion lives
-/// in the model, so Cancel answers the server instead of leaving a page spinning,
-/// and nothing here can hand the user back the system's blank challenge.
-struct HTTPAuthSheet: View {
+/// The browser's own HTTP authentication prompt. It is an overlay in the
+/// browser's hierarchy, not a sheet: a dismissed sheet's presentation container
+/// can still swallow the next tap, and the save card that follows must be
+/// tappable on the first try. The challenge completion lives in the model, so
+/// Cancel answers the server instead of leaving a page spinning, and nothing
+/// here can hand the user back the system's blank challenge.
+struct HTTPAuthCard: View {
     let auth: PendingHTTPAuth
     @EnvironmentObject var model: BrowserModel
 
@@ -106,76 +109,78 @@ struct HTTPAuthSheet: View {
     }
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                Theme.surface.ignoresSafeArea()
-
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(auth.host)
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(Theme.panelInk)
-                            Text(auth.realm.isEmpty
-                                 ? "The server requires a username and password."
-                                 : "The server's “\(auth.realm)” area requires a username and password.")
-                                .font(.system(size: 12))
-                                .foregroundColor(Theme.panelMuted)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        if auth.failed {
-                            Text("That username and password were not accepted.")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Theme.panelInk)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        field("Username", text: $username, keyboard: .emailAddress)
-                        secureField("Password", text: $password)
-
-                        if auth.isPrivate {
-                            Text("Private tab: these credentials are used for this session and are not saved.")
-                                .font(.system(size: 11))
-                                .foregroundColor(Theme.panelMuted)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        let incomplete = username.isEmpty || password.isEmpty
-                        Button {
-                            model.submitHTTPAuth(username: username, password: password)
-                        } label: {
-                            Text("Sign in")
-                                .font(.system(size: 14, weight: .semibold))
-                                // A disabled white plate keeps the desktop's light ink:
-                                // fading the whole plate made the label grey-on-grey in
-                                // dark, which the captures showed.
-                                .foregroundColor(incomplete ? Theme.fieldPlaceholder : Theme.ink)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("auth.signIn")
-                        .disabled(incomplete)
-                    }
-                    .padding(16)
-                }
-            }
-            .navigationTitle("Sign in")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Cancel") { model.cancelHTTPAuth() }
-                        .accessibilityIdentifier("auth.cancel")
-                }
-            }
+        ZStack {
+            Color.black.opacity(0.16).ignoresSafeArea()
+            card.offset(y: -48)
         }
-        .navigationViewStyle(.stack)
-        .onDisappear {
-            model.cancelHTTPAuth()
-            model.httpAuthSheetDidDisappear()
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("auth.card")
+    }
+
+    private var card: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(auth.host)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Theme.panelInk)
+                Spacer(minLength: 8)
+                Button("Cancel") { model.cancelHTTPAuth() }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.panelMuted)
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("auth.cancel")
+            }
+
+            Text(auth.realm.isEmpty
+                 ? "The server requires a username and password."
+                 : "The server's “\(auth.realm)” area requires a username and password.")
+                .font(.system(size: 12))
+                .foregroundColor(Theme.panelMuted)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if auth.failed {
+                Text("That username and password were not accepted.")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(Theme.panelInk)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            field("Username", text: $username, keyboard: .emailAddress)
+            secureField("Password", text: $password)
+
+            if auth.isPrivate {
+                Text("Private tab: these credentials are used for this session and are not saved.")
+                    .font(.system(size: 11))
+                    .foregroundColor(Theme.panelMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            let incomplete = username.isEmpty || password.isEmpty
+            Button {
+                model.submitHTTPAuth(username: username, password: password)
+            } label: {
+                Text("Sign in")
+                    .font(.system(size: 14, weight: .semibold))
+                    // A disabled white plate keeps the desktop's light ink: fading
+                    // the plate made the label grey-on-grey in dark, which the
+                    // captures showed.
+                    .foregroundColor(incomplete ? Theme.fieldPlaceholder : Theme.ink)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("auth.signIn")
+            .disabled(incomplete)
         }
+        .padding(20)
+        .frame(maxWidth: 340)
+        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
+        .padding(24)
+        .accessibilityElement(children: .contain)
     }
 
     private func field(_ label: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {

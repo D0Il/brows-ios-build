@@ -72,14 +72,13 @@ struct BrowserView: View {
         .sheet(item: $model.pdfFile) { file in
             ActivityView(url: file.url)
         }
-        .sheet(item: $model.pendingHTTPAuth) { auth in
-            HTTPAuthSheet(auth: auth).environmentObject(model)
-        }
         .overlay {
-            // The HTTP auth sheet carries the save card itself while it is up. An
-            // overlay copy too would put a second, dimmed set of the same buttons
-            // behind the sheet, so the visible one is not unique and not hittable.
-            if let pending = model.pendingCredential, model.pendingHTTPAuth == nil {
+            // Both credential surfaces live in the browser's own hierarchy, never in
+            // a sheet: a sheet that dismisses can swallow the tap that follows it.
+            // Exactly one of them exists at a time.
+            if let auth = model.pendingHTTPAuth {
+                HTTPAuthCard(auth: auth).environmentObject(model)
+            } else if let pending = model.pendingCredential {
                 CredentialSaveOverlay(pending: pending).environmentObject(model)
             }
         }

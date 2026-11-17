@@ -255,11 +255,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Host|username of offers the user just answered, so a second finished
     /// navigation cannot immediately re-open the same alert.
     private var handledCredentialOffers: [String: Date] = [:]
-    /// A save offer that arrived while the auth sheet was still on screen. Two
-    /// sheets cannot present at once; a request made during the first sheet's
-    /// teardown yields a save sheet that exists but never becomes interactive.
+    /// A save offer that arrived while the auth prompt was still up. The prompt
+    /// owns the overlay layer until it is answered, so the offer waits its turn.
     private var deferredCredentialOffer: PendingCredential?
-    @Published private(set) var httpAuthSheetVisible = false
     /// Realms already answered automatically from the Keychain this launch. A second
     /// challenge after a saved answer means it was rejected, so the prompt opens.
     private var autoAnsweredRealms: Set<String> = []
@@ -850,26 +848,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         presentDeferredCredentialOffer()
     }
 
-    /// The auth sheet reports when it is actually gone; only then may the save
-    /// sheet present, or the second presentation is born non-interactive.
-    func httpAuthSheetDidDisappear() {
-        httpAuthSheetVisible = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
-            self?.presentDeferredCredentialOffer()
-        }
-    }
-
     private func presentDeferredCredentialOffer() {
         guard let pending = deferredCredentialOffer, pendingCredential == nil else { return }
-        guard pendingHTTPAuth == nil, !httpAuthSheetVisible else { return }
+        guard pendingHTTPAuth == nil else { return }
         deferredCredentialOffer = nil
         credentialOfferToken += 1
         let token = credentialOfferToken
         credentialDebug = "presenting \(pending.host) \(pending.username)"
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let self, token == self.credentialOfferToken,
-                  self.pendingCredential == nil, self.pendingHTTPAuth == nil,
-                  !self.httpAuthSheetVisible else { return }
+                  self.pendingCredential == nil, self.pendingHTTPAuth == nil else { return }
             self.pendingCredential = pending
         }
     }
@@ -1256,7 +1244,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                                  completion: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if let previous = httpAuthCompletion { previous(.cancelAuthenticationChallenge, nil) }
         httpAuthCompletion = completion
-        httpAuthSheetVisible = true
         pendingHTTPAuth = auth
     }
 
@@ -1272,17 +1259,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             isPrivate: auth.isPrivate
         )
         autoAnsweredRealms.insert("\(auth.host)|\(auth.realm)")
-        // Answer the challenge and take the sheet down. A save card drawn inside
-        // that sheet was visible but never received a tap (SwiftUI's sheet did not
-        // route it to the button), so the offer is its own surface once the page
-        // has loaded. Dismissal is animated; onDisappear is the normal trigger and
-        // this deadline is the floor if the callback is ever dropped.
+        // Answer the challenge and put the prompt away. The page's own load proves
+        // the credential worked, and the save card then takes the same overlay
+        // layer; nothing is presented inside a sheet, so no presentation container
+        // can swallow the card's first tap.
         pendingHTTPAuth = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
-            guard let self, self.pendingHTTPAuth == nil else { return }
-            self.httpAuthSheetVisible = false
-            self.presentDeferredCredentialOffer()
-        }
         completion(.useCredential, URLCredential(
             user: username,
             password: password,

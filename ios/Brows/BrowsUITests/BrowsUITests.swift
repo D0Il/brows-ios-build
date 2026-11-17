@@ -173,7 +173,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         open("http://localhost:8000/auth.html", in: app)
 
-        XCTAssertTrue(app.navigationBars["Sign in"].waitForExistence(timeout: 15), "HTTP auth prompt missing")
+        XCTAssertTrue(app.buttons["auth.cancel"].waitForExistence(timeout: 15), "HTTP auth prompt missing")
         XCTAssertFalse(app.alerts["Sign in"].exists, "the system's chrome answered instead of the app")
         signIn(user: "browsuser", password: "browssecret", in: app)
 
@@ -195,7 +195,7 @@ final class BrowsUITests: XCTestCase {
     func testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice() {
         let app = makeApp()
         open("http://localhost:8000/auth.html", in: app)
-        XCTAssertTrue(app.navigationBars["Sign in"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["auth.cancel"].waitForExistence(timeout: 15), "HTTP auth prompt missing")
         signIn(user: "browsuser", password: "browssecret", in: app)
         XCTAssertTrue(app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
         let firstSave = app.staticTexts["Save password?"]
@@ -212,16 +212,16 @@ final class BrowsUITests: XCTestCase {
         XCTAssertEqual(relaunched.staticTexts["debug.credentials"].label, "1", "saved list was not loaded after relaunch")
         let protected = relaunched.webViews.staticTexts["Protected area"]
         if !protected.waitForExistence(timeout: 25) {
-            print("RELAUNCH-DEBUG prompt=\(relaunched.navigationBars["Sign in"].exists)")
+            print("RELAUNCH-DEBUG prompt=\(relaunched.buttons["auth.cancel"].exists)")
             print(relaunched.debugDescription)
         }
         XCTAssertTrue(protected.exists, "saved Keychain credential was not offered after relaunch")
-        XCTAssertFalse(relaunched.navigationBars["Sign in"].exists, "relaunch prompted instead of using the Keychain")
+        XCTAssertFalse(relaunched.buttons["auth.cancel"].exists, "relaunch prompted instead of using the Keychain")
 
         // Same origin, second protection space: there is no saved entry for it, so
         // the prompt must open and the new account must be offered for saving.
         open("http://localhost:8000/auth2.html", in: relaunched)
-        XCTAssertTrue(relaunched.navigationBars["Sign in"].waitForExistence(timeout: 15), "second-account challenge did not prompt")
+        XCTAssertTrue(relaunched.buttons["auth.cancel"].waitForExistence(timeout: 15), "second-account challenge did not prompt")
         signIn(user: "otheraccount", password: "othersecret", in: relaunched)
         XCTAssertTrue(relaunched.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
 
@@ -280,6 +280,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(secret.exists, "auth password field missing")
         secret.tap()
         secret.typeText(password)
+        waitUntilHittable(app.buttons["auth.signIn"])
         app.buttons["auth.signIn"].tap()
     }
 
