@@ -171,6 +171,22 @@ final class BrowsUITests: XCTestCase {
         XCTAssertFalse(app.buttons["dialog.ok"].exists, "dialog stayed on screen")
     }
 
+    /// The simulator's networking process occasionally stalls for over a minute:
+    /// the submit never reaches the server (`fixtures/server.log` has no request
+    /// for the page, only the next test's), so the page's own content cannot
+    /// appear. A second navigation is a real request rather than a longer wait
+    /// on a load that never started, and the server log records both attempts.
+    @discardableResult
+    private func openRetrying(_ url: String, in app: XCUIApplication,
+                              until element: XCUIElement,
+                              timeout: TimeInterval = 20) -> Bool {
+        open(url, in: app)
+        if element.waitForExistence(timeout: timeout) { return true }
+        print("NAV-DEBUG \(url) never arrived; submitting again")
+        open(url, in: app)
+        return element.waitForExistence(timeout: timeout)
+    }
+
     private func open(_ url: String, in app: XCUIApplication, expect text: String? = nil) {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
@@ -212,9 +228,10 @@ final class BrowsUITests: XCTestCase {
     /// challenge, and the entered credentials reach the protected content.
     func testHTTPAuthPromptCompletesAndSaves() {
         let app = makeApp()
-        open("http://localhost:8000/auth.html", in: app)
-
-        XCTAssertTrue(app.buttons["auth.cancel"].waitForExistence(timeout: 15), "HTTP auth prompt missing")
+        XCTAssertTrue(
+            openRetrying("http://localhost:8000/auth.html", in: app, until: app.buttons["auth.cancel"]),
+            "HTTP auth prompt missing"
+        )
         XCTAssertFalse(app.alerts["Sign in"].exists, "the system's chrome answered instead of the app")
         signIn(user: "browsuser", password: "browssecret", in: app)
 
@@ -424,13 +441,20 @@ final class BrowsUITests: XCTestCase {
     /// Per-site blocking is a real toggle and it flips its own label back.
     func testSiteBlockingToggle() {
         let app = makeApp()
-        open("example.com", in: app)
+        // A local host: the toggle is per site, and the internet is not a
+        // fixture this suite may depend on.
+        XCTAssertTrue(
+            openRetrying("http://localhost:8000/other.html", in: app,
+                         until: app.webViews.staticTexts["Other page"], timeout: 25),
+            "the fixture page never loaded"
+        )
 
         app.buttons["rail.siteInfo"].tap()
         XCTAssertTrue(app.navigationBars["Site information"].waitForExistence(timeout: 10))
 
         let off = app.buttons["Turn off blocking on this site"]
         XCTAssertTrue(off.waitForExistence(timeout: 10), "no per-site blocking toggle")
+        waitUntilHittable(off)
         off.tap()
 
         XCTAssertTrue(
@@ -527,19 +551,26 @@ final class BrowsUITests: XCTestCase {
     /// in the page. The workflow serves sample.bin on port 8000 for this test.
     func testDownloadStarts() {
         let app = makeApp()
+
+        func listed() -> Bool {
+            app.buttons["rail.menu"].tap()
+            guard app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                  app.staticTexts["Downloads"].waitForExistence(timeout: 10) else { return false }
+            // Downloads sits in the menu's second section, above the fold.
+            app.staticTexts["Downloads"].tap()
+            if app.staticTexts["sample.bin"].waitForExistence(timeout: 20) { return true }
+            app.buttons["Done"].tap()
+            return false
+        }
+
         open("http://localhost:8000/sample.bin", in: app)
-
-        app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
-        // Downloads sits in the menu's second section, above the fold.
-        let downloads = app.staticTexts["Downloads"]
-        XCTAssertTrue(downloads.waitForExistence(timeout: 10))
-        downloads.tap()
-
-        if !app.staticTexts["sample.bin"].waitForExistence(timeout: 20) {
-            let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
-            XCTFail("download did not start or was not listed; visible labels: \(labels)")
-            return
+        if !listed() {
+            // No row means the request may never have left the app; a second
+            // navigation is a real one (see openRetrying). Nothing here prints
+            // element lists: querying a stale snapshot throws and hides the reason.
+            print("DOWNLOAD-DEBUG first navigation produced no row; submitting again")
+            open("http://localhost:8000/sample.bin", in: app)
+            XCTAssertTrue(listed(), "download did not start or was not listed")
         }
         XCTAssertTrue(
             app.buttons["download.share"].waitForExistence(timeout: 20),
