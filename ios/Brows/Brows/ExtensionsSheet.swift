@@ -33,7 +33,7 @@ struct ExtensionsSheet: View {
                                     set: { model.settings.blockAds = $0; model.saveSettings() }
                                 ))
                                 .labelsHidden()
-                                .tint(Theme.panelInk)
+                                .tint(Theme.toggleTint)
                             }
                         }
                         .padding(12)

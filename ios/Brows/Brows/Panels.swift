@@ -23,8 +23,9 @@ struct WorkspacesSheet: View {
                     }
 
                     HStack(spacing: 8) {
-                        TextField("New workspace", text: $newName)
+                        TextField("", text: $newName, prompt: Text("New workspace").foregroundColor(Theme.fieldPlaceholder))
                             .textFieldStyle(.plain)
+                            .accessibilityLabel("New workspace")
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                             .foregroundColor(Theme.ink)
@@ -148,8 +149,9 @@ struct HistorySheet: View {
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundColor(Theme.muted)
-                        TextField("Search history", text: $query)
+                        TextField("", text: $query, prompt: Text("Search history").foregroundColor(Theme.fieldPlaceholder))
                             .textFieldStyle(.plain)
+                            .accessibilityLabel("Search history")
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                             .foregroundColor(Theme.ink)

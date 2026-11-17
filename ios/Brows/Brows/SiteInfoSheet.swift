@@ -44,7 +44,7 @@ struct SiteInfoSheet: View {
                             } label: {
                                 Text(model.isBlockingCurrentSite() ? "Turn off blocking on this site" : "Turn on blocking on this site")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Theme.panelInk)
+                                    .foregroundColor(Theme.plateInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.9)))
@@ -56,7 +56,7 @@ struct SiteInfoSheet: View {
                             } label: {
                                 Text("Clear data for \(info.host)")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Theme.panelInk)
+                                    .foregroundColor(Theme.plateInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.9)))
@@ -114,6 +114,7 @@ struct SiteInfoSheet: View {
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(1.2)
                 .foregroundColor(Theme.panelMuted)
+                .padding(.horizontal, 12)
                 .padding(.bottom, 6)
 
             ForEach(rows, id: \.0) { pair in

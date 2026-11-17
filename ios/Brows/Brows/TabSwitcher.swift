@@ -20,8 +20,9 @@ struct TabSwitcher: View {
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundColor(Theme.muted)
-                        TextField("Search tabs", text: $query)
+                        TextField("", text: $query, prompt: Text("Search tabs").foregroundColor(Theme.fieldPlaceholder))
                             .textFieldStyle(.plain)
+                            .accessibilityLabel("Search tabs")
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                             .foregroundColor(Theme.ink)

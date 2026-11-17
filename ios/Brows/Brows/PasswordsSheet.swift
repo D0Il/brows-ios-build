@@ -224,8 +224,9 @@ struct PasswordsSheet: View {
     }
 
     private func field(_ label: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {
-        TextField(label, text: text)
+        TextField("", text: text, prompt: Text(label).foregroundColor(Theme.fieldPlaceholder))
             .textFieldStyle(.plain)
+            .accessibilityLabel(label)
             .keyboardType(keyboard)
             .autocapitalization(.none)
             .disableAutocorrection(true)
@@ -236,8 +237,9 @@ struct PasswordsSheet: View {
     }
 
     private func secureField(_ label: String, text: Binding<String>) -> some View {
-        SecureField(label, text: text)
+        SecureField("", text: text, prompt: Text(label).foregroundColor(Theme.fieldPlaceholder))
             .textFieldStyle(.plain)
+            .accessibilityLabel(label)
             .foregroundColor(Theme.ink)
             .padding(.horizontal, 10)
             .frame(height: 38)

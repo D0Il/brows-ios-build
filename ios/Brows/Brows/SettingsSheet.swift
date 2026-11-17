@@ -138,7 +138,7 @@ struct ToggleRow: View {
             Spacer(minLength: 0)
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .tint(Theme.panelInk)
+                .tint(Theme.toggleTint)
                 .accessibilityIdentifier(identifier ?? "settings.toggle.\(title)")
         }
         .padding(12)

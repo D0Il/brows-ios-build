@@ -39,6 +39,17 @@ enum Theme {
         dark: UIColor(white: 1, alpha: 0.12)
     )
 
+    /// White fields and action plates keep the desktop light-mode ink in BOTH
+    /// appearances; using the adaptive panel ink here is what made a white plate
+    /// carry white text in dark. The placeholder is the light muted token for the
+    /// same reason: the field itself is white in both modes.
+    static let plateInk = Color(panelInkLight)
+    static let fieldPlaceholder = Color(panelMutedLight)
+
+    /// Desktop `--accent: #3f4753` is the monochrome switch fill; it must not flip
+    /// to near-white in dark or the white knob disappears into the track.
+    static let toggleTint = Color(red: 63 / 255, green: 71 / 255, blue: 83 / 255)
+
     /// WCAG ratios for the sheet tokens in both appearances. A sheet that writes
     /// ink failing this is a bug, not a taste call; the launch argument
     /// `-BrowsContrastAudit` surfaces the result for the UI test.

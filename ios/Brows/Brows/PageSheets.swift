@@ -130,8 +130,9 @@ struct FindBar: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(Theme.muted)
 
-                TextField("Find in page", text: $model.findQuery)
+                TextField("", text: $model.findQuery, prompt: Text("Find in page").foregroundColor(Theme.fieldPlaceholder))
                     .textFieldStyle(.plain)
+                    .accessibilityLabel("Find in page")
                     .font(.system(size: 14))
                     .foregroundColor(Theme.ink)
                     .autocapitalization(.none)
