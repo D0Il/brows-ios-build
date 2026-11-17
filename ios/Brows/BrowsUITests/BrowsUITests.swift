@@ -249,7 +249,13 @@ final class BrowsUITests: XCTestCase {
     private func signIn(user: String, password: String, in app: XCUIApplication) {
         let username = app.textFields["Username"]
         XCTAssertTrue(username.waitForExistence(timeout: 5), "auth username field missing")
-        username.tap()
+        // The prompt is prefilled from the saved account. Put the caret at the end
+        // and clear it, otherwise the second username is typed onto the first.
+        username.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+        let existing = (username.value as? String) ?? ""
+        if existing != "Username", !existing.isEmpty {
+            username.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count))
+        }
         username.typeText(user)
         let secret = app.secureTextFields["Password"]
         XCTAssertTrue(secret.exists, "auth password field missing")
