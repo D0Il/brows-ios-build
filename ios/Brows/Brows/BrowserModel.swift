@@ -248,6 +248,10 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     private var cancelHandlers: [UUID: () -> Void] = [:]
     private var httpAuthCompletion: ((URLSession.AuthChallengeDisposition, URLCredential?) -> Void)?
     private var httpAuthAttempt: HTTPAuthAttempt?
+    /// A page can finish more than once around an authenticated load. Only the last
+    /// scheduled offer may present, or a second alert appears right after Save and
+    /// the sheet looks like it never dismissed.
+    private var credentialOfferToken = 0
     /// Realms already answered automatically from the Keychain this launch. A second
     /// challenge after a saved answer means it was rejected, so the prompt opens.
     private var autoAnsweredRealms: Set<String> = []
@@ -830,10 +834,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             existingUsername: existing?.username
         )
         credentialDebug = "offered \(host) \(username) existing=\(existing?.username ?? "-")"
+        credentialOfferToken += 1
+        let token = credentialOfferToken
         // The auth sheet (or a form submission) may still be dismissing; present
         // the offer only after that animation, or iOS drops it.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
-            self?.pendingCredential = pending
+            guard let self, token == self.credentialOfferToken else { return }
+            self.pendingCredential = pending
         }
     }
 
@@ -841,6 +848,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// passed explicitly: the alert's presented-binding is torn down around the
     /// button action, and reading the published value made the save a race.
     func confirmPendingCredential(_ pending: PendingCredential) {
+        credentialOfferToken += 1
         credentialDebug = "confirm \(pending.username)"
         _ = addCredential(host: pending.host, username: pending.username, secret: pending.secret, realm: pending.realm)
         if pendingCredential?.id == pending.id { pendingCredential = nil }
@@ -848,6 +856,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     /// Replace the existing entry with the account just used.
     func updatePendingCredential(_ pending: PendingCredential) {
+        credentialOfferToken += 1
         credentialDebug = "update \(pending.username)"
         guard let id = pending.existingID,
               let existing = credentials.first(where: { $0.id == id }) else {
@@ -1281,6 +1290,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func discardPendingCredential() {
+        credentialOfferToken += 1
         pendingCredential = nil
     }
 
