@@ -106,12 +106,10 @@ final class BrowsUITests: XCTestCase {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         field.tap()
-        // The pill carries the current URL once a page is open; clear it first.
-        let current = (field.value as? String) ?? ""
-        if !current.isEmpty && current != "SEARCH" {
-            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count + 3))
-        }
-        field.typeText(url + "\n")
+        // Tapping the pill selects the whole URL, so typing must replace it.
+        field.typeText(url)
+        XCTAssertEqual(field.value as? String, url, "address pill did not replace the current URL")
+        field.typeText("\n")
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 25))
     }
 
@@ -149,18 +147,21 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["browsuser"].exists, "stored username missing")
         app.buttons["Done"].tap()
 
-        // Leave the origin in a fresh tab, then return in another fresh tab: this is
-        // a later navigation, not the page that produced the save prompt.
-        app.buttons["rail.tabs"].tap()
-        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
-        app.buttons["tab.add"].tap()
+        // Leave the origin by editing the pill, then edit it back. This is a later
+        // navigation, and the second edit is the regression case: tapping the pill
+        // again must select the whole URL, not drop the caret into the middle of it.
         open("http://localhost:8000/other.html", in: app)
         XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20))
 
-        app.buttons["rail.tabs"].tap()
-        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
-        app.buttons["tab.add"].tap()
-        open("http://localhost:8000/login.html", in: app)
+        let pill = app.textFields["rail.address"]
+        pill.tap()
+        pill.typeText("http://localhost:8000/login.html")
+        XCTAssertEqual(
+            pill.value as? String,
+            "http://localhost:8000/login.html",
+            "second pill edit appended instead of replacing the URL"
+        )
+        pill.typeText("\n")
 
         let deadline = Date().addingTimeInterval(15)
         var filledUser = ""

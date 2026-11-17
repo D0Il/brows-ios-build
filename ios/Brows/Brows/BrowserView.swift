@@ -209,31 +209,17 @@ struct BottomRail: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("rail.siteInfo")
 
-                ZStack(alignment: .leading) {
-                    // The app runs dark, so SwiftUI's own placeholder would be light
-                    // grey on the white pill. This is the desktop's muted ink instead.
-                    if model.addressText.isEmpty {
-                        Text("SEARCH")
-                            .font(.system(size: 15))
-                            .foregroundColor(Theme.muted)
-                            .allowsHitTesting(false)
-                    }
-
-                    TextField("", text: $model.addressText)
-                        .accessibilityIdentifier("rail.address")
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 15))
-                        .foregroundColor(Theme.ink)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                        .keyboardType(.webSearch)
-                        .submitLabel(.go)
-                        .onTapGesture { model.isEditingAddress = true }
-                        .onSubmit {
-                            model.isEditingAddress = false
-                            model.navigate(to: model.addressText)
-                        }
-                }
+                AddressField(
+                    text: $model.addressText,
+                    onSubmit: { input in
+                        model.isEditingAddress = false
+                        model.navigate(to: input)
+                    },
+                    onFocus: { model.isEditingAddress = true },
+                    onBlur: { model.isEditingAddress = false }
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 24)
 
                 Button {
                     model.toggleBookmark()
