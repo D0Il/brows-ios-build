@@ -129,20 +129,40 @@ jobs:
           <p>This page exists so the password test can leave the login origin and come back.</p></body></html>
           HTML
           { echo '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>The shape of a browser</title>'; echo '<style>body{margin:0;background:#f4f2ee;color:#23262b;font-family:Georgia,serif}article{max-width:680px;margin:0 auto;padding:28px 22px 180px}h1{font-size:30px;line-height:1.15}p{font-size:17px;line-height:1.62;margin:0 0 16px}</style></head><body><article>'; echo '<h1>The shape of a browser</h1>'; echo '<p>A browser is a rectangle of page with a thin band of controls around it. Almost everything that makes one feel right lives in that band: how much of the page shows through it, how far a thumb has to travel, and whether the controls agree with each other about where the edges are.</p>'; echo '<p>On a phone the band moves to the bottom, because the top of the screen belongs to the page and to the notch. The address field stops being a place you type and becomes a place you glance at, so its text has to survive a background that changes with every site you visit. That is why it is glass: not decoration, but a way of staying legible over a photograph, a spreadsheet, or a wall of text like this one.</p>'; echo '<p>Glass, done properly, is a stack of very thin decisions. A pane of almost-white at less than half opacity. A ramp that is brighter at the edge where light would fall. A hairline, one pixel, that gives the pane an edge without drawing a box. A sheen in one corner so the surface reads as a surface rather than a fill. Remove any one of those and the result collapses into a grey slab, which is exactly what a flat alpha value looks like.</p>'; echo '<p>Typography carries the rest. Long lines are tiring, so the column is narrow. Line height is generous. The measure is set by the reading experience, not by the window. When a reader mode strips a page down, it should keep the images and the paragraphs and lose the navigation, the cookie banners, and the three separate requests to subscribe.</p>'; echo '<p>Tabs are a gallery now. A row of shrinking trapezoids made sense on a desktop with a mouse; on a phone the useful question is not which tab is third from the left but which of these pages was I reading. So the gallery ranks by recency, shows the workspace each tab belongs to, and offers the ones you closed by mistake.</p>'; echo '<p>Downloads, history, passwords and site settings belong to the browser, not to the page. They should be one gesture away, in the same place every time, and they should tell the truth about what they are doing. A download that has not started is not a download. A password that was not written is not saved. A progress bar that never completes is a lie with a rounded corner.</p>'; echo '<p>That is the whole test. Not whether the controls exist, but whether they behave the same way twice, on a page nobody designed for them, with the network doing what networks do.</p>'; echo '</article></body></html>'; } > fixtures/article.html
-          cd fixtures
-          nohup python3 -m http.server 8000 > server.log 2>&1 &
+          # `python3 -m http.server` is single-threaded: one lingering connection
+          # (a cancelled download, a keep-alive socket) blocks every later request,
+          # which is how the article page hung after the download test. Serve the
+          # fixtures from a threaded server instead, and poll every endpoint the
+          # tests use before running them.
+          cat > fixtures/serve.py <<'PY'
+          import functools
+          import http.server
+          import socketserver
+
+          handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory='fixtures')
+
+          class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
+              daemon_threads = True
+              allow_reuse_address = True
+
+          Server(('', 8000), handler).serve_forever()
+          PY
+          nohup python3 fixtures/serve.py > fixtures/server.log 2>&1 &
           ready=0
-          for i in $(seq 1 20); do
-            if curl -sf http://localhost:8000/sample.bin > /dev/null; then ready=1; break; fi
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/sample.bin > /dev/null \
+              && curl -sf http://localhost:8000/login.html > /dev/null \
+              && curl -sf http://localhost:8000/article.html > /dev/null; then
+              ready=1
+              break
+            fi
             sleep 1
           done
           if [ "$ready" != "1" ]; then
-            echo "fixture server did not start on :8000"
-            cat server.log || true
+            echo "fixture server did not serve all endpoints on :8000"
+            cat fixtures/server.log || true
             exit 1
           fi
-          curl -sSf http://localhost:8000/login.html > /dev/null
-          curl -sSf http://localhost:8000/article.html > /dev/null
           # The server step above changed into fixtures/; the screenshot belongs at
           # the workspace root so upload-artifact picks it up.
           cd "$GITHUB_WORKSPACE"
