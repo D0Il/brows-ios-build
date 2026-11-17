@@ -109,9 +109,13 @@ enum Theme {
     static let chipInk = Color(red: 74 / 255, green: 84 / 255, blue: 102 / 255).opacity(0.72)
 
     /// brows_glass.h: `SkColorSetRGB(0xF0, 0xF5, 0xFA)` at the clarity alpha.
-    /// Default clarity is "foggy" = 0x7B (0.48).
+    /// Default clarity is "foggy" = 0x7B (0.48) — but that alpha composites over
+    /// the desktop's own window background. On the phone the rail floats over the
+    /// page itself, so the same foggy pane at 0.48 let article text read through the
+    /// bar. The pane is the same colour and the ramp/sheen are unchanged; only the
+    /// backing is raised to the desktop's opaque-chrome result.
     static let railBase = Color(red: 240 / 255, green: 245 / 255, blue: 250 / 255)
-    static let railBaseAlpha = 0.48
+    static let railBaseAlpha = 0.90
 
     /// brows_glass.h: kRailRampTopAlpha 0x4F (0.31) → kRailRampBottomAlpha 0x21
     /// (0.13) of rgb(228, 236, 244).

@@ -314,7 +314,9 @@ struct BottomRail: View {
             .shadow(color: Theme.pillDrop, radius: 5, x: 0, y: 1)
             .layoutPriority(2)
 
-            if !model.bookmarks.isEmpty {
+            if !model.bookmarks.isEmpty && !model.isEditingAddress {
+                // Typing owns the row: the favourites fold away so the full address
+                // is visible, and return on blur. They are never on a second row.
                 // The strip is a real tap target, not a squeezed label: give it a
                 // floor width and priority above the trailing controls, otherwise
                 // the pill's minWidth pushes it into a clipped, unhittable sliver.
