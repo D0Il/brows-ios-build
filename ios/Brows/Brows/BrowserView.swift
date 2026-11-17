@@ -82,15 +82,15 @@ struct BrowserView: View {
             if let pending = model.pendingCredential {
                 if pending.existingID != nil {
                     if pending.isSecondAccount {
-                        Button("Save new account") { model.confirmPendingCredential() }
+                        Button("Save new account") { model.confirmPendingCredential(pending) }
                         Button("Update \(pending.existingUsername ?? "saved password")") {
-                            model.updatePendingCredential()
+                            model.updatePendingCredential(pending)
                         }
                     } else {
-                        Button("Update password") { model.updatePendingCredential() }
+                        Button("Update password") { model.updatePendingCredential(pending) }
                     }
                 } else {
-                    Button("Save") { model.confirmPendingCredential() }
+                    Button("Save") { model.confirmPendingCredential(pending) }
                 }
                 Button("Not now", role: .cancel) { model.discardPendingCredential() }
             }
@@ -144,6 +144,11 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.credentials")
                     .accessibilityLabel("\(model.credentials.count)")
+                Text("credentialstate")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.credentialstate")
+                    .accessibilityLabel(model.credentialDebug)
             }
         }
     }

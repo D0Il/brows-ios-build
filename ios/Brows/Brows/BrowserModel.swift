@@ -228,6 +228,8 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var pendingHTTPAuth: PendingHTTPAuth?
     /// Why the last password write failed, shown by the Passwords sheet.
     @Published var credentialError: String?
+    /// Test-only trace of the save path; never contains a password.
+    @Published var credentialDebug = "idle"
     @Published var blockerExceptions: [String] = []
 
     @Published var showingTabSwitcher = false
@@ -779,6 +781,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
         let credential = Credential(host: trimmedHost, username: trimmedUser, realm: realm)
         let status = Vault.save(secret, id: credential.id)
+        credentialDebug = "vault \(status)"
         guard status == errSecSuccess else {
             credentialError = "Keychain error \(status)"
             return false
@@ -794,6 +797,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @discardableResult
     func updateCredential(_ credential: Credential, username: String? = nil, secret: String, realm: String? = nil) -> Bool {
         let status = Vault.save(secret, id: credential.id)
+        credentialDebug = "update vault \(status)"
         guard status == errSecSuccess else {
             credentialError = "Keychain error \(status)"
             return false
@@ -825,6 +829,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             existingID: existing?.id,
             existingUsername: existing?.username
         )
+        credentialDebug = "offered \(host) \(username) existing=\(existing?.username ?? "-")"
         // The auth sheet (or a form submission) may still be dismissing; present
         // the offer only after that animation, or iOS drops it.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
@@ -832,22 +837,25 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
     }
 
-    /// Save the new account alongside the one already on the origin.
-    func confirmPendingCredential() {
-        guard let pending = pendingCredential else { return }
+    /// Save the new account alongside the one already on the origin. The offer is
+    /// passed explicitly: the alert's presented-binding is torn down around the
+    /// button action, and reading the published value made the save a race.
+    func confirmPendingCredential(_ pending: PendingCredential) {
+        credentialDebug = "confirm \(pending.username)"
         _ = addCredential(host: pending.host, username: pending.username, secret: pending.secret, realm: pending.realm)
-        pendingCredential = nil
+        if pendingCredential?.id == pending.id { pendingCredential = nil }
     }
 
     /// Replace the existing entry with the account just used.
-    func updatePendingCredential() {
-        guard let pending = pendingCredential, let id = pending.existingID,
+    func updatePendingCredential(_ pending: PendingCredential) {
+        credentialDebug = "update \(pending.username)"
+        guard let id = pending.existingID,
               let existing = credentials.first(where: { $0.id == id }) else {
-            confirmPendingCredential()
+            confirmPendingCredential(pending)
             return
         }
         _ = updateCredential(existing, username: pending.username, secret: pending.secret, realm: pending.realm)
-        pendingCredential = nil
+        if pendingCredential?.id == pending.id { pendingCredential = nil }
     }
 
     func secret(for credential: Credential) -> String? {

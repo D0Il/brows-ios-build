@@ -184,7 +184,8 @@ final class BrowsUITests: XCTestCase {
         let save = app.alerts["Save password?"]
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
         save.buttons["Save"].tap()
-        waitUntilGone(save)
+        waitUntilGone(save, app: app)
+        print("SAVE-DEBUG1 creds=\(app.staticTexts["debug.credentials"].label) state=\(app.staticTexts["debug.credentialstate"].label)")
         XCTAssertEqual(app.staticTexts["debug.credentials"].label, "1", "auth save did not reach the credential list")
     }
 
@@ -199,11 +200,13 @@ final class BrowsUITests: XCTestCase {
         let firstSave = app.alerts["Save password?"]
         XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
         firstSave.buttons["Save"].tap()
-        waitUntilGone(firstSave)
+        waitUntilGone(firstSave, app: app)
+        print("SAVE-DEBUG2 creds=\(app.staticTexts["debug.credentials"].label) state=\(app.staticTexts["debug.credentialstate"].label)")
         XCTAssertEqual(app.staticTexts["debug.credentials"].label, "1", "auth save did not reach the credential list")
         app.terminate()
 
         let relaunched = makeApp(extra: ["-BrowsOpenURL", "http://localhost:8000/auth.html"], reset: false)
+        print("RELAUNCH-STATE creds=\(relaunched.staticTexts["debug.credentials"].label) state=\(relaunched.staticTexts["debug.credentialstate"].label)")
         XCTAssertEqual(relaunched.staticTexts["debug.credentials"].label, "1", "saved list was not loaded after relaunch")
         let protected = relaunched.webViews.staticTexts["Protected area"]
         if !protected.waitForExistence(timeout: 25) {
