@@ -5,12 +5,23 @@ import SwiftUI
 /// while the auth sheet was tearing down existed but never became interactive.
 struct CredentialSaveOverlay: View {
     let pending: PendingCredential
+    var embedded = false
     @EnvironmentObject var model: BrowserModel
 
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.16).ignoresSafeArea()
+        if embedded {
+            card
+        } else {
+            ZStack {
+                Color.black.opacity(0.16).ignoresSafeArea()
+                card
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("credential.save")
+        }
+    }
 
+    private var card: some View {
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Save password?")
@@ -57,9 +68,7 @@ struct CredentialSaveOverlay: View {
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
             .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
             .padding(24)
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("credential.save")
+            .accessibilityElement(children: .contain)
     }
 
     private var message: String {
@@ -106,6 +115,11 @@ struct HTTPAuthSheet: View {
             ZStack {
                 Theme.surface.ignoresSafeArea()
 
+                if let pending = model.pendingCredential {
+                    ScrollView {
+                        CredentialSaveOverlay(pending: pending, embedded: true)
+                    }
+                } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -157,8 +171,9 @@ struct HTTPAuthSheet: View {
                     }
                     .padding(16)
                 }
+                }
             }
-            .navigationTitle("Sign in")
+            .navigationTitle(model.pendingCredential == nil ? "Sign in" : "Save password?")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

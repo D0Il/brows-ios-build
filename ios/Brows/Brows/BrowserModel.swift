@@ -174,6 +174,9 @@ struct PendingHTTPAuth: Identifiable, Equatable {
     var username: String = ""
     var isPrivate = false
     var failed = false
+    /// Set once the credentials were handed to the challenge. The sheet stays up
+    /// and becomes the save card, so the offer never needs a second presentation.
+    var completed = false
 }
 
 private struct HTTPAuthAttempt {
@@ -860,8 +863,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     private func presentDeferredCredentialOffer() {
-        guard let pending = deferredCredentialOffer, pendingHTTPAuth == nil,
-              !httpAuthSheetVisible, pendingCredential == nil else { return }
+        guard let pending = deferredCredentialOffer, pendingCredential == nil else { return }
+        // The auth sheet is still up but has handed over the credentials: show the
+        // save card inside it. One surface, so its buttons are always interactive.
+        if let auth = pendingHTTPAuth, auth.completed {
+            deferredCredentialOffer = nil
+            credentialDebug = "inline \(pending.host) \(pending.username)"
+            pendingCredential = pending
+            return
+        }
+        guard pendingHTTPAuth == nil, !httpAuthSheetVisible else { return }
         deferredCredentialOffer = nil
         credentialOfferToken += 1
         let token = credentialOfferToken
@@ -883,6 +894,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         credentialDebug = "confirm \(pending.username)"
         _ = addCredential(host: pending.host, username: pending.username, secret: pending.secret, realm: pending.realm)
         if pendingCredential?.id == pending.id { pendingCredential = nil }
+        if pendingHTTPAuth != nil { pendingHTTPAuth = nil }
     }
 
     /// Replace the existing entry with the account just used.
@@ -897,6 +909,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
         _ = updateCredential(existing, username: pending.username, secret: pending.secret, realm: pending.realm)
         if pendingCredential?.id == pending.id { pendingCredential = nil }
+        if pendingHTTPAuth != nil { pendingHTTPAuth = nil }
     }
 
     func secret(for credential: Credential) -> String? {
@@ -1270,7 +1283,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             isPrivate: auth.isPrivate
         )
         autoAnsweredRealms.insert("\(auth.host)|\(auth.realm)")
-        pendingHTTPAuth = nil
+        pendingHTTPAuth?.completed = true
+        let authId = auth.id
+        // If the protected page never finishes, do not strand the user on a
+        // completed sheet; dismiss it and let any later offer use the overlay.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6) { [weak self] in
+            guard let self, self.pendingHTTPAuth?.id == authId,
+                  self.pendingHTTPAuth?.completed == true,
+                  self.pendingCredential == nil else { return }
+            self.pendingHTTPAuth = nil
+        }
         completion(.useCredential, URLCredential(
             user: username,
             password: password,
@@ -1328,6 +1350,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             handledCredentialOffers["\(pending.host)|\(pending.username)"] = Date()
         }
         pendingCredential = nil
+        if pendingHTTPAuth != nil { pendingHTTPAuth = nil }
     }
 
     func fillCredential(_ credential: Credential) {
