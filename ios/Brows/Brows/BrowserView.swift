@@ -75,8 +75,10 @@ struct BrowserView: View {
         .sheet(item: $model.pendingHTTPAuth) { auth in
             HTTPAuthSheet(auth: auth).environmentObject(model)
         }
-                .sheet(item: $model.pendingCredential) { pending in
-            CredentialSaveSheet(pending: pending).environmentObject(model)
+        .overlay {
+            if let pending = model.pendingCredential {
+                CredentialSaveOverlay(pending: pending).environmentObject(model)
+            }
         }
         .alert("Reader mode", isPresented: $model.readerFailed) {
             Button("OK", role: .cancel) { model.readerFailed = false }

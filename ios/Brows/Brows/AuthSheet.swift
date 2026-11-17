@@ -1,66 +1,65 @@
 import SwiftUI
 
-/// The save/update offer after a login or a completed HTTP auth. It is an owned
-/// sheet rather than a system alert: the alert's presented-binding tore down the
-/// offer around the button action, and a second finished navigation could replace
-/// the alert before the tap was delivered.
-struct CredentialSaveSheet: View {
+/// The save/update offer after a login or a completed HTTP auth. It is an
+/// overlay in the browser's own hierarchy, not a second sheet: a sheet requested
+/// while the auth sheet was tearing down existed but never became interactive.
+struct CredentialSaveOverlay: View {
     let pending: PendingCredential
     @EnvironmentObject var model: BrowserModel
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                Theme.surface.ignoresSafeArea()
+        ZStack {
+            Color.black.opacity(0.16).ignoresSafeArea()
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(pending.username.isEmpty ? pending.host : pending.username)
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(Theme.panelInk)
-                            Text(pending.host)
-                                .font(.system(size: 12))
-                                .foregroundColor(Theme.panelMuted)
-                        }
-
-                        Text(message)
-                            .font(.system(size: 13))
-                            .foregroundColor(Theme.panelMuted)
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        if pending.isSecondAccount {
-                            action("Save new account", id: "save.new") {
-                                model.confirmPendingCredential(pending)
-                            }
-                            action("Update \(pending.existingUsername ?? "saved password")", id: "save.update") {
-                                model.updatePendingCredential(pending)
-                            }
-                        } else if pending.existingID != nil {
-                            action("Update password", id: "save.update") {
-                                model.updatePendingCredential(pending)
-                            }
-                        } else {
-                            action("Save", id: "save.new") {
-                                model.confirmPendingCredential(pending)
-                            }
-                        }
-
-                        Button("Not now") { model.discardPendingCredential() }
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Theme.panelMuted)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .buttonStyle(.plain)
-                            .accessibilityIdentifier("save.notNow")
-                    }
-                    .padding(16)
+            VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Save password?")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(Theme.panelInk)
+                    Text(pending.username.isEmpty ? pending.host : "\(pending.username) on \(pending.host)")
+                        .font(.system(size: 12))
+                        .foregroundColor(Theme.panelMuted)
                 }
+
+                Text(message)
+                    .font(.system(size: 13))
+                    .foregroundColor(Theme.panelMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if pending.isSecondAccount {
+                    action("Save new account", id: "save.new") {
+                        model.confirmPendingCredential(pending)
+                    }
+                    action("Update \(pending.existingUsername ?? "saved password")", id: "save.update") {
+                        model.updatePendingCredential(pending)
+                    }
+                } else if pending.existingID != nil {
+                    action("Update password", id: "save.update") {
+                        model.updatePendingCredential(pending)
+                    }
+                } else {
+                    action("Save", id: "save.new") {
+                        model.confirmPendingCredential(pending)
+                    }
+                }
+
+                Button("Not now") { model.discardPendingCredential() }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.panelMuted)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("save.notNow")
             }
-            .navigationTitle("Save password?")
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(20)
+            .frame(maxWidth: 340)
+            .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
+            .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
+            .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
+            .padding(24)
         }
-        .navigationViewStyle(.stack)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("credential.save")
     }
 
     private var message: String {

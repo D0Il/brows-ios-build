@@ -181,7 +181,7 @@ final class BrowsUITests: XCTestCase {
             app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25),
             "401-protected content was not reached with the entered credentials"
         )
-        let save = app.navigationBars["Save password?"]
+        let save = app.staticTexts["Save password?"]
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
         waitUntilHittable(app.buttons["save.new"])
         app.buttons["save.new"].tap()
@@ -198,7 +198,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Sign in"].waitForExistence(timeout: 15))
         signIn(user: "browsuser", password: "browssecret", in: app)
         XCTAssertTrue(app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
-        let firstSave = app.navigationBars["Save password?"]
+        let firstSave = app.staticTexts["Save password?"]
         XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
         waitUntilHittable(app.buttons["save.new"])
         app.buttons["save.new"].tap()
@@ -225,7 +225,7 @@ final class BrowsUITests: XCTestCase {
         signIn(user: "otheraccount", password: "othersecret", in: relaunched)
         XCTAssertTrue(relaunched.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
 
-        let choice = relaunched.navigationBars["Save password?"]
+        let choice = relaunched.staticTexts["Save password?"]
         XCTAssertTrue(choice.waitForExistence(timeout: 10), "second account was not offered for saving")
         waitUntilHittable(relaunched.buttons["save.new"])
         XCTAssertTrue(relaunched.buttons["save.new"].exists, "save-new choice missing")
@@ -301,7 +301,7 @@ final class BrowsUITests: XCTestCase {
 
         app.webViews.buttons["Log in"].tap()
 
-        let saveSheet = app.navigationBars["Save password?"]
+        let saveSheet = app.staticTexts["Save password?"]
         XCTAssertTrue(saveSheet.waitForExistence(timeout: 10), "submitted login was not offered for saving")
         waitUntilHittable(app.buttons["save.new"])
         app.buttons["save.new"].tap()
