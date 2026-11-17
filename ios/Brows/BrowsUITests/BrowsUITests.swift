@@ -183,6 +183,7 @@ final class BrowsUITests: XCTestCase {
         )
         let save = app.navigationBars["Save password?"]
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
+        waitUntilHittable(app.buttons["save.new"])
         app.buttons["save.new"].tap()
         waitUntilGone(save, app: app)
         print("SAVE-DEBUG1 creds=\(app.staticTexts["debug.credentials"].label) state=\(app.staticTexts["debug.credentialstate"].label)")
@@ -199,6 +200,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
         let firstSave = app.navigationBars["Save password?"]
         XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
+        waitUntilHittable(app.buttons["save.new"])
         app.buttons["save.new"].tap()
         waitUntilGone(firstSave, app: app)
         print("SAVE-DEBUG2 creds=\(app.staticTexts["debug.credentials"].label) state=\(app.staticTexts["debug.credentialstate"].label)")
@@ -225,6 +227,7 @@ final class BrowsUITests: XCTestCase {
 
         let choice = relaunched.navigationBars["Save password?"]
         XCTAssertTrue(choice.waitForExistence(timeout: 10), "second account was not offered for saving")
+        waitUntilHittable(relaunched.buttons["save.new"])
         XCTAssertTrue(relaunched.buttons["save.new"].exists, "save-new choice missing")
         XCTAssertTrue(relaunched.buttons["save.update"].exists, "update-saved choice missing")
         relaunched.buttons["save.new"].tap()
@@ -232,6 +235,19 @@ final class BrowsUITests: XCTestCase {
     }
 
     /// Dismissal is animated; a tap on the next surface during it lands nowhere.
+    /// A sheet's navigation bar exists before the sheet is interactive; tapping
+    /// during the presentation animation lands nowhere.
+    private func waitUntilHittable(_ element: XCUIElement, timeout: TimeInterval = 10) {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == true AND hittable == true"),
+            object: element
+        )
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: timeout), .completed,
+            "element did not become hittable"
+        )
+    }
+
     private func waitUntilGone(_ element: XCUIElement, app: XCUIApplication? = nil) {
         let gone = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "exists == false"),
@@ -284,6 +300,7 @@ final class BrowsUITests: XCTestCase {
 
         let saveSheet = app.navigationBars["Save password?"]
         XCTAssertTrue(saveSheet.waitForExistence(timeout: 10), "submitted login was not offered for saving")
+        waitUntilHittable(app.buttons["save.new"])
         app.buttons["save.new"].tap()
         waitUntilGone(saveSheet, app: app)
 
