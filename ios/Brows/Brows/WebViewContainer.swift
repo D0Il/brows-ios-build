@@ -82,6 +82,38 @@ struct WebViewContainer: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             sync(webView)
             model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
+            samplePageBackground(webView)
+        }
+
+        /// The page runs under the top inset; paint that area with the document's own
+        /// background instead of the app backdrop, so a light article does not sit
+        /// below a dark band. Transparent documents leave the backdrop alone.
+        private func samplePageBackground(_ webView: WKWebView) {
+            let js = """
+            (function(){
+              var c = getComputedStyle(document.body).backgroundColor || '';
+              var m = c.match(/\\d+/g);
+              if (!m || m.length < 3) { return ''; }
+              if (m.length > 3 && +m[3] === 0) { return ''; }
+              function h(v){ var s = (+v).toString(16); return s.length < 2 ? '0' + s : s; }
+              return '#' + h(m[0]) + h(m[1]) + h(m[2]);
+            })();
+            """
+            webView.evaluateJavaScript(js) { result, _ in
+                guard let hex = result as? String, let color = Self.color(hex: hex) else { return }
+                DispatchQueue.main.async { webView.underPageBackgroundColor = color }
+            }
+        }
+
+        private static func color(hex: String) -> UIColor? {
+            let trimmed = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            guard trimmed.count == 6, let value = UInt32(trimmed, radix: 16) else { return nil }
+            return UIColor(
+                red: CGFloat((value >> 16) & 0xFF) / 255,
+                green: CGFloat((value >> 8) & 0xFF) / 255,
+                blue: CGFloat(value & 0xFF) / 255,
+                alpha: 1
+            )
         }
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { sync(webView) }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { sync(webView) }
