@@ -268,7 +268,7 @@ final class BrowsUITests: XCTestCase {
     /// origin, come back, and assert the fields hold the stored credentials.
     func testPasswordSaveAndAutofill() {
         let app = makeApp()
-        open("http://localhost:8000/login.html", in: app)
+        open("http://localhost:8000/login.html", in: app, expect: "Sign in")
 
         let username = app.webViews.textFields["Username"]
         XCTAssertTrue(username.waitForExistence(timeout: 15), "login fixture fields missing")

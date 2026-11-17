@@ -252,6 +252,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// scheduled offer may present, or a second alert appears right after Save and
     /// the sheet looks like it never dismissed.
     private var credentialOfferToken = 0
+    /// Host|username of offers the user just answered, so a second finished
+    /// navigation cannot immediately re-open the same alert.
+    private var handledCredentialOffers: [String: Date] = [:]
     /// Realms already answered automatically from the Keychain this launch. A second
     /// challenge after a saved answer means it was rejected, so the prompt opens.
     private var autoAnsweredRealms: Set<String> = []
@@ -819,7 +822,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// origin already has a password for another account, the offer becomes a
     /// save-new/update choice instead of silently adding or overwriting.
     func offerCredentialSave(host: String, username: String, secret: String, realm: String?, isPrivate: Bool) {
-        guard !isPrivate, !secret.isEmpty else { return }
+        guard !isPrivate, !secret.isEmpty, pendingCredential == nil else { return }
+        let offerKey = "\(host)|\(username)"
+        if let handled = handledCredentialOffers[offerKey], Date().timeIntervalSince(handled) < 8 {
+            return
+        }
         let sameOrigin = credentials.filter { $0.host.caseInsensitiveCompare(host) == .orderedSame }
         let existing = sameOrigin.first { $0.username == username } ?? sameOrigin.first
         if let existing, existing.username == username, self.secret(for: existing) == secret {
@@ -839,7 +846,8 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         // The auth sheet (or a form submission) may still be dismissing; present
         // the offer only after that animation, or iOS drops it.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
-            guard let self, token == self.credentialOfferToken else { return }
+            guard let self, token == self.credentialOfferToken,
+                  self.pendingCredential == nil else { return }
             self.pendingCredential = pending
         }
     }
@@ -849,6 +857,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// button action, and reading the published value made the save a race.
     func confirmPendingCredential(_ pending: PendingCredential) {
         credentialOfferToken += 1
+        handledCredentialOffers["\(pending.host)|\(pending.username)"] = Date()
         credentialDebug = "confirm \(pending.username)"
         _ = addCredential(host: pending.host, username: pending.username, secret: pending.secret, realm: pending.realm)
         if pendingCredential?.id == pending.id { pendingCredential = nil }
@@ -857,6 +866,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Replace the existing entry with the account just used.
     func updatePendingCredential(_ pending: PendingCredential) {
         credentialOfferToken += 1
+        handledCredentialOffers["\(pending.host)|\(pending.username)"] = Date()
         credentialDebug = "update \(pending.username)"
         guard let id = pending.existingID,
               let existing = credentials.first(where: { $0.id == id }) else {
@@ -1291,6 +1301,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     func discardPendingCredential() {
         credentialOfferToken += 1
+        if let pending = pendingCredential {
+            handledCredentialOffers["\(pending.host)|\(pending.username)"] = Date()
+        }
         pendingCredential = nil
     }
 

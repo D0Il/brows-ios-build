@@ -75,10 +75,12 @@ struct BrowserView: View {
         .sheet(item: $model.pendingHTTPAuth) { auth in
             HTTPAuthSheet(auth: auth).environmentObject(model)
         }
+                // The buttons own dismissal. Letting the presented-binding clear the
+        // offer on teardown raced the button action and could swallow a save.
         .alert("Save password?", isPresented: Binding(
             get: { model.pendingCredential != nil },
-            set: { if !$0 { model.discardPendingCredential() } }
-        )        ) {
+            set: { _ in }
+        )) {
             if let pending = model.pendingCredential {
                 if pending.existingID != nil {
                     if pending.isSecondAccount {
