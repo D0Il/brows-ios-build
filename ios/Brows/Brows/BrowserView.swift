@@ -263,6 +263,12 @@ struct BottomRail: View {
             .frame(minWidth: 126)
             .background(
                 ZStack {
+                    // The desktop rail's omnibox is a solid white pill; the glass
+                    // gradient rides on that plate. On the phone the rail floats
+                    // over the page, so without the plate the address and the
+                    // selection handles sat directly on article text.
+                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                        .fill(model.isEditingAddress ? Color.white : Color.white.opacity(0.95))
                     RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                         .fill(model.isEditingAddress ? Theme.pillFocusWash : Theme.pillWash)
                     RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)

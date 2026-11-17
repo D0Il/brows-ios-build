@@ -198,6 +198,11 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .frame(width: 36, height: 36)
             .background(
                 ZStack {
+                    // Rail styling: white circular controls. The bubble gradient
+                    // and its hairline still ride on top; the white plate is what
+                    // keeps the glyph legible when the rail floats over a page.
+                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                        .fill(Color.white.opacity(0.95))
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
                         .fill(Theme.bubbleWash)
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
