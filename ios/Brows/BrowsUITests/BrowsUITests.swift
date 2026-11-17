@@ -125,7 +125,7 @@ final class BrowsUITests: XCTestCase {
         app.buttons["Done"].tap()
     }
 
-    private func open(_ url: String, in app: XCUIApplication) {
+    private func open(_ url: String, in app: XCUIApplication, expect text: String? = nil) {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         field.tap()
@@ -133,7 +133,21 @@ final class BrowsUITests: XCTestCase {
         field.typeText(url)
         XCTAssertEqual(field.value as? String, url, "address pill did not replace the current URL")
         field.typeText("\n")
+        // The simulator occasionally drops the synthetic hardware Return. The
+        // keyboard's Go key runs the same UITextFieldDelegate callback, so press
+        // it when the field still holds focus instead of failing the navigation.
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.waitForExistence(timeout: 3) {
+            let go = keyboard.buttons["Go"]
+            if go.exists { go.tap() }
+        }
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 25))
+        if let text {
+            XCTAssertTrue(
+                app.webViews.staticTexts[text].waitForExistence(timeout: 20),
+                "navigation to \(url) did not commit"
+            )
+        }
     }
 
     /// End to end password manager: submit a served login form, save it, leave the
@@ -294,7 +308,7 @@ final class BrowsUITests: XCTestCase {
     /// forward, reload) sit together before the pill, not after the favourites.
     func testPageControlsSitBeforeThePill() {
         let app = makeApp()
-        open("http://localhost:8000/other.html", in: app)
+        open("http://localhost:8000/other.html", in: app, expect: "Other page")
 
         let back = app.buttons["rail.back"]
         let reload = app.buttons["rail.reload"]
