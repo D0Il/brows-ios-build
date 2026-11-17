@@ -93,10 +93,13 @@ struct TabSwitcher: View {
             .navigationTitle("Tabs")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close private") { model.closeAllPrivate() }
-                        .opacity(model.tabs.contains { $0.isPrivate } ? 1 : 0)
-                        .disabled(!model.tabs.contains { $0.isPrivate })
+                ToolbarItemGroup(placement: .navigationBarLeading) {
+                    // Add nothing when there is no private tab: an opacity-0 button
+                    // still paints its glass capsule on iOS 26, which showed as an
+                    // empty pill at the top-left of this sheet.
+                    if model.tabs.contains(where: { $0.isPrivate }) {
+                        Button("Close private") { model.closeAllPrivate() }
+                    }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { dismiss() }

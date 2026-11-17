@@ -110,6 +110,9 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+        // With no private tab there is no leading toolbar control at all; an
+        // opacity-0 button still painted an empty glass pill here on iOS 26.
+        XCTAssertFalse(app.buttons["Close private"].exists, "empty leading toolbar control")
 
         let search = app.textFields["Search tabs"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
