@@ -146,8 +146,14 @@ struct HTTPAuthCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            field("Username", text: $username, keyboard: .emailAddress)
-            secureField("Password", text: $password)
+            AuthField(placeholder: "Username", text: $username, keyboard: .emailAddress)
+                .frame(height: 40)
+                .padding(.horizontal, 10)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+            AuthField(placeholder: "Password", text: $password, secure: true)
+                .frame(height: 40)
+                .padding(.horizontal, 10)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
 
             if auth.isPrivate {
                 Text("Private tab: these credentials are used for this session and are not saved.")
@@ -183,26 +189,59 @@ struct HTTPAuthCard: View {
         .accessibilityElement(children: .contain)
     }
 
-    private func field(_ label: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {
-        TextField("", text: text, prompt: Text(label).foregroundColor(Theme.fieldPlaceholder))
-            .textFieldStyle(.plain)
-            .accessibilityLabel(label)
-            .keyboardType(keyboard)
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-            .foregroundColor(Theme.plateInk)
-            .padding(.horizontal, 10)
-            .frame(height: 40)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+}
+
+/// A credential field the system's Password AutoFill leaves alone. A native
+/// username + secure pair is saved by iOS's own “Save Password?” sheet when the
+/// fields leave the hierarchy, and that sheet is a modal window above the app:
+/// it swallowed every tap on the browser's save card (run `44131988911`).
+/// `.oneTimeCode` is the documented way to keep a secure field out of the
+/// AutoFill login flow, and both fields carry it so no pair is recognised.
+private struct AuthField: UIViewRepresentable {
+    let placeholder: String
+    @Binding var text: String
+    var secure = false
+    var keyboard: UIKeyboardType = .default
+
+    func makeUIView(context: Context) -> UITextField {
+        let field = UITextField()
+        field.textContentType = .oneTimeCode
+        field.isSecureTextEntry = secure
+        field.keyboardType = keyboard
+        field.autocapitalizationType = .none
+        field.autocorrectionType = .no
+        field.spellCheckingType = .no
+        field.textColor = UIColor(Theme.plateInk)
+        field.font = .systemFont(ofSize: 15)
+        field.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [.foregroundColor: UIColor(Theme.fieldPlaceholder)]
+        )
+        field.accessibilityLabel = placeholder
+        field.delegate = context.coordinator
+        field.addTarget(context.coordinator, action: #selector(Coordinator.changed(_:)), for: .editingChanged)
+        return field
     }
 
-    private func secureField(_ label: String, text: Binding<String>) -> some View {
-        SecureField("", text: text, prompt: Text(label).foregroundColor(Theme.fieldPlaceholder))
-            .textFieldStyle(.plain)
-            .accessibilityLabel(label)
-            .foregroundColor(Theme.plateInk)
-            .padding(.horizontal, 10)
-            .frame(height: 40)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+    func updateUIView(_ field: UITextField, context: Context) {
+        context.coordinator.text = $text
+        if field.text != text { field.text = text }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
+
+    final class Coordinator: NSObject, UITextFieldDelegate {
+        var text: Binding<String>
+
+        init(text: Binding<String>) { self.text = text }
+
+        @objc func changed(_ field: UITextField) {
+            text.wrappedValue = field.text ?? ""
+        }
+
+        func textFieldShouldReturn(_ field: UITextField) -> Bool {
+            field.resignFirstResponder()
+            return true
+        }
     }
 }

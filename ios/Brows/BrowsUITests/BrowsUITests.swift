@@ -181,6 +181,10 @@ final class BrowsUITests: XCTestCase {
             app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25),
             "401-protected content was not reached with the entered credentials"
         )
+        // iOS AutoFill raises its own modal "Save Password?" sheet for a native
+        // username + secure pair as it leaves the hierarchy; it would sit above the
+        // browser's card and take every tap. The fields must stay out of that flow.
+        XCTAssertFalse(app.sheets["Save Password?"].exists, "the system's AutoFill save sheet covered the browser's")
         let save = app.staticTexts["Save password?"]
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
         waitUntilHittable(app.buttons["save.new"])
@@ -225,6 +229,7 @@ final class BrowsUITests: XCTestCase {
         signIn(user: "otheraccount", password: "othersecret", in: relaunched)
         XCTAssertTrue(relaunched.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
 
+        XCTAssertFalse(relaunched.sheets["Save Password?"].exists, "the system's AutoFill save sheet covered the browser's")
         let choice = relaunched.staticTexts["Save password?"]
         XCTAssertTrue(choice.waitForExistence(timeout: 10), "second account was not offered for saving")
         waitUntilHittable(relaunched.buttons["save.new"])
