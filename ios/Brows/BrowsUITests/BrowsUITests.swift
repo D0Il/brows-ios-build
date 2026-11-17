@@ -306,6 +306,88 @@ final class BrowsUITests: XCTestCase {
         )
     }
 
+    /// The start page's own SEARCH bubble is wired to navigation, not decoration.
+    func testStartPageSearchNavigates() {
+        let app = makeApp()
+        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15))
+
+        let field = app.webViews.searchFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "start page search field missing")
+        field.tap()
+        field.typeText("http://localhost:8000/other.html\n")
+
+        XCTAssertTrue(
+            app.webViews.staticTexts["Other page"].waitForExistence(timeout: 25),
+            "start page search did not navigate"
+        )
+    }
+
+    /// A favourite chip is a real link, not a label.
+    func testBookmarkChipNavigates() {
+        let app = makeApp()
+        open("http://localhost:8000/other.html", in: app)
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20))
+
+        let star = app.buttons["rail.star"]
+        XCTAssertTrue(star.waitForExistence(timeout: 10))
+        star.tap()
+
+        open("http://localhost:8000/login.html", in: app)
+
+        let chip = app.buttons.matching(identifier: "bookmark.chip").firstMatch
+        XCTAssertTrue(chip.waitForExistence(timeout: 10), "bookmark chip missing from the rail")
+        chip.tap()
+
+        XCTAssertTrue(
+            app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20),
+            "bookmark chip did not navigate"
+        )
+    }
+
+    /// Deleting a workspace from the sheet's context menu removes it.
+    func testWorkspaceDelete() {
+        let app = makeApp()
+        app.buttons["rail.workspace"].tap()
+        XCTAssertTrue(app.navigationBars["Workspaces"].waitForExistence(timeout: 10))
+
+        let field = app.textFields["New workspace"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText("Temp")
+        app.buttons["workspace.add"].tap()
+
+        let row = app.buttons.matching(identifier: "workspace.row.TE").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "workspace was not created")
+        row.press(forDuration: 1.2)
+
+        let delete = app.buttons["Delete workspace"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 10), "delete action missing")
+        delete.tap()
+        XCTAssertFalse(row.waitForExistence(timeout: 4), "workspace still listed after delete")
+    }
+
+    /// Turning the bar-position setting off moves the rail to the top.
+    func testAddressBarTopSetting() {
+        let app = makeApp()
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        app.swipeUp()
+
+        let settingsRow = app.staticTexts["Settings"]
+        XCTAssertTrue(settingsRow.waitForExistence(timeout: 10), "Settings row missing")
+        settingsRow.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
+
+        let toggle = app.switches["settings.addressBarBottom"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10), "bar-position switch missing")
+        toggle.tap()
+        app.buttons["Done"].tap()
+
+        let pill = app.textFields["rail.address"]
+        XCTAssertTrue(pill.waitForExistence(timeout: 10))
+        XCTAssertLessThan(pill.frame.minY, app.frame.height / 2, "rail did not move to the top")
+    }
+
     func testStartPageSearchField() {
         let app = makeApp()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 15), "no web view")
