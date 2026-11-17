@@ -845,7 +845,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         let token = credentialOfferToken
         // The auth sheet (or a form submission) may still be dismissing; present
         // the offer only after that animation, or iOS drops it.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { [weak self] in
             guard let self, token == self.credentialOfferToken,
                   self.pendingCredential == nil else { return }
             self.pendingCredential = pending

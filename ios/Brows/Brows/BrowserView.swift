@@ -75,37 +75,8 @@ struct BrowserView: View {
         .sheet(item: $model.pendingHTTPAuth) { auth in
             HTTPAuthSheet(auth: auth).environmentObject(model)
         }
-                // The buttons own dismissal. Letting the presented-binding clear the
-        // offer on teardown raced the button action and could swallow a save.
-        .alert("Save password?", isPresented: Binding(
-            get: { model.pendingCredential != nil },
-            set: { _ in }
-        )) {
-            if let pending = model.pendingCredential {
-                if pending.existingID != nil {
-                    if pending.isSecondAccount {
-                        Button("Save new account") { model.confirmPendingCredential(pending) }
-                        Button("Update \(pending.existingUsername ?? "saved password")") {
-                            model.updatePendingCredential(pending)
-                        }
-                    } else {
-                        Button("Update password") { model.updatePendingCredential(pending) }
-                    }
-                } else {
-                    Button("Save") { model.confirmPendingCredential(pending) }
-                }
-                Button("Not now", role: .cancel) { model.discardPendingCredential() }
-            }
-        } message: {
-            if let pending = model.pendingCredential {
-                if pending.isSecondAccount, let existing = pending.existingUsername {
-                    Text("A password for \(pending.host) is already saved as \(existing). Save \(pending.username) as another account, or replace the saved one?")
-                } else if pending.existingID != nil {
-                    Text("Update the saved password for \(pending.username) on \(pending.host)?")
-                } else {
-                    Text("Save the password for \(pending.username.isEmpty ? pending.host : pending.username) on \(pending.host)?")
-                }
-            }
+                .sheet(item: $model.pendingCredential) { pending in
+            CredentialSaveSheet(pending: pending).environmentObject(model)
         }
         .alert("Reader mode", isPresented: $model.readerFailed) {
             Button("OK", role: .cancel) { model.readerFailed = false }

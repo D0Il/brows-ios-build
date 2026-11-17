@@ -181,9 +181,9 @@ final class BrowsUITests: XCTestCase {
             app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25),
             "401-protected content was not reached with the entered credentials"
         )
-        let save = app.alerts["Save password?"]
+        let save = app.navigationBars["Save password?"]
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
-        save.buttons["Save"].tap()
+        app.buttons["Save"].tap()
         waitUntilGone(save, app: app)
         print("SAVE-DEBUG1 creds=\(app.staticTexts["debug.credentials"].label) state=\(app.staticTexts["debug.credentialstate"].label)")
         XCTAssertEqual(app.staticTexts["debug.credentials"].label, "1", "auth save did not reach the credential list")
@@ -197,9 +197,9 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Sign in"].waitForExistence(timeout: 15))
         signIn(user: "browsuser", password: "browssecret", in: app)
         XCTAssertTrue(app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
-        let firstSave = app.alerts["Save password?"]
+        let firstSave = app.navigationBars["Save password?"]
         XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
-        firstSave.buttons["Save"].tap()
+        app.buttons["Save"].tap()
         waitUntilGone(firstSave, app: app)
         print("SAVE-DEBUG2 creds=\(app.staticTexts["debug.credentials"].label) state=\(app.staticTexts["debug.credentialstate"].label)")
         XCTAssertEqual(app.staticTexts["debug.credentials"].label, "1", "auth save did not reach the credential list")
@@ -223,11 +223,11 @@ final class BrowsUITests: XCTestCase {
         signIn(user: "otheraccount", password: "othersecret", in: relaunched)
         XCTAssertTrue(relaunched.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
 
-        let choice = relaunched.alerts["Save password?"]
+        let choice = relaunched.navigationBars["Save password?"]
         XCTAssertTrue(choice.waitForExistence(timeout: 10), "second account was not offered for saving")
-        XCTAssertTrue(choice.buttons["Save new account"].exists, "save-new choice missing")
-        XCTAssertTrue(choice.buttons["Update browsuser"].exists, "update-saved choice missing")
-        choice.buttons["Save new account"].tap()
+        XCTAssertTrue(relaunched.buttons["Save new account"].exists, "save-new choice missing")
+        XCTAssertTrue(relaunched.buttons["Update browsuser"].exists, "update-saved choice missing")
+        relaunched.buttons["Save new account"].tap()
         waitUntilGone(choice, app: relaunched)
     }
 
@@ -282,9 +282,10 @@ final class BrowsUITests: XCTestCase {
 
         app.webViews.buttons["Log in"].tap()
 
-        let alert = app.alerts["Save password?"]
-        XCTAssertTrue(alert.waitForExistence(timeout: 10), "submitted login was not offered for saving")
-        alert.buttons["Save"].tap()
+        let saveSheet = app.navigationBars["Save password?"]
+        XCTAssertTrue(saveSheet.waitForExistence(timeout: 10), "submitted login was not offered for saving")
+        app.buttons["Save"].tap()
+        waitUntilGone(saveSheet, app: app)
 
         // The credential is in the app's own store, filed under origin and port.
         app.buttons["rail.menu"].tap()
