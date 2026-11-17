@@ -246,6 +246,9 @@ final class BrowsUITests: XCTestCase {
             XCTWaiter().wait(for: [expectation], timeout: timeout), .completed,
             "element did not become hittable"
         )
+        // Hittable flips during the presentation animation, when the frame is
+        // still moving; a tap there can land on the dimmed background.
+        Thread.sleep(forTimeInterval: 0.5)
     }
 
     private func waitUntilGone(_ element: XCUIElement, app: XCUIApplication? = nil) {

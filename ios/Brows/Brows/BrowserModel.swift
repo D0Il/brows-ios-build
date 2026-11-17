@@ -255,6 +255,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Host|username of offers the user just answered, so a second finished
     /// navigation cannot immediately re-open the same alert.
     private var handledCredentialOffers: [String: Date] = [:]
+    /// A save offer that arrived while the auth sheet was still on screen. Two
+    /// sheets cannot present at once; a request made during the first sheet's
+    /// teardown yields a save sheet that exists but never becomes interactive.
+    private var deferredCredentialOffer: PendingCredential?
+    @Published private(set) var httpAuthSheetVisible = false
     /// Realms already answered automatically from the Keychain this launch. A second
     /// challenge after a saved answer means it was rejected, so the prompt opens.
     private var autoAnsweredRealms: Set<String> = []
@@ -841,13 +846,30 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             existingUsername: existing?.username
         )
         credentialDebug = "offered \(host) \(username) existing=\(existing?.username ?? "-")"
+        deferredCredentialOffer = pending
+        presentDeferredCredentialOffer()
+    }
+
+    /// The auth sheet reports when it is actually gone; only then may the save
+    /// sheet present, or the second presentation is born non-interactive.
+    func httpAuthSheetDidDisappear() {
+        httpAuthSheetVisible = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            self?.presentDeferredCredentialOffer()
+        }
+    }
+
+    private func presentDeferredCredentialOffer() {
+        guard let pending = deferredCredentialOffer, pendingHTTPAuth == nil,
+              !httpAuthSheetVisible, pendingCredential == nil else { return }
+        deferredCredentialOffer = nil
         credentialOfferToken += 1
         let token = credentialOfferToken
-        // The auth sheet (or a form submission) may still be dismissing; present
-        // the offer only after that animation, or iOS drops it.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { [weak self] in
+        credentialDebug = "presenting \(pending.host) \(pending.username)"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let self, token == self.credentialOfferToken,
-                  self.pendingCredential == nil else { return }
+                  self.pendingCredential == nil, self.pendingHTTPAuth == nil,
+                  !self.httpAuthSheetVisible else { return }
             self.pendingCredential = pending
         }
     }
@@ -1232,6 +1254,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                                  completion: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if let previous = httpAuthCompletion { previous(.cancelAuthenticationChallenge, nil) }
         httpAuthCompletion = completion
+        httpAuthSheetVisible = true
         pendingHTTPAuth = auth
     }
 

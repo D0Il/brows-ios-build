@@ -169,7 +169,10 @@ struct HTTPAuthSheet: View {
             }
         }
         .navigationViewStyle(.stack)
-        .onDisappear { model.cancelHTTPAuth() }
+        .onDisappear {
+            model.cancelHTTPAuth()
+            model.httpAuthSheetDidDisappear()
+        }
     }
 
     private func field(_ label: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {
