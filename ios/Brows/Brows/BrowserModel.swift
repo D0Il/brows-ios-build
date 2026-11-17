@@ -112,6 +112,9 @@ struct Credential: Identifiable, Codable, Equatable {
     var id = UUID()
     var host: String
     var username: String
+    /// HTTP auth protection space. Form credentials carry nil, which keeps every
+    /// older saved entry decodable; they are never silently sent to a Basic realm.
+    var realm: String? = nil
 }
 
 struct ReaderContent: Identifiable, Equatable {
@@ -150,6 +153,35 @@ struct PendingCredential: Identifiable, Equatable {
     var host: String
     var username: String
     var secret: String
+    var realm: String? = nil
+    /// Set when the origin already has a saved password. Different username means
+    /// the offer is a save-new/update choice; same username means update.
+    var existingID: UUID? = nil
+    var existingUsername: String? = nil
+
+    var isSecondAccount: Bool {
+        guard let existingUsername else { return false }
+        return existingUsername.caseInsensitiveCompare(username) != .orderedSame
+    }
+}
+
+/// A Basic/Digest challenge the browser owns. The completion lives in the model,
+/// not the view, so dismissing the sheet cancels the challenge exactly once.
+struct PendingHTTPAuth: Identifiable, Equatable {
+    var id = UUID()
+    var host: String
+    var realm: String
+    var username: String = ""
+    var isPrivate = false
+    var failed = false
+}
+
+private struct HTTPAuthAttempt {
+    var hostKey: String
+    var realm: String
+    var username: String
+    var secret: String
+    var isPrivate: Bool
 }
 
 /// A panel the menu asked for. The menu closes first, then the panel opens, so two
@@ -193,6 +225,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// overwrite what they are typing.
     @Published var isEditingAddress = false
     @Published var pendingCredential: PendingCredential?
+    @Published var pendingHTTPAuth: PendingHTTPAuth?
     /// Why the last password write failed, shown by the Passwords sheet.
     @Published var credentialError: String?
     @Published var blockerExceptions: [String] = []
@@ -211,6 +244,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     private var webViews: [UUID: WKWebView] = [:]
     private var cancelHandlers: [UUID: () -> Void] = [:]
+    private var httpAuthCompletion: ((URLSession.AuthChallengeDisposition, URLCredential?) -> Void)?
+    private var httpAuthAttempt: HTTPAuthAttempt?
+    /// Realms already answered automatically from the Keychain this launch. A second
+    /// challenge after a saved answer means it was rejected, so the prompt opens.
+    private var autoAnsweredRealms: Set<String> = []
     private var websiteDataStore: WKWebsiteDataStore { .default() }
     private let blocker = AdBlocker()
 
@@ -228,6 +266,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     override init() {
         super.init()
         if CommandLine.arguments.contains("-BrowsUITestReset") {
+            // The saved list lives in defaults, the secrets in the Keychain. A reset
+            // that only clears defaults would leave orphaned Keychain rows and let
+            // one test's password answer the next test's challenge.
+            if let data = UserDefaults.standard.data(forKey: credentialsKey),
+               let old = try? JSONDecoder().decode([Credential].self, from: data) {
+                for credential in old { Vault.delete(id: credential.id) }
+            }
             for key in [tabsKey, bookmarksKey, workspacesKey, historyKey,
                         downloadsKey, credentialsKey, settingsKey, activeKey,
                         "brows.blockerExceptions"] {
@@ -323,6 +368,21 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             case "extensions": self.showingExtensions = true
             case "settings": self.showingSettings = true
             case "tabs": self.showingTabSwitcher = true
+            case "auth":
+                self.pendingHTTPAuth = PendingHTTPAuth(
+                    host: "localhost:8000",
+                    realm: "Brows Fixture",
+                    username: "browsuser"
+                )
+            case "authsave":
+                self.pendingCredential = PendingCredential(
+                    host: "localhost:8000",
+                    username: "otheraccount",
+                    secret: "othersecret",
+                    realm: "Brows Fixture 2",
+                    existingID: UUID(),
+                    existingUsername: "browsuser"
+                )
             case "siteinfo":
                 self.showingSiteInfo = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.loadSiteInfo() }
@@ -706,14 +766,21 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Returns whether the credential was actually written, so callers can show a
     /// truthful status instead of guessing from the list.
     @discardableResult
-    func addCredential(host: String, username: String, secret: String) -> Bool {
+    func addCredential(host: String, username: String, secret: String, realm: String? = nil) -> Bool {
         let trimmedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedUser = username.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedHost.isEmpty, !trimmedUser.isEmpty, !secret.isEmpty else {
             credentialError = "Not saved: a site, a username and a password are all required."
             return false
         }
-        let credential = Credential(host: trimmedHost, username: trimmedUser)
+        // One entry per site + username; a later save replaces its secret instead
+        // of leaving two rows that reveal to the same account.
+        if let existing = credentials.first(where: {
+            $0.host.caseInsensitiveCompare(trimmedHost) == .orderedSame && $0.username == trimmedUser
+        }) {
+            return updateCredential(existing, secret: secret, realm: realm)
+        }
+        let credential = Credential(host: trimmedHost, username: trimmedUser, realm: realm)
         let status = Vault.save(secret, id: credential.id)
         guard status == errSecSuccess else {
             credentialError = "Keychain error \(status)"
@@ -723,6 +790,67 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         credentials.append(credential)
         persistCredentials()
         return true
+    }
+
+    /// Replace the saved username/secret for an existing entry, keeping its id so the
+    /// Keychain item is rotated rather than orphaned.
+    @discardableResult
+    func updateCredential(_ credential: Credential, username: String? = nil, secret: String, realm: String? = nil) -> Bool {
+        let status = Vault.save(secret, id: credential.id)
+        guard status == errSecSuccess else {
+            credentialError = "Keychain error \(status)"
+            return false
+        }
+        credentialError = nil
+        if let index = credentials.firstIndex(where: { $0.id == credential.id }) {
+            if let username { credentials[index].username = username.trimmingCharacters(in: .whitespacesAndNewlines) }
+            credentials[index].realm = realm
+        }
+        persistCredentials()
+        return true
+    }
+
+    /// The save offer for a submitted login or a completed HTTP auth. When the
+    /// origin already has a password for another account, the offer becomes a
+    /// save-new/update choice instead of silently adding or overwriting.
+    func offerCredentialSave(host: String, username: String, secret: String, realm: String?, isPrivate: Bool) {
+        guard !isPrivate, !secret.isEmpty else { return }
+        let sameOrigin = credentials.filter { $0.host.caseInsensitiveCompare(host) == .orderedSame }
+        let existing = sameOrigin.first { $0.username == username } ?? sameOrigin.first
+        if let existing, existing.username == username, secret(for: existing) == secret {
+            return
+        }
+        let pending = PendingCredential(
+            host: host,
+            username: username,
+            secret: secret,
+            realm: realm,
+            existingID: existing?.id,
+            existingUsername: existing?.username
+        )
+        // The auth sheet (or a form submission) may still be dismissing; present
+        // the offer only after that animation, or iOS drops it.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            self?.pendingCredential = pending
+        }
+    }
+
+    /// Save the new account alongside the one already on the origin.
+    func confirmPendingCredential() {
+        guard let pending = pendingCredential else { return }
+        _ = addCredential(host: pending.host, username: pending.username, secret: pending.secret, realm: pending.realm)
+        pendingCredential = nil
+    }
+
+    /// Replace the existing entry with the account just used.
+    func updatePendingCredential() {
+        guard let pending = pendingCredential, let id = pending.existingID,
+              let existing = credentials.first(where: { $0.id == id }) else {
+            confirmPendingCredential()
+            return
+        }
+        _ = updateCredential(existing, username: pending.username, secret: pending.secret, realm: pending.realm)
+        pendingCredential = nil
     }
 
     func secret(for credential: Credential) -> String? {
@@ -1004,17 +1132,138 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
               let username = body["username"] as? String,
               let secret = body["password"] as? String,
               !host.isEmpty, !secret.isEmpty else { return }
-        let alreadySaved = credentials.contains {
-            $0.host.caseInsensitiveCompare(host) == .orderedSame && $0.username == username
-        }
-        guard !alreadySaved else { return }
-        pendingCredential = PendingCredential(host: host, username: username, secret: secret)
+        offerCredentialSave(
+            host: host,
+            username: username,
+            secret: secret,
+            realm: nil,
+            isPrivate: activeTab?.isPrivate == true
+        )
     }
 
-    func confirmPendingCredential() {
-        guard let pending = pendingCredential else { return }
-        addCredential(host: pending.host, username: pending.username, secret: pending.secret)
-        pendingCredential = nil
+    // MARK: HTTP authentication (Basic/Digest) — the browser owns the challenge
+
+    /// Returns true when this delegate owns the challenge. A Basic/Digest prompt is
+    /// never left to the web view's empty default: every path either answers from
+    /// the Keychain or opens the in-app sheet, and Cancel cancels the challenge.
+    func handleHTTPAuth(_ challenge: URLAuthenticationChallenge,
+                        webView: WKWebView,
+                        tabId: UUID,
+                        completion: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Bool {
+        let method = challenge.protectionSpace.authenticationMethod
+        guard method == NSURLAuthenticationMethodHTTPBasic
+                || method == NSURLAuthenticationMethodHTTPDigest else { return false }
+
+        let hostKey = httpHostKey(for: challenge.protectionSpace)
+        let realm = challenge.protectionSpace.realm ?? ""
+        let key = "\(hostKey)|\(realm)"
+        let isPrivate = tabs.first { $0.id == tabId }?.isPrivate ?? false
+        let saved = credentials.first {
+            $0.host.caseInsensitiveCompare(hostKey) == .orderedSame && ($0.realm ?? "") == realm
+        }
+        let knownUser = saved?.username
+            ?? credentials.first { $0.host.caseInsensitiveCompare(hostKey) == .orderedSame }?.username
+            ?? ""
+
+        if challenge.previousFailureCount > 0 || autoAnsweredRealms.contains(key) {
+            // The server rejected what WebKit sent. Never loop the same credential;
+            // re-open the prompt with the failure visible.
+            autoAnsweredRealms.remove(key)
+            httpAuthAttempt = nil
+            presentHTTPAuth(PendingHTTPAuth(
+                host: hostKey,
+                realm: realm,
+                username: pendingHTTPAuth?.username ?? knownUser,
+                isPrivate: isPrivate,
+                failed: true
+            ), completion: completion)
+            return true
+        }
+
+        // Private tabs must not read the Keychain or write to it.
+        if !isPrivate, let saved, let secret = secret(for: saved) {
+            autoAnsweredRealms.insert(key)
+            completion(.useCredential, URLCredential(
+                user: saved.username,
+                password: secret,
+                persistence: .forSession
+            ))
+            return true
+        }
+
+        presentHTTPAuth(PendingHTTPAuth(
+            host: hostKey,
+            realm: realm,
+            username: knownUser,
+            isPrivate: isPrivate
+        ), completion: completion)
+        return true
+    }
+
+    private func presentHTTPAuth(_ auth: PendingHTTPAuth,
+                                 completion: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let previous = httpAuthCompletion { previous(.cancelAuthenticationChallenge, nil) }
+        httpAuthCompletion = completion
+        pendingHTTPAuth = auth
+    }
+
+    func submitHTTPAuth(username: String, password: String) {
+        guard let completion = httpAuthCompletion, let auth = pendingHTTPAuth,
+              !username.isEmpty, !password.isEmpty else { return }
+        httpAuthCompletion = nil
+        httpAuthAttempt = HTTPAuthAttempt(
+            hostKey: auth.host,
+            realm: auth.realm,
+            username: username,
+            secret: password,
+            isPrivate: auth.isPrivate
+        )
+        autoAnsweredRealms.insert("\(auth.host)|\(auth.realm)")
+        pendingHTTPAuth = nil
+        completion(.useCredential, URLCredential(
+            user: username,
+            password: password,
+            persistence: .forSession
+        ))
+    }
+
+    /// Dismissing the sheet is an explicit Cancel: answer the challenge instead of
+    /// leaving the page waiting on a completion that never arrives.
+    func cancelHTTPAuth() {
+        guard let completion = httpAuthCompletion else { return }
+        httpAuthCompletion = nil
+        pendingHTTPAuth = nil
+        httpAuthAttempt = nil
+        completion(.cancelAuthenticationChallenge, nil)
+    }
+
+    /// After the protected page finishes, offer to save the credential that opened
+    /// it. The same offer handles a second account on the origin with Save new /
+    /// Update saved instead of overwriting silently.
+    func didFinishHTTPAuth(url: URL?, tabId: UUID) {
+        if let url, let key = siteKey(for: url) {
+            // A committed page proves this origin's auto answer worked; a later
+            // challenge may use the Keychain again instead of being treated as a
+            // rejection just because it is no longer the first request this launch.
+            autoAnsweredRealms = autoAnsweredRealms.filter { !$0.hasPrefix("\(key)|") }
+        }
+        guard let attempt = httpAuthAttempt, let url, let key = siteKey(for: url),
+              key.caseInsensitiveCompare(attempt.hostKey) == .orderedSame else { return }
+        httpAuthAttempt = nil
+        offerCredentialSave(
+            host: attempt.hostKey,
+            username: attempt.username,
+            secret: attempt.secret,
+            realm: attempt.realm,
+            isPrivate: attempt.isPrivate
+        )
+    }
+
+    private func httpHostKey(for space: URLProtectionSpace) -> String {
+        if space.port == 0 || space.port == 80 || space.port == 443 {
+            return space.host
+        }
+        return "\(space.host):\(space.port)"
     }
 
     /// The save alert's outcome, so a failure is visible instead of assumed.

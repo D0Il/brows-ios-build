@@ -81,8 +81,21 @@ struct WebViewContainer: UIViewRepresentable {
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { sync(webView) }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             sync(webView)
+            model?.didFinishHTTPAuth(url: webView.url, tabId: tabId)
             model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
             samplePageBackground(webView)
+        }
+
+        /// Basic and Digest challenges belong to the browser: the model answers from
+        /// the Keychain or opens its own sheet. Everything else (server trust and
+        /// client certificates) stays with WebKit.
+        func webView(_ webView: WKWebView,
+                     didReceive challenge: URLAuthenticationChallenge,
+                     completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+            if model?.handleHTTPAuth(challenge, webView: webView, tabId: tabId, completion: completionHandler) == true {
+                return
+            }
+            completionHandler(.performDefaultHandling, nil)
         }
 
         /// The page runs under the top inset; paint that area with the document's own

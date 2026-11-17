@@ -4,9 +4,11 @@ import XCTest
 /// and the panels behind its rows are real.
 final class BrowsUITests: XCTestCase {
     /// Each test starts from a clean install state, so tab counts are deterministic.
-    private func makeApp(extra: [String] = []) -> XCUIApplication {
+    /// `reset: false` is the relaunch case: the Keychain row saved by the previous
+    /// launch must still answer the challenge.
+    private func makeApp(extra: [String] = [], reset: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-BrowsUITestReset"] + extra
+        app.launchArguments = (reset ? ["-BrowsUITestReset"] : []) + extra
         app.launch()
         return app
     }
@@ -163,6 +165,86 @@ final class BrowsUITests: XCTestCase {
                 )
             }
         }
+    }
+
+    /// A 401 Basic challenge is answered by the app's own sheet, not WebKit's blank
+    /// challenge, and the entered credentials reach the protected content.
+    func testHTTPAuthPromptCompletesAndSaves() {
+        let app = makeApp()
+        open("http://localhost:8000/auth.html", in: app)
+
+        XCTAssertTrue(app.navigationBars["Sign in"].waitForExistence(timeout: 15), "HTTP auth prompt missing")
+        XCTAssertFalse(app.alerts["Sign in"].exists, "the system's chrome answered instead of the app")
+        signIn(user: "browsuser", password: "browssecret", in: app)
+
+        XCTAssertTrue(
+            app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25),
+            "401-protected content was not reached with the entered credentials"
+        )
+        let save = app.alerts["Save password?"]
+        XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
+        save.buttons["Save"].tap()
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10))
+        app.staticTexts["Passwords"].tap()
+        XCTAssertTrue(app.staticTexts["localhost:8000"].waitForExistence(timeout: 10), "auth credential was not stored")
+        XCTAssertTrue(app.staticTexts["browsuser"].exists, "stored auth username missing")
+        app.buttons["Done"].tap()
+    }
+
+    /// Relaunch answers from the Keychain with no prompt, and a second account on
+    /// the same origin offers both Save new account and Update saved.
+    func testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice() {
+        let app = makeApp()
+        open("http://localhost:8000/auth.html", in: app)
+        XCTAssertTrue(app.navigationBars["Sign in"].waitForExistence(timeout: 15))
+        signIn(user: "browsuser", password: "browssecret", in: app)
+        XCTAssertTrue(app.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
+        let firstSave = app.alerts["Save password?"]
+        XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
+        firstSave.buttons["Save"].tap()
+        app.terminate()
+
+        let relaunched = makeApp(extra: ["-BrowsOpenURL", "http://localhost:8000/auth.html"], reset: false)
+        XCTAssertTrue(
+            relaunched.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25),
+            "saved Keychain credential was not offered after relaunch"
+        )
+        XCTAssertFalse(relaunched.navigationBars["Sign in"].exists, "relaunch prompted instead of using the Keychain")
+
+        // Same origin, second protection space: there is no saved entry for it, so
+        // the prompt must open and the new account must be offered for saving.
+        open("http://localhost:8000/auth2.html", in: relaunched)
+        XCTAssertTrue(relaunched.navigationBars["Sign in"].waitForExistence(timeout: 15), "second-account challenge did not prompt")
+        signIn(user: "otheraccount", password: "othersecret", in: relaunched)
+        XCTAssertTrue(relaunched.webViews.staticTexts["Protected area"].waitForExistence(timeout: 25))
+
+        let choice = relaunched.alerts["Save password?"]
+        XCTAssertTrue(choice.waitForExistence(timeout: 10), "second account was not offered for saving")
+        XCTAssertTrue(choice.buttons["Save new account"].exists, "save-new choice missing")
+        XCTAssertTrue(choice.buttons["Update browsuser"].exists, "update-saved choice missing")
+        choice.buttons["Save new account"].tap()
+
+        relaunched.buttons["rail.menu"].tap()
+        XCTAssertTrue(relaunched.staticTexts["Passwords"].waitForExistence(timeout: 10))
+        relaunched.staticTexts["Passwords"].tap()
+        XCTAssertTrue(relaunched.staticTexts["otheraccount"].waitForExistence(timeout: 10), "second account was not saved")
+        XCTAssertTrue(relaunched.staticTexts["browsuser"].exists, "first account was overwritten instead of kept")
+        relaunched.buttons["Done"].tap()
+    }
+
+    /// Fills the app's HTTP auth sheet. The system never sees this challenge.
+    private func signIn(user: String, password: String, in app: XCUIApplication) {
+        let username = app.textFields["Username"]
+        XCTAssertTrue(username.waitForExistence(timeout: 5), "auth username field missing")
+        username.tap()
+        username.typeText(user)
+        let secret = app.secureTextFields["Password"]
+        XCTAssertTrue(secret.exists, "auth password field missing")
+        secret.tap()
+        secret.typeText(password)
+        app.buttons["auth.signIn"].tap()
     }
 
     /// End to end password manager: submit a served login form, save it, leave the

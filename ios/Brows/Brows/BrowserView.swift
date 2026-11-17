@@ -72,15 +72,37 @@ struct BrowserView: View {
         .sheet(item: $model.pdfFile) { file in
             ActivityView(url: file.url)
         }
+        .sheet(item: $model.pendingHTTPAuth) { auth in
+            HTTPAuthSheet(auth: auth).environmentObject(model)
+        }
         .alert("Save password?", isPresented: Binding(
             get: { model.pendingCredential != nil },
             set: { if !$0 { model.discardPendingCredential() } }
-        )) {
-            Button("Save") { model.confirmPendingCredential() }
-            Button("Not now", role: .cancel) { model.discardPendingCredential() }
+        )        ) {
+            if let pending = model.pendingCredential {
+                if pending.existingID != nil {
+                    if pending.isSecondAccount {
+                        Button("Save new account") { model.confirmPendingCredential() }
+                        Button("Update \(pending.existingUsername ?? "saved password")") {
+                            model.updatePendingCredential()
+                        }
+                    } else {
+                        Button("Update password") { model.updatePendingCredential() }
+                    }
+                } else {
+                    Button("Save") { model.confirmPendingCredential() }
+                }
+                Button("Not now", role: .cancel) { model.discardPendingCredential() }
+            }
         } message: {
             if let pending = model.pendingCredential {
-                Text("Save the password for \(pending.username.isEmpty ? pending.host : pending.username) on \(pending.host)?")
+                if pending.isSecondAccount, let existing = pending.existingUsername {
+                    Text("A password for \(pending.host) is already saved as \(existing). Save \(pending.username) as another account, or replace the saved one?")
+                } else if pending.existingID != nil {
+                    Text("Update the saved password for \(pending.username) on \(pending.host)?")
+                } else {
+                    Text("Save the password for \(pending.username.isEmpty ? pending.host : pending.username) on \(pending.host)?")
+                }
             }
         }
         .alert("Reader mode", isPresented: $model.readerFailed) {
