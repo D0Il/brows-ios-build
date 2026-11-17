@@ -76,7 +76,9 @@ struct BrowserView: View {
             // Both credential surfaces live in the browser's own hierarchy, never in
             // a sheet: a sheet that dismisses can swallow the tap that follows it.
             // Exactly one of them exists at a time.
-            if let auth = model.pendingHTTPAuth {
+            if let dialog = model.pendingScriptDialog {
+                ScriptDialogCard(dialog: dialog).environmentObject(model)
+            } else if let auth = model.pendingHTTPAuth {
                 HTTPAuthCard(auth: auth).environmentObject(model)
             } else if let pending = model.pendingCredential {
                 CredentialSaveOverlay(pending: pending).environmentObject(model)

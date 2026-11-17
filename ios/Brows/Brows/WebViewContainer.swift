@@ -282,6 +282,53 @@ struct WebViewContainer: UIViewRepresentable {
             }
         }
 
+        // MARK: JavaScript panels
+
+        /// A page's dialogs are answered by the browser's own card. Without these
+        /// three methods WebKit draws nothing at all and answers the page itself:
+        /// `confirm()` returns false, so the action the user asked for silently
+        /// does not happen.
+        func webView(_ webView: WKWebView,
+                     runJavaScriptAlertPanelWithMessage message: String,
+                     initiatedByFrame frame: WKFrameInfo,
+                     completionHandler: @escaping () -> Void) {
+            guard let model else { completionHandler(); return }
+            let dialog = PendingScriptDialog(kind: .alert, message: message, host: Self.host(for: webView))
+            model.presentScriptDialog(dialog) { _ in completionHandler() }
+        }
+
+        func webView(_ webView: WKWebView,
+                     runJavaScriptConfirmPanelWithMessage message: String,
+                     initiatedByFrame frame: WKFrameInfo,
+                     completionHandler: @escaping (Bool) -> Void) {
+            guard let model else { completionHandler(false); return }
+            let dialog = PendingScriptDialog(kind: .confirm, message: message, host: Self.host(for: webView))
+            model.presentScriptDialog(dialog) { answer in
+                if case .ok = answer { completionHandler(true) } else { completionHandler(false) }
+            }
+        }
+
+        func webView(_ webView: WKWebView,
+                     runJavaScriptTextInputPanelWithPrompt prompt: String,
+                     defaultText: String?,
+                     initiatedByFrame frame: WKFrameInfo,
+                     completionHandler: @escaping (String?) -> Void) {
+            guard let model else { completionHandler(nil); return }
+            let dialog = PendingScriptDialog(
+                kind: .prompt,
+                message: prompt,
+                host: Self.host(for: webView),
+                defaultText: defaultText ?? ""
+            )
+            model.presentScriptDialog(dialog) { answer in
+                if case .text(let value) = answer { completionHandler(value) } else { completionHandler(nil) }
+            }
+        }
+
+        private static func host(for webView: WKWebView) -> String {
+            webView.url?.host ?? ""
+        }
+
         // MARK: WKUIDelegate
 
         func webView(_ webView: WKWebView,

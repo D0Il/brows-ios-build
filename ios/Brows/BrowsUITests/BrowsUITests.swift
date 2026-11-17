@@ -130,6 +130,47 @@ final class BrowsUITests: XCTestCase {
         app.buttons["Done"].tap()
     }
 
+    /// A page's alert/confirm/prompt must be answered by the browser. WebKit
+    /// suppresses every panel whose delegate method is missing, so without this
+    /// surface `confirm()` returns false and the action the user just agreed to
+    /// silently never happens.
+    func testJavaScriptDialogsAnswerThePage() {
+        let app = makeApp()
+        open("http://localhost:8000/dialog.html", in: app, expect: "Dialogs")
+
+        // alert: the page blocks until the panel is answered.
+        app.webViews.buttons["Alert"].tap()
+        XCTAssertTrue(app.buttons["dialog.ok"].waitForExistence(timeout: 10), "alert panel missing")
+        XCTAssertEqual(app.staticTexts["dialog.message"].label, "Saved to the shelf.")
+        waitUntilHittable(app.buttons["dialog.ok"])
+        app.buttons["dialog.ok"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["alerted"].waitForExistence(timeout: 10), "alert did not resume the page")
+
+        // confirm, cancelled: the page must see false.
+        app.webViews.buttons["Confirm"].tap()
+        XCTAssertTrue(app.buttons["dialog.cancel"].waitForExistence(timeout: 10), "confirm panel missing")
+        waitUntilHittable(app.buttons["dialog.cancel"])
+        app.buttons["dialog.cancel"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["cancelled"].waitForExistence(timeout: 10), "confirm cancel did not answer false")
+
+        // confirm, accepted.
+        app.webViews.buttons["Confirm"].tap()
+        waitUntilHittable(app.buttons["dialog.ok"])
+        app.buttons["dialog.ok"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["confirmed"].waitForExistence(timeout: 10), "confirm OK did not answer true")
+
+        // prompt: what the user types is the value the page receives.
+        app.webViews.buttons["Prompt"].tap()
+        let field = app.textFields["dialog.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "prompt field missing")
+        field.tap()
+        field.typeText("brows")
+        waitUntilHittable(app.buttons["dialog.ok"])
+        app.buttons["dialog.ok"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["hello brows"].waitForExistence(timeout: 10), "prompt text did not reach the page")
+        XCTAssertFalse(app.buttons["dialog.ok"].exists, "dialog stayed on screen")
+    }
+
     private func open(_ url: String, in app: XCUIApplication, expect text: String? = nil) {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))

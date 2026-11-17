@@ -176,6 +176,25 @@ struct PendingHTTPAuth: Identifiable, Equatable {
     var failed = false
 }
 
+/// A page's JavaScript `alert`, `confirm` or `prompt`, owned by the browser.
+/// WebKit suppresses these panels entirely when the UI delegate does not
+/// implement them, so a page's `confirm()` silently returns false and the
+/// action the user just agreed to never happens.
+struct PendingScriptDialog: Identifiable, Equatable {
+    enum Kind: Equatable { case alert, confirm, prompt }
+    var id = UUID()
+    var kind: Kind
+    var message: String
+    var host: String
+    var defaultText = ""
+}
+
+enum ScriptDialogAnswer: Equatable {
+    case ok
+    case cancel
+    case text(String?)
+}
+
 private struct HTTPAuthAttempt {
     var hostKey: String
     var realm: String
@@ -226,6 +245,10 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var isEditingAddress = false
     @Published var pendingCredential: PendingCredential?
     @Published var pendingHTTPAuth: PendingHTTPAuth?
+    @Published var pendingScriptDialog: PendingScriptDialog?
+    /// WebKit expects exactly one answer per panel; the closure is taken out
+    /// before it runs so a second answer can never reach the same page.
+    private var scriptDialogCompletion: ((ScriptDialogAnswer) -> Void)?
     /// Why the last password write failed, shown by the Passwords sheet.
     @Published var credentialError: String?
     /// Test-only trace of the save path; never contains a password.
@@ -382,6 +405,12 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                     host: "localhost:8000",
                     realm: "Brows Fixture",
                     username: "browsuser"
+                )
+            case "dialog":
+                self.pendingScriptDialog = PendingScriptDialog(
+                    kind: .confirm,
+                    message: "Remove this bookmark from the shelf?",
+                    host: "brows.dev"
                 )
             case "authsave":
                 self.pendingCredential = PendingCredential(
@@ -935,6 +964,27 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             // Keychain row was already there.
             UserDefaults.standard.synchronize()
         }
+    }
+
+    // MARK: JavaScript dialogs
+
+    func presentScriptDialog(_ dialog: PendingScriptDialog,
+                             completion: @escaping (ScriptDialogAnswer) -> Void) {
+        if scriptDialogCompletion != nil { finishScriptDialog(.cancel) }
+        scriptDialogCompletion = completion
+        pendingScriptDialog = dialog
+    }
+
+    /// OK/Cancel from the card, or a cancel when the page goes away. Answering
+    /// releases the page's JavaScript thread, which is blocked until this runs.
+    func finishScriptDialog(_ answer: ScriptDialogAnswer) {
+        guard let completion = scriptDialogCompletion else {
+            pendingScriptDialog = nil
+            return
+        }
+        scriptDialogCompletion = nil
+        pendingScriptDialog = nil
+        completion(answer)
     }
 
     // MARK: Page tools — found in the desktop menu

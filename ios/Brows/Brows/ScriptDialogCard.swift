@@ -1,0 +1,85 @@
+import SwiftUI
+
+/// The browser's own JavaScript dialog. It is an overlay in the browser's
+/// hierarchy, like every other browser-owned surface: a system alert here would
+/// be the app borrowing chrome it already draws itself, and it would lose the
+/// app's ink and plates.
+struct ScriptDialogCard: View {
+    let dialog: PendingScriptDialog
+    @EnvironmentObject var model: BrowserModel
+
+    @State private var text: String
+
+    init(dialog: PendingScriptDialog) {
+        self.dialog = dialog
+        _text = State(initialValue: dialog.defaultText)
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.16).ignoresSafeArea()
+            card.offset(y: -48)
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("dialog.card")
+    }
+
+    private var card: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // The page's host, in the same muted line the credential card uses, so
+            // a dialog is always attributable to the site that raised it.
+            Text(dialog.host.isEmpty ? "This page" : dialog.host)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(Theme.panelMuted)
+
+            Text(dialog.message.isEmpty ? "This page has a message." : dialog.message)
+                .font(.system(size: 15))
+                .foregroundColor(Theme.panelInk)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("dialog.message")
+
+            if dialog.kind == .prompt {
+                TextField("", text: $text)
+                    .textFieldStyle(.plain)
+                    .foregroundColor(Theme.plateInk)
+                    .padding(.horizontal, 10)
+                    .frame(height: 40)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                    .accessibilityLabel("dialog.field")
+                    .accessibilityIdentifier("dialog.field")
+            }
+
+            Button {
+                model.finishScriptDialog(dialog.kind == .prompt ? .text(text) : .ok)
+            } label: {
+                Text("OK")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Theme.ink)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(.plain)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            .accessibilityIdentifier("dialog.ok")
+
+            // An alert has nothing to cancel: dismissing it is its only answer.
+            if dialog.kind != .alert {
+                Button("Cancel") { model.finishScriptDialog(.cancel) }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Theme.panelMuted)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("dialog.cancel")
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: 340)
+        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
+        .padding(24)
+        .accessibilityElement(children: .contain)
+    }
+}
