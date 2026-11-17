@@ -148,14 +148,20 @@ jobs:
               def do_GET(self):
                   path = self.path.split('?', 1)[0]
                   if path in ('/auth.html', '/auth2.html'):
-                      realm = 'Brows Fixture 2' if path == '/auth2.html' else 'Brows Fixture'
+                      second = path == '/auth2.html'
+                      realm = 'Brows Fixture 2' if second else 'Brows Fixture'
+                      # Each protection space demands its own account. WebKit reuses
+                      # a .forSession credential for the host across realms, so a
+                      # page that accepted either account would never challenge
+                      # and the second-account offer could not be reached.
+                      allowed = 'otheraccount' if second else 'browsuser'
                       user = ''
                       header = self.headers.get('Authorization', '')
                       if header.startswith('Basic '):
                           try:
                               raw = base64.b64decode(header[6:]).decode('utf-8')
                               name, password = raw.split(':', 1)
-                              if ACCOUNTS.get(name) == password:
+                              if name == allowed and ACCOUNTS.get(name) == password:
                                   user = name
                           except Exception:
                               user = ''
