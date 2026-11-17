@@ -23,6 +23,8 @@ struct BookmarksStrip: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("bookmark.chip")
+                    .accessibilityValue(bookmark.title)
                 }
             }
             .padding(.horizontal, 2)

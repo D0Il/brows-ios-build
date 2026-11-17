@@ -67,6 +67,7 @@ struct DownloadsSheet: View {
                             .foregroundColor(Theme.muted)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("download.share")
                 }
 
                 if item.failed {

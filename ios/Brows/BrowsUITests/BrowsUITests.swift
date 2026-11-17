@@ -300,6 +300,10 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["sample.bin"].waitForExistence(timeout: 20),
             "download did not start or was not listed"
         )
+        XCTAssertTrue(
+            app.buttons["download.share"].waitForExistence(timeout: 20),
+            "download never finished (no share action on the row)"
+        )
     }
 
     func testStartPageSearchField() {

@@ -193,6 +193,7 @@ struct HistorySheet: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Clear", role: .destructive) { model.clearHistory() }
+                        .accessibilityIdentifier("history.clear")
                         .disabled(model.history.isEmpty)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {

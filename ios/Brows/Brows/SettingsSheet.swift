@@ -18,7 +18,7 @@ struct SettingsSheet: View {
                             ToggleRow(title: "Address bar at the bottom", subtitle: "Safari, Chrome and Opera all default to this", isOn: Binding(
                                 get: { model.settings.addressBarBottom },
                                 set: { model.settings.addressBarBottom = $0; model.saveSettings() }
-                            ))
+                            ), identifier: "settings.addressBarBottom")
                         }
 
                         section("SEARCH") {
@@ -122,6 +122,7 @@ struct ToggleRow: View {
     let title: String
     let subtitle: String
     @Binding var isOn: Bool
+    var identifier: String? = nil
 
     var body: some View {
         HStack(spacing: 10) {
@@ -138,6 +139,7 @@ struct ToggleRow: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .tint(.white)
+                .accessibilityIdentifier(identifier ?? "settings.toggle.\(title)")
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
