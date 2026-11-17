@@ -817,7 +817,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         guard !isPrivate, !secret.isEmpty else { return }
         let sameOrigin = credentials.filter { $0.host.caseInsensitiveCompare(host) == .orderedSame }
         let existing = sameOrigin.first { $0.username == username } ?? sameOrigin.first
-        if let existing, existing.username == username, secret(for: existing) == secret {
+        if let existing, existing.username == username, self.secret(for: existing) == secret {
             return
         }
         let pending = PendingCredential(
