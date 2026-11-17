@@ -76,7 +76,10 @@ struct BrowserView: View {
             HTTPAuthSheet(auth: auth).environmentObject(model)
         }
         .overlay {
-            if let pending = model.pendingCredential {
+            // The HTTP auth sheet carries the save card itself while it is up. An
+            // overlay copy too would put a second, dimmed set of the same buttons
+            // behind the sheet, so the visible one is not unique and not hittable.
+            if let pending = model.pendingCredential, model.pendingHTTPAuth == nil {
                 CredentialSaveOverlay(pending: pending).environmentObject(model)
             }
         }
