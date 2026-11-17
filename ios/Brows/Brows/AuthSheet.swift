@@ -168,15 +168,15 @@ struct HTTPAuthCard: View {
             } label: {
                 Text("Sign in")
                     .font(.system(size: 14, weight: .semibold))
-                    // A disabled white plate keeps the desktop's light ink: fading
-                    // the plate made the label grey-on-grey in dark, which the
-                    // captures showed.
                     .foregroundColor(incomplete ? Theme.fieldPlaceholder : Theme.ink)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
             }
             .buttonStyle(.plain)
+            // The plate sits outside the label: `.disabled` dims the label, and a
+            // plate inside it turned into a grey slab on the dark card (seen in the
+            // auth-dark capture). The desktop's white plate stays white.
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
             .accessibilityIdentifier("auth.signIn")
             .disabled(incomplete)
         }
