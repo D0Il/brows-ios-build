@@ -184,10 +184,9 @@ final class BrowsUITests: XCTestCase {
         let save = app.alerts["Save password?"]
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
         save.buttons["Save"].tap()
+        waitUntilGone(save)
 
-        app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10))
-        app.staticTexts["Passwords"].tap()
+        openMenuRow("Passwords", in: app)
         XCTAssertTrue(app.staticTexts["localhost:8000"].waitForExistence(timeout: 10), "auth credential was not stored")
         XCTAssertTrue(app.staticTexts["browsuser"].exists, "stored auth username missing")
         app.buttons["Done"].tap()
@@ -204,6 +203,12 @@ final class BrowsUITests: XCTestCase {
         let firstSave = app.alerts["Save password?"]
         XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
         firstSave.buttons["Save"].tap()
+        waitUntilGone(firstSave)
+        // Prove the Keychain row before the relaunch, and give the defaults write a
+        // settled moment instead of terminating under the menu animation.
+        openMenuRow("Passwords", in: app)
+        XCTAssertTrue(app.staticTexts["browsuser"].waitForExistence(timeout: 10), "auth password was not saved")
+        app.buttons["Done"].tap()
         app.terminate()
 
         let relaunched = makeApp(extra: ["-BrowsOpenURL", "http://localhost:8000/auth.html"], reset: false)
@@ -225,13 +230,35 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(choice.buttons["Save new account"].exists, "save-new choice missing")
         XCTAssertTrue(choice.buttons["Update browsuser"].exists, "update-saved choice missing")
         choice.buttons["Save new account"].tap()
+        waitUntilGone(choice)
 
-        relaunched.buttons["rail.menu"].tap()
-        XCTAssertTrue(relaunched.staticTexts["Passwords"].waitForExistence(timeout: 10))
-        relaunched.staticTexts["Passwords"].tap()
+        openMenuRow("Passwords", in: relaunched)
         XCTAssertTrue(relaunched.staticTexts["otheraccount"].waitForExistence(timeout: 10), "second account was not saved")
         XCTAssertTrue(relaunched.staticTexts["browsuser"].exists, "first account was overwritten instead of kept")
         relaunched.buttons["Done"].tap()
+    }
+
+    /// Dismissal is animated; a tap on the next surface during it lands nowhere.
+    private func waitUntilGone(_ element: XCUIElement) {
+        let gone = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: element
+        )
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 10), .completed, "element did not dismiss")
+    }
+
+    /// The menu sheet animates in; a row that exists but is still covered is not a
+    /// product failure. Wait for hittability before using it.
+    private func openMenuRow(_ label: String, in app: XCUIApplication) {
+        app.buttons["rail.menu"].tap()
+        let row = app.staticTexts[label]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "menu row \(label) missing")
+        let hittable = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "isHittable == true"),
+            object: row
+        )
+        XCTAssertEqual(XCTWaiter().wait(for: [hittable], timeout: 10), .completed, "menu row \(label) not hittable")
+        row.tap()
     }
 
     /// Fills the app's HTTP auth sheet. The system never sees this challenge.

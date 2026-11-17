@@ -894,6 +894,10 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     private func persistCredentials() {
         if let data = try? JSONEncoder().encode(credentials) {
             UserDefaults.standard.set(data, forKey: credentialsKey)
+            // The relaunch proof terminates the app right after the save. Defaults
+            // writes are otherwise coalesced, which lost the list even though the
+            // Keychain row was already there.
+            UserDefaults.standard.synchronize()
         }
     }
 

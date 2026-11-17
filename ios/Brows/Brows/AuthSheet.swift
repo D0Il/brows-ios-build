@@ -51,20 +51,23 @@ struct HTTPAuthSheet: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
+                        let incomplete = username.isEmpty || password.isEmpty
                         Button {
                             model.submitHTTPAuth(username: username, password: password)
                         } label: {
                             Text("Sign in")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Theme.ink)
+                                // A disabled white plate keeps the desktop's light ink:
+                                // fading the whole plate made the label grey-on-grey in
+                                // dark, which the captures showed.
+                                .foregroundColor(incomplete ? Theme.fieldPlaceholder : Theme.ink)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("auth.signIn")
-                        .disabled(username.isEmpty || password.isEmpty)
-                        .opacity(username.isEmpty || password.isEmpty ? 0.55 : 1)
+                        .disabled(incomplete)
                     }
                     .padding(16)
                 }
