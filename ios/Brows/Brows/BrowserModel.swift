@@ -269,10 +269,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             // The saved list lives in defaults, the secrets in the Keychain. A reset
             // that only clears defaults would leave orphaned Keychain rows and let
             // one test's password answer the next test's challenge.
-            if let data = UserDefaults.standard.data(forKey: credentialsKey),
-               let old = try? JSONDecoder().decode([Credential].self, from: data) {
-                for credential in old { Vault.delete(id: credential.id) }
-            }
+            Vault.deleteAll()
             for key in [tabsKey, bookmarksKey, workspacesKey, historyKey,
                         downloadsKey, credentialsKey, settingsKey, activeKey,
                         "brows.blockerExceptions"] {

@@ -44,4 +44,14 @@ enum Vault {
         ]
         SecItemDelete(query as CFDictionary)
     }
+
+    /// Test reset: clear every secret this app owns, including a row whose
+    /// defaults entry was lost, so no launch inherits another launch's password.
+    static func deleteAll() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
 }
