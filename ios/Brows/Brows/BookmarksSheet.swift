@@ -34,7 +34,7 @@ struct BookmarksSheet: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .buttonStyle(.plain)
-                        .listRowBackground(Color.white.opacity(0.10))
+                        .listRowBackground(Theme.rowFill)
                     }
                     .onDelete { indexSet in
                         for index in indexSet {

@@ -4,11 +4,34 @@ import XCTest
 /// and the panels behind its rows are real.
 final class BrowsUITests: XCTestCase {
     /// Each test starts from a clean install state, so tab counts are deterministic.
-    private func makeApp() -> XCUIApplication {
+    private func makeApp(extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-BrowsUITestReset"]
+        app.launchArguments = ["-BrowsUITestReset"] + extra
         app.launch()
         return app
+    }
+
+    /// The sheet tokens must clear WCAG AA in both appearances, not just look
+    /// plausible: Theme computes the ratios at launch when asked.
+    func testAppearanceTokensPassContrastAudit() {
+        let app = makeApp(extra: ["-BrowsContrastAudit"])
+        let audit = app.staticTexts["audit.contrast"]
+        XCTAssertTrue(audit.waitForExistence(timeout: 15), "contrast audit did not run")
+        XCTAssertEqual(audit.label, "PASS", "contrast audit failed: \(audit.label)")
+    }
+
+    /// Both appearances present the same, readable menu (the capture pass covers
+    /// the pixels; this keeps the light appearance wired).
+    func testBothAppearancesOpenTheMenu() {
+        for mode in ["light", "dark"] {
+            let app = makeApp(extra: ["-BrowsAppearance", mode])
+            app.buttons["rail.menu"].tap()
+            XCTAssertTrue(
+                app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                "menu did not open in \(mode) appearance"
+            )
+            app.terminate()
+        }
     }
 
     func testRailAndMenuPanels() {

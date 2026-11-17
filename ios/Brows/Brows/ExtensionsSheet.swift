@@ -33,20 +33,20 @@ struct ExtensionsSheet: View {
                                     set: { model.settings.blockAds = $0; model.saveSettings() }
                                 ))
                                 .labelsHidden()
-                                .tint(.white)
+                                .tint(Theme.panelInk)
                             }
                         }
                         .padding(12)
-                        .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.12)))
+                        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.rowFill))
 
                         Text("WEBKIT, NOT CHROMIUM")
                             .font(.system(size: 10, weight: .semibold))
                             .tracking(1.2)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(Theme.panelMuted)
 
                         Text("iPhone apps must use WebKit, so the desktop's Chromium extensions cannot load here. The blocker above is a real WebKit content-rule list; that is the same mechanism Safari extensions use.")
                             .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(Theme.panelMuted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(16)

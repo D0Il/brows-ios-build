@@ -158,7 +158,7 @@ struct FindBar: View {
                 .buttonStyle(GlassCircleButtonStyle())
         }
         .padding(8)
-        .background(RoundedRectangle(cornerRadius: 18).fill(Color.white.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.rowFill))
         .padding(.horizontal, 8)
         .onAppear { focused = true }
     }

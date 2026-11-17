@@ -10,6 +10,8 @@ struct AddressField: UIViewRepresentable {
     var onSubmit: (String) -> Void
     var onFocus: () -> Void
     var onBlur: () -> Void
+    /// CI capture hook: start in the pill's selected (typing) state.
+    var autoFocus: Bool = false
 
     func makeUIView(context: Context) -> UITextField {
         let field = UITextField()
@@ -25,6 +27,11 @@ struct AddressField: UIViewRepresentable {
                 .font: UIFont.systemFont(ofSize: 15)
             ]
         )
+        if autoFocus {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak field] in
+                field?.becomeFirstResponder()
+            }
+        }
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
         field.spellCheckingType = .no

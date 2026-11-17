@@ -96,7 +96,20 @@ struct BrowserView: View {
         .onChange(of: scenePhase) { phase in
             if phase == .background { model.save() }
         }
-        .preferredColorScheme(.dark)
+        // The desktop follows the system (brows_surface.css has a light base and a
+        // prefers-color-scheme: dark block); the phone does too. The launch argument
+        // pins one appearance for the screenshot pass only.
+        .preferredColorScheme(model.launchAppearance == "light" ? .light
+                              : model.launchAppearance == "dark" ? .dark : nil)
+        .overlay(alignment: .topLeading) {
+            if !model.contrastAudit.isEmpty {
+                Text("audit")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("audit.contrast")
+                    .accessibilityLabel(model.contrastAudit)
+            }
+        }
     }
 
     @ViewBuilder
@@ -158,7 +171,7 @@ struct TopStrip: View {
                 ProgressView(value: progress)
                     .progressViewStyle(.linear)
                     .frame(width: 56)
-                    .tint(.white)
+                    .tint(Theme.ink)
             }
         }
         .padding(.horizontal, 10)
@@ -223,7 +236,8 @@ struct BottomRail: View {
                         model.navigate(to: input)
                     },
                     onFocus: { model.isEditingAddress = true },
-                    onBlur: { model.isEditingAddress = false }
+                    onBlur: { model.isEditingAddress = false },
+                    autoFocus: model.focusPillOnLaunch
                 )
                 .frame(maxWidth: .infinity)
                 .frame(height: 24)

@@ -26,7 +26,7 @@ struct PasswordsSheet: View {
                         if let status {
                             Text(status)
                                 .font(.system(size: 11))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(Theme.panelMuted)
                         }
                         list
                         actions
@@ -53,7 +53,7 @@ struct PasswordsSheet: View {
             Text("ADD PASSWORD")
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(1.2)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(Theme.panelMuted)
 
             field("Site", text: $host, keyboard: .URL)
             field("Username", text: $username, keyboard: .emailAddress)
@@ -77,7 +77,7 @@ struct PasswordsSheet: View {
             .buttonStyle(.plain)
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.10)))
+        .background(RoundedRectangle(cornerRadius: 16).fill(Theme.rowFill))
     }
 
     private var list: some View {
@@ -85,18 +85,18 @@ struct PasswordsSheet: View {
             Text("SAVED")
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(1.2)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(Theme.panelMuted)
 
             if let error = model.credentialError {
                 Text(error)
                     .font(.system(size: 11))
-                    .foregroundColor(.white.opacity(0.85))
+                    .foregroundColor(Theme.panelMuted)
             }
 
             if model.credentials.isEmpty {
                 Text("No passwords saved.")
                     .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.75))
+                    .foregroundColor(Theme.panelMuted)
             }
 
             ForEach(model.credentials) { credential in
@@ -146,7 +146,7 @@ struct PasswordsSheet: View {
                     .buttonStyle(.plain)
                 }
                 .padding(12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
+                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
             }
         }
     }
@@ -171,10 +171,10 @@ struct PasswordsSheet: View {
             } label: {
                 Text("Import")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.5)))
+                    .background(RoundedRectangle(cornerRadius: 12).stroke(Theme.rowFill))
             }
             .buttonStyle(.plain)
         }
@@ -187,13 +187,13 @@ struct PasswordsSheet: View {
                 VStack(spacing: 10) {
                     Text("Paste the JSON exported from Brows' Passwords panel.")
                         .font(.system(size: 12))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Theme.panelMuted)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     TextEditor(text: $importText)
                         .font(.system(size: 12, design: .monospaced))
                         .padding(8)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
 
                     Button {
                         let count = model.importCredentials(from: importText)

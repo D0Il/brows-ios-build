@@ -13,7 +13,7 @@ struct DownloadsSheet: View {
                 if model.downloads.isEmpty {
                     Text("Nothing downloaded yet.")
                         .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Theme.panelMuted)
                 } else {
                     ScrollView {
                         VStack(spacing: 8) {
@@ -96,19 +96,19 @@ struct DownloadsSheet: View {
 
             if !item.finished && !item.failed {
                 ProgressView(value: item.progress)
-                    .tint(.white)
+                    .tint(Theme.panelInk)
             } else if item.failed {
                 Text("Failed")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(Theme.panelMuted)
             } else {
                 Text("\(ByteCountFormatter.string(fromByteCount: Int64(fileSize(item.localPath)), countStyle: .file)) saved")
                     .font(.system(size: 10))
-                    .foregroundColor(.white.opacity(0.75))
+                    .foregroundColor(Theme.panelMuted)
             }
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.rowFill))
     }
 
     private func fileSize(_ path: String?) -> Int {

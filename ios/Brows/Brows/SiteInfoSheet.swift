@@ -65,7 +65,7 @@ struct SiteInfoSheet: View {
                         } else {
                             Text("No page loaded.")
                                 .font(.system(size: 13))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(Theme.panelMuted)
                                 .padding(.top, 24)
                         }
                     }
@@ -87,7 +87,7 @@ struct SiteInfoSheet: View {
     private func header(_ info: SiteInfo) -> some View {
         HStack(spacing: 12) {
             ZStack {
-                Circle().fill(Color.white.opacity(0.16))
+                Circle().fill(Theme.rowFill)
                 Image(systemName: info.scheme == "https:" ? "lock.fill" : "exclamationmark.triangle")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(Theme.panelMuted)
@@ -97,15 +97,15 @@ struct SiteInfoSheet: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(info.host)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.panelInk)
                 Text(info.scheme == "https:" ? "Connection is encrypted" : "Connection is not encrypted")
                     .font(.system(size: 11))
-                    .foregroundColor(.white.opacity(0.75))
+                    .foregroundColor(Theme.panelMuted)
             }
             Spacer(minLength: 0)
         }
         .padding(14)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: 16).fill(Theme.rowFill))
     }
 
     private func group(_ title: String, rows: [(String, String)]) -> some View {
@@ -113,7 +113,7 @@ struct SiteInfoSheet: View {
             Text(title)
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(1.2)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(Theme.panelMuted)
                 .padding(.bottom, 6)
 
             ForEach(rows, id: \.0) { pair in
@@ -129,10 +129,10 @@ struct SiteInfoSheet: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 9)
-                .background(Color.white.opacity(0.10))
+                .background(Theme.rowFill)
 
                 if pair.0 != rows.last?.0 {
-                    Divider().background(Color.white.opacity(0.08))
+                    Divider().background(Theme.rowBorder)
                 }
             }
         }

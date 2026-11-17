@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // Brows palette and the glass recipe, taken from the fork's own paint code:
 //   chrome/browser/ui/views/frame/brows_glass.h  (rail pane, rail bubbles)
@@ -9,13 +10,63 @@ enum Theme {
     static let ink = Color(red: 0.055, green: 0.075, blue: 0.11)
     static let muted = Color(red: 0.408, green: 0.443, blue: 0.498) // #68717f
 
-    // brows_surface.css:876-882 — the dark surface is rgba(24,28,35,.94) and the
-    // dark tokens flip ink to #f2f4f8 and muted to #aab2be. The app follows the
-    // system in dark, so every sheet uses these, never the rail's dark ink on the
-    // dark plate (that pairing renders at about 1.1:1).
-    static let surface = Color(red: 24 / 255, green: 28 / 255, blue: 35 / 255).opacity(0.94)
-    static let panelInk = Color(red: 242 / 255, green: 244 / 255, blue: 248 / 255) // #f2f4f8
-    static let panelMuted = Color(red: 170 / 255, green: 178 / 255, blue: 190 / 255) // #aab2be
+    // brows_surface.css:6-8,102-113 (light) and :876-882 (dark). The surface is
+    // the desktop's glass plate; on a phone sheet it is nearly opaque so the page
+    // behind cannot change its meaning. Ink and muted are the desktop tokens.
+    static let panelInkLight = UIColor(red: 32 / 255, green: 36 / 255, blue: 43 / 255, alpha: 1) // #20242b
+    static let panelInkDark = UIColor(red: 242 / 255, green: 244 / 255, blue: 248 / 255, alpha: 1) // #f2f4f8
+    static let panelMutedLight = UIColor(red: 101 / 255, green: 112 / 255, blue: 128 / 255, alpha: 1) // #657080
+    static let panelMutedDark = UIColor(red: 170 / 255, green: 178 / 255, blue: 190 / 255, alpha: 1) // #aab2be
+    static let surfaceLight = UIColor(red: 247 / 255, green: 250 / 255, blue: 253 / 255, alpha: 0.97)
+    static let surfaceDark = UIColor(red: 24 / 255, green: 28 / 255, blue: 35 / 255, alpha: 0.94)
+
+    static func adaptive(light: UIColor, dark: UIColor) -> Color {
+        Color(UIColor { $0.userInterfaceStyle == .dark ? dark : light })
+    }
+
+    static let surface = adaptive(light: surfaceLight, dark: surfaceDark)
+    static let panelInk = adaptive(light: panelInkLight, dark: panelInkDark)
+    static let panelMuted = adaptive(light: panelMutedLight, dark: panelMutedDark)
+
+    /// Rows and plates inside a sheet: the desktop's rgba(var(--plate-rgb),.5)
+    /// with its .7 border in light, and the dark block's white washes in dark.
+    static let rowFill = adaptive(
+        light: UIColor(white: 1, alpha: 0.5),
+        dark: UIColor(white: 1, alpha: 0.10)
+    )
+    static let rowBorder = adaptive(
+        light: UIColor(white: 1, alpha: 0.70),
+        dark: UIColor(white: 1, alpha: 0.12)
+    )
+
+    /// WCAG ratios for the sheet tokens in both appearances. A sheet that writes
+    /// ink failing this is a bug, not a taste call; the launch argument
+    /// `-BrowsContrastAudit` surfaces the result for the UI test.
+    static func contrastAudit() -> String {
+        func luminance(_ color: UIColor) -> CGFloat {
+            var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            color.getRed(&r, green: &g, blue: &b, alpha: &a)
+            func channel(_ value: CGFloat) -> CGFloat {
+                value <= 0.03928 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+        }
+        func ratio(_ a: UIColor, _ b: UIColor) -> CGFloat {
+            let first = luminance(a), second = luminance(b)
+            return (max(first, second) + 0.05) / (min(first, second) + 0.05)
+        }
+
+        let pairs: [(String, UIColor, UIColor)] = [
+            ("light ink", panelInkLight, surfaceLight),
+            ("light muted", panelMutedLight, surfaceLight),
+            ("dark ink", panelInkDark, surfaceDark),
+            ("dark muted", panelMutedDark, surfaceDark)
+        ]
+        let failures = pairs.filter { ratio($0.1, $0.2) < 4.5 }
+        if failures.isEmpty { return "PASS" }
+        let detail = failures.map { "\($0.0)=\(String(format: "%.1f", ratio($0.1, $0.2)))" }.joined(separator: " ")
+        return "FAIL " + detail
+    }
     static let glassStroke = Color.white.opacity(0.72)
     static let backdropTop = Color(red: 0.09, green: 0.16, blue: 0.28)
     static let backdropBottom = Color(red: 0.03, green: 0.05, blue: 0.10)

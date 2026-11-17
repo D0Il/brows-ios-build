@@ -175,6 +175,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var downloads: [DownloadItem] = []
     @Published var credentials: [Credential] = []
     @Published var settings = BrowserSettings()
+    /// `-BrowsAppearance light|dark` pins one appearance for CI captures; nil
+    /// follows the system, which is what the shipped app does.
+    @Published var launchAppearance: String?
+    /// Result of the token contrast audit, exposed for the UI test only.
+    @Published var contrastAudit = ""
+    /// `-BrowsFocusPill` opens with the pill in its selected state for capture.
+    @Published var focusPillOnLaunch = false
     @Published var siteInfo: SiteInfo?
     @Published var readerContent: ReaderContent?
     @Published var findQuery = ""
@@ -242,6 +249,86 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
            index + 1 < CommandLine.arguments.count,
            let url = URL(string: CommandLine.arguments[index + 1]) {
             newTab(url)
+        }
+
+        applyCaptureArguments()
+    }
+
+    /// Launch-only hooks used by the screenshot pass. They never change a page
+    /// and are never reachable from web content.
+    private func applyCaptureArguments() {
+        let arguments = CommandLine.arguments
+
+        if let index = arguments.firstIndex(of: "-BrowsAppearance"),
+           index + 1 < arguments.count {
+            let value = arguments[index + 1]
+            if value == "light" || value == "dark" { launchAppearance = value }
+        }
+
+        if arguments.contains("-BrowsContrastAudit") {
+            contrastAudit = Theme.contrastAudit()
+        }
+
+        if arguments.contains("-BrowsCaptureSeed") {
+            seedCaptureData()
+        }
+
+        if arguments.contains("-BrowsFocusPill") {
+            focusPillOnLaunch = true
+            isEditingAddress = true
+            if addressText.isEmpty { addressText = "brows.dev" }
+        }
+
+        if let index = arguments.firstIndex(of: "-BrowsSheet"),
+           index + 1 < arguments.count {
+            presentLaunchSheet(arguments[index + 1])
+        }
+    }
+
+    private func seedCaptureData() {
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("sample.bin")
+        try? "brows download fixture\n".write(to: file, atomically: true, encoding: .utf8)
+
+        bookmarks = [
+            Bookmark(title: "Brows", url: "https://brows.dev"),
+            Bookmark(title: "The shape of a browser", url: "http://localhost:8000/article.html")
+        ]
+        history = [
+            HistoryEntry(url: "https://brows.dev", title: "Brows — the browser", date: Date(), workspace: activeWorkspace?.name ?? "Main"),
+            HistoryEntry(url: "http://localhost:8000/article.html", title: "The shape of a browser", date: Date().addingTimeInterval(-3600), workspace: activeWorkspace?.name ?? "Main")
+        ]
+        downloads = [
+            DownloadItem(filename: "sample.bin", source: "http://localhost:8000/sample.bin", progress: 1, finished: true, failed: false, localPath: file.path)
+        ]
+        if workspaces.count < 2 {
+            workspaces.append(Workspace(name: "Work"))
+        }
+        if credentials.isEmpty {
+            _ = addCredential(host: "brows.dev", username: "brows", secret: "fixture-password")
+        }
+    }
+
+    private func presentLaunchSheet(_ name: String) {
+        // Present after the first layout so the sheet is not dropped by the
+        // presentation system during launch.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+            guard let self else { return }
+            switch name {
+            case "menu": self.showingMenu = true
+            case "bookmarks": self.showingBookmarks = true
+            case "downloads": self.showingDownloads = true
+            case "history": self.showingHistory = true
+            case "workspaces": self.showingWorkspaces = true
+            case "passwords": self.showingPasswords = true
+            case "extensions": self.showingExtensions = true
+            case "settings": self.showingSettings = true
+            case "tabs": self.showingTabSwitcher = true
+            case "siteinfo":
+                self.showingSiteInfo = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.loadSiteInfo() }
+            default:
+                break
+            }
         }
     }
 

@@ -34,7 +34,7 @@ struct SettingsSheet: View {
                                 .pickerStyle(.segmented)
                             }
                             .padding(12)
-                            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
+                            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
                         }
 
                         section("PRIVACY") {
@@ -69,7 +69,7 @@ struct SettingsSheet: View {
                             if cleared {
                                 Text("Cleared.")
                                     .font(.system(size: 11))
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(Theme.panelMuted)
                             }
                         }
 
@@ -98,7 +98,7 @@ struct SettingsSheet: View {
             Text(title)
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(1.2)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(Theme.panelMuted)
             content()
         }
     }
@@ -114,7 +114,7 @@ struct SettingsSheet: View {
                 .foregroundColor(Theme.panelInk)
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
     }
 }
 
@@ -138,10 +138,10 @@ struct ToggleRow: View {
             Spacer(minLength: 0)
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .tint(.white)
+                .tint(Theme.panelInk)
                 .accessibilityIdentifier(identifier ?? "settings.toggle.\(title)")
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
     }
 }

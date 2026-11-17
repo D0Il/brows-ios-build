@@ -93,7 +93,7 @@ struct WorkspacesSheet: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(active ? Color.white.opacity(0.95) : Color.white.opacity(0.14))
+                    .fill(active ? Color.white.opacity(0.95) : Theme.rowFill)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16).stroke(Theme.glassStroke, lineWidth: active ? 1 : 0.5)
@@ -161,7 +161,7 @@ struct HistorySheet: View {
                     if entries.isEmpty {
                         Text(model.history.isEmpty ? "Nothing in history yet." : "No matches.")
                             .font(.system(size: 13))
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(Theme.panelMuted)
                             .padding(.top, 20)
                         Spacer(minLength: 0)
                     } else {
@@ -174,7 +174,7 @@ struct HistorySheet: View {
                                         Text(day.uppercased())
                                             .font(.system(size: 10, weight: .semibold))
                                             .tracking(1.2)
-                                            .foregroundColor(.white.opacity(0.7))
+                                            .foregroundColor(Theme.panelMuted)
                                         ForEach(items) { entry in
                                             row(entry)
                                         }
@@ -224,7 +224,7 @@ struct HistorySheet: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 9)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.14)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
         .contentShape(RoundedRectangle(cornerRadius: 12))
         .onTapGesture {
             model.navigate(to: entry.url)

@@ -81,7 +81,7 @@ struct AppMenu: View {
             Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.panelMuted))
         }
-        .listRowBackground(Color.white.opacity(0.10))
+        .listRowBackground(Theme.rowFill)
     }
 
     private func row(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
@@ -100,6 +100,6 @@ struct AppMenu: View {
             action()
             dismiss()
         }
-        .listRowBackground(Color.white.opacity(0.10))
+        .listRowBackground(Theme.rowFill)
     }
 }

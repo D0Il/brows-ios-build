@@ -171,6 +171,25 @@ jobs:
           sleep 8
           xcrun simctl io "$DEVICE" screenshot brows-article.png
 
+          # Every text-bearing sheet, in both appearances, plus the pill's selected
+          # state. These are launch-only hooks (`-BrowsSheet`, `-BrowsAppearance`,
+          # `-BrowsFocusPill`) and never reachable from a page.
+          mkdir -p captures
+          for mode in light dark; do
+            for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs pill; do
+              xcrun simctl terminate "$DEVICE" dev.brows.ios > /dev/null 2>&1 || true
+              args=(-BrowsUITestReset -BrowsCaptureSeed -BrowsAppearance "$mode" -BrowsOpenURL http://localhost:8000/article.html)
+              if [ "$sheet" = "pill" ]; then
+                args+=(-BrowsFocusPill)
+              else
+                args+=(-BrowsSheet "$sheet")
+              fi
+              xcrun simctl launch "$DEVICE" dev.brows.ios "${args[@]}" > /dev/null
+              sleep 4
+              xcrun simctl io "$DEVICE" screenshot "captures/${sheet}-${mode}.png"
+            done
+          done
+
       - name: Run UI tests
         working-directory: ios/Brows
         run: |
@@ -196,6 +215,7 @@ jobs:
           path: |
             brows-launch.png
             brows-article.png
+            captures/*.png
             fixtures/server.log
             brows-sim.log
             launch.txt
