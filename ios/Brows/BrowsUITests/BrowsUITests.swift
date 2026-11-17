@@ -185,6 +185,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 10), "completed auth was not offered for saving")
         save.buttons["Save"].tap()
         waitUntilGone(save)
+        XCTAssertEqual(app.staticTexts["debug.credentials"].label, "1", "auth save did not reach the credential list")
     }
 
     /// Relaunch answers from the Keychain with no prompt, and a second account on
@@ -199,9 +200,11 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(firstSave.waitForExistence(timeout: 10))
         firstSave.buttons["Save"].tap()
         waitUntilGone(firstSave)
+        XCTAssertEqual(app.staticTexts["debug.credentials"].label, "1", "auth save did not reach the credential list")
         app.terminate()
 
         let relaunched = makeApp(extra: ["-BrowsOpenURL", "http://localhost:8000/auth.html"], reset: false)
+        XCTAssertEqual(relaunched.staticTexts["debug.credentials"].label, "1", "saved list was not loaded after relaunch")
         let protected = relaunched.webViews.staticTexts["Protected area"]
         if !protected.waitForExistence(timeout: 25) {
             print("RELAUNCH-DEBUG prompt=\(relaunched.navigationBars["Sign in"].exists)")
@@ -222,16 +225,21 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(choice.buttons["Save new account"].exists, "save-new choice missing")
         XCTAssertTrue(choice.buttons["Update browsuser"].exists, "update-saved choice missing")
         choice.buttons["Save new account"].tap()
-        waitUntilGone(choice)
+        waitUntilGone(choice, app: relaunched)
     }
 
     /// Dismissal is animated; a tap on the next surface during it lands nowhere.
-    private func waitUntilGone(_ element: XCUIElement) {
+    private func waitUntilGone(_ element: XCUIElement, app: XCUIApplication? = nil) {
         let gone = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "exists == false"),
             object: element
         )
-        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 10), .completed, "element did not dismiss")
+        let result = XCTWaiter().wait(for: [gone], timeout: 10)
+        if result != .completed {
+            print("DISMISS-DEBUG label=\(element.label) creds=\(app?.staticTexts["debug.credentials"].label ?? "?")")
+            if let app { print(app.debugDescription) }
+        }
+        XCTAssertEqual(result, .completed, "element did not dismiss")
     }
 
     /// Fills the app's HTTP auth sheet. The system never sees this challenge.

@@ -129,12 +129,21 @@ struct BrowserView: View {
         .preferredColorScheme(model.launchAppearance == "light" ? .light
                               : model.launchAppearance == "dark" ? .dark : nil)
         .overlay(alignment: .topLeading) {
-            if !model.contrastAudit.isEmpty {
-                Text("audit")
+            VStack(spacing: 0) {
+                if !model.contrastAudit.isEmpty {
+                    Text("audit")
+                        .font(.system(size: 1))
+                        .opacity(0.01)
+                        .accessibilityIdentifier("audit.contrast")
+                        .accessibilityLabel(model.contrastAudit)
+                }
+                // Test-only probe: proves the saved list and the Keychain row agree
+                // across a relaunch without exposing any password.
+                Text("credentials")
                     .font(.system(size: 1))
                     .opacity(0.01)
-                    .accessibilityIdentifier("audit.contrast")
-                    .accessibilityLabel(model.contrastAudit)
+                    .accessibilityIdentifier("debug.credentials")
+                    .accessibilityLabel("\(model.credentials.count)")
             }
         }
     }
