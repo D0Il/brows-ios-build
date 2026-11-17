@@ -267,10 +267,12 @@ final class BrowsUITests: XCTestCase {
         XCTAssertEqual(name, "Work", "rail did not switch workspace")
     }
 
-    /// Reader takes a real article apart and shows it as text.
+    /// Reader takes a real article apart and shows it as text. The article is the
+    /// fixture served on :8000 — Wikipedia's availability is not what this tests.
     func testReaderMode() {
         let app = makeApp()
-        open("https://en.wikipedia.org/wiki/Web_browser", in: app)
+        open("http://localhost:8000/article.html", in: app)
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20))
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
