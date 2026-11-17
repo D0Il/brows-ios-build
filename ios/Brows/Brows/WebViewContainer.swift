@@ -14,6 +14,18 @@ struct WebViewContainer: UIViewRepresentable {
         webView.uiDelegate = context.coordinator
 
         let owner = model
+        // The tab pane names the page; WebKit sets the title after load, and SPAs
+        // change it later, so track it instead of only reading it at didFinish.
+        let tabId = context.coordinator.tabId
+        context.coordinator.titleObservation = webView.observe(\.title, options: [.new]) { [weak owner] view, _ in
+            let title = view.title ?? ""
+            guard !title.isEmpty else { return }
+            DispatchQueue.main.async {
+                owner?.update(tabId) { tab in
+                    tab.title = title
+                }
+            }
+        }
         context.coordinator.observation = webView.observe(\.estimatedProgress, options: [.new]) { [weak owner] view, _ in
             let progress = view.estimatedProgress
             let loading = view.isLoading
@@ -45,12 +57,14 @@ struct WebViewContainer: UIViewRepresentable {
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         coordinator.observation?.invalidate()
+        coordinator.titleObservation?.invalidate()
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
         weak var model: BrowserModel?
         let tabId: UUID
         var observation: KVOObservation?
+        var titleObservation: KVOObservation?
 
         private var downloadIds: [ObjectIdentifier: UUID] = [:]
         private var destinations: [ObjectIdentifier: URL] = [:]
@@ -98,6 +112,20 @@ struct WebViewContainer: UIViewRepresentable {
                 }
                 if let url, url != BrowserModel.home { self.model?.recordVisit(url, title: title) }
                 self.model?.scheduleSave()
+
+                // The page runs full-bleed under the glass, but its text must start
+                // below the status bar and the tab pane, and stop above the rail.
+                if isStart {
+                    webView.scrollView.contentInset = .zero
+                } else {
+                    let safe = webView.safeAreaInsets
+                    webView.scrollView.contentInset = UIEdgeInsets(
+                        top: safe.top + 32,
+                        left: 0,
+                        bottom: 68,
+                        right: 0
+                    )
+                }
             }
         }
 
