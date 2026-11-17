@@ -90,7 +90,12 @@ struct BrowserView: View {
         }
         .onChange(of: model.showingMenu) { open in
             if !open {
-                DispatchQueue.main.async { model.openPendingPanel() }
+                // A sheet cannot present while the menu sheet is still dismissing;
+                // presenting on the next runloop drops the panel now and then.
+                // Wait out the dismissal animation, then open the queued panel.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                    model.openPendingPanel()
+                }
             }
         }
         .onChange(of: scenePhase) { phase in
