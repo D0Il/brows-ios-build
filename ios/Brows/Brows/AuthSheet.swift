@@ -5,32 +5,23 @@ import SwiftUI
 /// while the auth sheet was tearing down existed but never became interactive.
 struct CredentialSaveOverlay: View {
     let pending: PendingCredential
-    var embedded = false
     @EnvironmentObject var model: BrowserModel
 
     var body: some View {
-        if embedded {
+        ZStack {
+            Color.black.opacity(0.16).ignoresSafeArea()
             card
-        } else {
-            ZStack {
-                Color.black.opacity(0.16).ignoresSafeArea()
-                card
-            }
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("credential.save")
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("credential.save")
     }
 
     private var card: some View {
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
-                    // Inside the auth sheet the navigation bar already reads
-                    // "Save password?"; repeating it would stack two headings.
-                    if !embedded {
-                        Text("Save password?")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(Theme.panelInk)
-                    }
+                    Text("Save password?")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(Theme.panelInk)
                     Text(pending.username.isEmpty ? pending.host : "\(pending.username) on \(pending.host)")
                         .font(.system(size: 12))
                         .foregroundColor(Theme.panelMuted)
@@ -119,11 +110,6 @@ struct HTTPAuthSheet: View {
             ZStack {
                 Theme.surface.ignoresSafeArea()
 
-                if let pending = inlineOffer {
-                    ScrollView {
-                        CredentialSaveOverlay(pending: pending, embedded: true)
-                    }
-                } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -175,9 +161,8 @@ struct HTTPAuthSheet: View {
                     }
                     .padding(16)
                 }
-                }
             }
-            .navigationTitle(inlineOffer == nil ? "Sign in" : "Save password?")
+            .navigationTitle("Sign in")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -191,13 +176,6 @@ struct HTTPAuthSheet: View {
             model.cancelHTTPAuth()
             model.httpAuthSheetDidDisappear()
         }
-    }
-
-    /// The card belongs to a challenge this sheet has already answered. An offer
-    /// left over from a form login must not take over the sheet and hide the form.
-    private var inlineOffer: PendingCredential? {
-        guard auth.completed, let pending = model.pendingCredential else { return nil }
-        return pending
     }
 
     private func field(_ label: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {

@@ -174,9 +174,6 @@ struct PendingHTTPAuth: Identifiable, Equatable {
     var username: String = ""
     var isPrivate = false
     var failed = false
-    /// Set once the credentials were handed to the challenge. The sheet stays up
-    /// and becomes the save card, so the offer never needs a second presentation.
-    var completed = false
 }
 
 private struct HTTPAuthAttempt {
@@ -864,14 +861,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     private func presentDeferredCredentialOffer() {
         guard let pending = deferredCredentialOffer, pendingCredential == nil else { return }
-        // The auth sheet is still up but has handed over the credentials: show the
-        // save card inside it. One surface, so its buttons are always interactive.
-        if let auth = pendingHTTPAuth, auth.completed {
-            deferredCredentialOffer = nil
-            credentialDebug = "inline \(pending.host) \(pending.username)"
-            pendingCredential = pending
-            return
-        }
         guard pendingHTTPAuth == nil, !httpAuthSheetVisible else { return }
         deferredCredentialOffer = nil
         credentialOfferToken += 1
@@ -1283,15 +1272,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             isPrivate: auth.isPrivate
         )
         autoAnsweredRealms.insert("\(auth.host)|\(auth.realm)")
-        pendingHTTPAuth?.completed = true
-        let authId = auth.id
-        // If the protected page never finishes, do not strand the user on a
-        // completed sheet; dismiss it and let any later offer use the overlay.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6) { [weak self] in
-            guard let self, self.pendingHTTPAuth?.id == authId,
-                  self.pendingHTTPAuth?.completed == true,
-                  self.pendingCredential == nil else { return }
-            self.pendingHTTPAuth = nil
+        // Answer the challenge and take the sheet down. A save card drawn inside
+        // that sheet was visible but never received a tap (SwiftUI's sheet did not
+        // route it to the button), so the offer is its own surface once the page
+        // has loaded. Dismissal is animated; onDisappear is the normal trigger and
+        // this deadline is the floor if the callback is ever dropped.
+        pendingHTTPAuth = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+            guard let self, self.pendingHTTPAuth == nil else { return }
+            self.httpAuthSheetVisible = false
+            self.presentDeferredCredentialOffer()
         }
         completion(.useCredential, URLCredential(
             user: username,
