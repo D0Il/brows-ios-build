@@ -151,10 +151,12 @@ struct WebViewContainer: UIViewRepresentable {
                     webView.scrollView.contentInset = .zero
                 } else {
                     let safe = webView.safeAreaInsets
+                    // The rail is 52pt of controls plus the home-indicator area;
+                    // text must stop above it, never under the last row.
                     webView.scrollView.contentInset = UIEdgeInsets(
                         top: safe.top + 32,
                         left: 0,
-                        bottom: 68,
+                        bottom: safe.bottom + 60,
                         right: 0
                     )
                 }

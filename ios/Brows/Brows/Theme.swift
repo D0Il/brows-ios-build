@@ -8,6 +8,14 @@ import SwiftUI
 enum Theme {
     static let ink = Color(red: 0.055, green: 0.075, blue: 0.11)
     static let muted = Color(red: 0.408, green: 0.443, blue: 0.498) // #68717f
+
+    // brows_surface.css:876-882 — the dark surface is rgba(24,28,35,.94) and the
+    // dark tokens flip ink to #f2f4f8 and muted to #aab2be. The app follows the
+    // system in dark, so every sheet uses these, never the rail's dark ink on the
+    // dark plate (that pairing renders at about 1.1:1).
+    static let surface = Color(red: 24 / 255, green: 28 / 255, blue: 35 / 255).opacity(0.94)
+    static let panelInk = Color(red: 242 / 255, green: 244 / 255, blue: 248 / 255) // #f2f4f8
+    static let panelMuted = Color(red: 170 / 255, green: 178 / 255, blue: 190 / 255) // #aab2be
     static let glassStroke = Color.white.opacity(0.72)
     static let backdropTop = Color(red: 0.09, green: 0.16, blue: 0.28)
     static let backdropBottom = Color(red: 0.03, green: 0.05, blue: 0.10)
@@ -21,6 +29,18 @@ enum Theme {
     static let pillWash = Color.white.opacity(0.035)
     static let pillBorder = Color.white.opacity(0.42)
     static let pillRadius: CGFloat = 10
+
+    /// location_bar.css:29-31 — the pill's two insets and its soft drop.
+    static let pillInnerTop = Color.white.opacity(0.42)
+    static let pillInnerBottom = Color(red: 47 / 255, green: 58 / 255, blue: 75 / 255).opacity(0.045)
+    static let pillDrop = Color(red: 38 / 255, green: 47 / 255, blue: 61 / 255).opacity(0.035)
+
+    /// location_bar.css:115-120 — selected pill: a lighter wash (.22 → .08 over
+    /// .04) and the rail's own ink as the edge, never a pink focus ring.
+    static let pillFocusTop = Color.white.opacity(0.22)
+    static let pillFocusBottom = Color.white.opacity(0.08)
+    static let pillFocusWash = Color.white.opacity(0.04)
+    static let pillFocusBorder = Color(red: 27 / 255, green: 31 / 255, blue: 39 / 255).opacity(0.55)
 
     /// app.css `.brows-bookmark` — 28px tall, 7px radius, 6px gap, max 118px,
     /// 2px/8px padding, 12px text in `rgba(74,84,102,.72)`, no chip fill.
@@ -78,8 +98,13 @@ struct GlassPane: View {
                     endPoint: .bottom
                 )
 
+                // brows_glass.h: transparent at 52% of the gradient's reach,
+                // not at the end of it.
                 RadialGradient(
-                    colors: [Theme.railSheen, .clear],
+                    stops: [
+                        Gradient.Stop(color: Theme.railSheen, location: 0),
+                        Gradient.Stop(color: .clear, location: 0.52)
+                    ],
                     center: UnitPoint(x: 0.18, y: -0.20),
                     startRadius: 0,
                     endRadius: max(geo.size.width * 1.4, geo.size.height * 0.95)
@@ -100,13 +125,14 @@ struct GlassPane: View {
 /// bubble is 30px; on a phone the touch frame is 36 so it stays tappable.
 struct GlassCircleButtonStyle: ButtonStyle {
     var enabled: Bool = true
+    var glyph: Color = Theme.muted
     private let bubbleRadius: CGFloat = 8
     private let drop = Color(red: 24 / 255, green: 31 / 255, blue: 44 / 255)
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .semibold))
-            .foregroundColor(enabled ? Theme.muted : Theme.muted.opacity(0.4))
+            .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
             .background(
                 ZStack {
@@ -140,8 +166,21 @@ struct GlassCircleButtonStyle: ButtonStyle {
                         )
                     )
             }
-            .shadow(color: drop.opacity(0.075), radius: 1, x: 0, y: 1)
-            .shadow(color: drop.opacity(0.045), radius: 6, x: 0, y: 4)
+            // toolbar_button.css:36-40 — inset 0 -1px rgba(34,44,60,.075),
+            // 0 1px 2px rgba(24,31,44,.075), 0 4px 12px rgba(24,31,44,.045).
+            .overlay(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                    .stroke(Color(red: 34 / 255, green: 44 / 255, blue: 60 / 255).opacity(0.075), lineWidth: 1)
+                    .mask(
+                        LinearGradient(
+                            colors: [.clear, .white],
+                            startPoint: UnitPoint(x: 0.5, y: 0.55),
+                            endPoint: .bottom
+                        )
+                    )
+            }
+            .shadow(color: drop.opacity(0.075), radius: 2, x: 0, y: 1)
+            .shadow(color: drop.opacity(0.045), radius: 12, x: 0, y: 4)
             .opacity(enabled ? 1 : 0.55)
     }
 }

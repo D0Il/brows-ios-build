@@ -11,7 +11,7 @@ struct WorkspacesSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 VStack(spacing: 12) {
                     ScrollView {
@@ -38,7 +38,7 @@ struct WorkspacesSheet: View {
                         } label: {
                             Image(systemName: "plus")
                         }
-                        .buttonStyle(GlassCircleButtonStyle())
+                        .buttonStyle(GlassCircleButtonStyle(glyph: Theme.panelMuted))
                         .accessibilityIdentifier("workspace.add")
                         .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
@@ -75,10 +75,10 @@ struct WorkspacesSheet: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workspace.name)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(Theme.ink)
+                        .foregroundColor(active ? Theme.ink : Theme.panelInk)
                     Text("\(count) tab\(count == 1 ? "" : "s")")
                         .font(.system(size: 11))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(active ? Theme.muted : Theme.panelMuted)
                 }
 
                 Spacer(minLength: 0)
@@ -87,7 +87,7 @@ struct WorkspacesSheet: View {
                     Text("CURRENT")
                         .font(.system(size: 8, weight: .bold))
                         .tracking(1)
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(active ? Theme.muted : Theme.panelMuted)
                 }
             }
             .padding(12)
@@ -143,7 +143,7 @@ struct HistorySheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
@@ -209,18 +209,18 @@ struct HistorySheet: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(entry.title)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Theme.ink)
+                    .foregroundColor(Theme.panelInk)
                     .lineLimit(1)
                 Text(entry.url)
                     .font(.system(size: 10))
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
             Text(entry.workspace.uppercased())
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(0.8)
-                .foregroundColor(Theme.muted)
+                .foregroundColor(Theme.panelMuted)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 9)

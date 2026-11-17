@@ -9,7 +9,7 @@ struct SiteInfoSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
@@ -44,7 +44,7 @@ struct SiteInfoSheet: View {
                             } label: {
                                 Text(model.isBlockingCurrentSite() ? "Turn off blocking on this site" : "Turn on blocking on this site")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Theme.ink)
+                                    .foregroundColor(Theme.panelInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.9)))
@@ -56,7 +56,7 @@ struct SiteInfoSheet: View {
                             } label: {
                                 Text("Clear data for \(info.host)")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Theme.ink)
+                                    .foregroundColor(Theme.panelInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.9)))
@@ -90,7 +90,7 @@ struct SiteInfoSheet: View {
                 Circle().fill(Color.white.opacity(0.16))
                 Image(systemName: info.scheme == "https:" ? "lock.fill" : "exclamationmark.triangle")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
             }
             .frame(width: 42, height: 42)
 
@@ -120,11 +120,11 @@ struct SiteInfoSheet: View {
                 HStack {
                     Text(pair.0)
                         .font(.system(size: 13))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(Theme.panelMuted)
                     Spacer(minLength: 12)
                     Text(pair.1)
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(Theme.ink)
+                        .foregroundColor(Theme.panelInk)
                         .multilineTextAlignment(.trailing)
                 }
                 .padding(.horizontal, 12)

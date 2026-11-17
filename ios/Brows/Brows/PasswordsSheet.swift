@@ -18,7 +18,7 @@ struct PasswordsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
@@ -104,11 +104,11 @@ struct PasswordsSheet: View {
                     HStack {
                         Text(credential.host)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Theme.ink)
+                            .foregroundColor(Theme.panelInk)
                         Spacer(minLength: 8)
                         Text(credential.username)
                             .font(.system(size: 11))
-                            .foregroundColor(Theme.muted)
+                            .foregroundColor(Theme.panelMuted)
                             .lineLimit(1)
                     }
 
@@ -123,7 +123,7 @@ struct PasswordsSheet: View {
                         if revealed.contains(credential.id) {
                             Text(model.secret(for: credential) ?? "—")
                                 .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(Theme.muted)
+                                .foregroundColor(Theme.panelMuted)
                                 .lineLimit(1)
                         }
                         Spacer(minLength: 0)
@@ -142,7 +142,7 @@ struct PasswordsSheet: View {
                         }
                     }
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
                     .buttonStyle(.plain)
                 }
                 .padding(12)
@@ -183,7 +183,7 @@ struct PasswordsSheet: View {
     private var importSheet: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
                 VStack(spacing: 10) {
                     Text("Paste the JSON exported from Brows' Passwords panel.")
                         .font(.system(size: 12))

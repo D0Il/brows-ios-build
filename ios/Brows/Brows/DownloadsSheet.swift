@@ -8,7 +8,7 @@ struct DownloadsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 if model.downloads.isEmpty {
                     Text("Nothing downloaded yet.")
@@ -45,16 +45,16 @@ struct DownloadsSheet: View {
             HStack(spacing: 10) {
                 Image(systemName: item.failed ? "exclamationmark.triangle" : "arrow.down.circle")
                     .font(.system(size: 18, weight: .regular))
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.filename)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Theme.ink)
+                        .foregroundColor(Theme.panelInk)
                         .lineLimit(1)
                     Text(item.source)
                         .font(.system(size: 10))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(Theme.panelMuted)
                         .lineLimit(1)
                 }
 
@@ -64,7 +64,7 @@ struct DownloadsSheet: View {
                     ShareLink(item: URL(fileURLWithPath: path)) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(Theme.muted)
+                            .foregroundColor(Theme.panelMuted)
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("download.share")
@@ -73,14 +73,14 @@ struct DownloadsSheet: View {
                 if item.failed {
                     Button("Retry") { model.retryDownload(item) }
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(Theme.panelMuted)
                         .buttonStyle(.plain)
                 }
 
                 if !item.finished && !item.failed {
                     Button("Cancel") { model.cancelDownload(item.id) }
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(Theme.panelMuted)
                         .buttonStyle(.plain)
                 }
 
@@ -89,7 +89,7 @@ struct DownloadsSheet: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(Theme.panelMuted)
                 }
                 .buttonStyle(.plain)
             }

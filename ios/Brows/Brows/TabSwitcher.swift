@@ -15,7 +15,7 @@ struct TabSwitcher: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
@@ -62,15 +62,15 @@ struct TabSwitcher: View {
                                         HStack(spacing: 10) {
                                             Image(systemName: "arrow.uturn.backward")
                                                 .font(.system(size: 12, weight: .semibold))
-                                                .foregroundColor(Theme.muted)
+                                                .foregroundColor(Theme.panelMuted)
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(closed.title)
                                                     .font(.system(size: 13, weight: .medium))
-                                                    .foregroundColor(Theme.ink)
+                                                    .foregroundColor(Theme.panelInk)
                                                     .lineLimit(1)
                                                 Text(closed.url)
                                                     .font(.system(size: 10))
-                                                    .foregroundColor(Theme.muted)
+                                                    .foregroundColor(Theme.panelMuted)
                                                     .lineLimit(1)
                                             }
                                             Spacer(minLength: 0)
@@ -106,19 +106,26 @@ struct TabSwitcher: View {
     }
 
     private func tabCard(_ tab: Tab) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        // The active card is the white plate (active tab glass); the rest are
+        // translucent over the dark surface, so their ink flips like the desktop's
+        // dark media block.
+        let active = model.activeTabId == tab.id
+        let primary = active ? Theme.ink : Theme.panelInk
+        let secondary = active ? Theme.muted : Theme.panelMuted
+
+        return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 titleText(tab)
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(2)
-                    .foregroundColor(Theme.ink)
+                    .foregroundColor(primary)
                 Spacer(minLength: 0)
                 Button {
                     model.close(tab)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 15))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(secondary)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Close tab")
@@ -127,7 +134,7 @@ struct TabSwitcher: View {
 
             Text(tab.url?.host ?? "New Tab")
                 .font(.system(size: 11))
-                .foregroundColor(Theme.muted)
+                .foregroundColor(secondary)
                 .lineLimit(1)
 
             Spacer(minLength: 0)
@@ -136,7 +143,7 @@ struct TabSwitcher: View {
                 if let position = results.firstIndex(where: { $0.id == tab.id }) {
                     Text("\(position + 1)")
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(secondary)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
                         .background(Capsule().fill(Color.white.opacity(0.5)))
@@ -144,12 +151,12 @@ struct TabSwitcher: View {
                 Text(model.workspaceName(for: tab).uppercased())
                     .font(.system(size: 8, weight: .semibold))
                     .tracking(0.8)
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(secondary)
                 if tab.isPrivate {
                     Text("PRIVATE")
                         .font(.system(size: 8, weight: .bold))
                         .tracking(0.8)
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(secondary)
                 }
             }
         }

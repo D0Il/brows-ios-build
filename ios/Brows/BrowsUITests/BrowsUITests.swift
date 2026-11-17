@@ -267,6 +267,25 @@ final class BrowsUITests: XCTestCase {
         XCTAssertEqual(name, "Work", "rail did not switch workspace")
     }
 
+    /// The desktop rail's order, kept on the phone: the page controls (back,
+    /// forward, reload) sit together before the pill, not after the favourites.
+    func testPageControlsSitBeforeThePill() {
+        let app = makeApp()
+        open("http://localhost:8000/other.html", in: app)
+
+        let back = app.buttons["rail.back"]
+        let reload = app.buttons["rail.reload"]
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(back.waitForExistence(timeout: 10), "back control missing after navigating")
+        XCTAssertTrue(reload.waitForExistence(timeout: 10), "reload control missing")
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "address pill missing")
+        XCTAssertLessThan(back.frame.maxX, reload.frame.minX, "back must sit left of reload")
+        XCTAssertLessThan(
+            reload.frame.maxX, field.frame.minX,
+            "reload belongs with the page controls, left of the pill"
+        )
+    }
+
     /// Reader takes a real article apart and shows it as text. The article is the
     /// fixture served on :8000 — Wikipedia's availability is not what this tests.
     func testReaderMode() {

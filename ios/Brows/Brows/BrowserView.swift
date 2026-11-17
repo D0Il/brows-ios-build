@@ -193,10 +193,17 @@ struct BottomRail: View {
     var body: some View {
         HStack(spacing: 6) {
             if canBack {
-                railButton("chevron.left") { model.goBack() }
+                railButton("chevron.left", id: "rail.back") { model.goBack() }
             }
             if canForward {
-                railButton("chevron.right") { model.goForward() }
+                railButton("chevron.right", id: "rail.forward") { model.goForward() }
+            }
+
+            // Desktop order, 45-mobile-research: the page controls (back, forward,
+            // reload/stop) stay together at the rail's leading edge, before the
+            // pill. Reload is a page control, not a trailing browser action.
+            railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise", id: "rail.reload") {
+                model.reloadOrStop()
             }
 
             HStack(spacing: 6) {
@@ -238,11 +245,13 @@ struct BottomRail: View {
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(Theme.pillWash)
+                        .fill(model.isEditingAddress ? Theme.pillFocusWash : Theme.pillWash)
                     RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                         .fill(
                             LinearGradient(
-                                colors: [Theme.pillTop, Theme.pillBottom],
+                                colors: model.isEditingAddress
+                                    ? [Theme.pillFocusTop, Theme.pillFocusBottom]
+                                    : [Theme.pillTop, Theme.pillBottom],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
@@ -251,8 +260,33 @@ struct BottomRail: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                    .stroke(Theme.pillBorder, lineWidth: 1)
+                    .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
             )
+            // location_bar.css:29-31 — inset 0 1px 0 rgba(255,255,255,.42),
+            // inset 0 -1px 0 rgba(47,58,75,.045), 0 1px 5px rgba(38,47,61,.035).
+            .overlay(alignment: .top) {
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .stroke(Theme.pillInnerTop, lineWidth: 1)
+                    .mask(
+                        LinearGradient(
+                            colors: [.white, .clear],
+                            startPoint: .top,
+                            endPoint: UnitPoint(x: 0.5, y: 0.25)
+                        )
+                    )
+            }
+            .overlay(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .stroke(Theme.pillInnerBottom, lineWidth: 1)
+                    .mask(
+                        LinearGradient(
+                            colors: [.clear, .white],
+                            startPoint: UnitPoint(x: 0.5, y: 0.75),
+                            endPoint: .bottom
+                        )
+                    )
+            }
+            .shadow(color: Theme.pillDrop, radius: 5, x: 0, y: 1)
             .layoutPriority(2)
 
             if !model.bookmarks.isEmpty {
@@ -262,10 +296,6 @@ struct BottomRail: View {
                 BookmarksStrip()
                     .frame(minWidth: 56, maxWidth: chipWidth)
                     .layoutPriority(1)
-            }
-
-            railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise") {
-                model.reloadOrStop()
             }
 
             if showZoom {
@@ -340,11 +370,12 @@ struct BottomRail: View {
         .foregroundColor(Theme.muted)
     }
 
-    private func railButton(_ symbol: String, action: @escaping () -> Void) -> some View {
+    private func railButton(_ symbol: String, id: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
         }
         .buttonStyle(GlassCircleButtonStyle())
+        .accessibilityIdentifier(id)
     }
 }
 

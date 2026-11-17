@@ -10,7 +10,7 @@ struct SettingsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
@@ -107,11 +107,11 @@ struct SettingsSheet: View {
         HStack {
             Text(title)
                 .font(.system(size: 13))
-                .foregroundColor(Theme.muted)
+                .foregroundColor(Theme.panelMuted)
             Spacer(minLength: 12)
             Text(value)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Theme.ink)
+                .foregroundColor(Theme.panelInk)
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.12)))
@@ -128,11 +128,11 @@ struct ToggleRow: View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Theme.ink)
+                                    .font(.system(size: 13, weight: .medium))
+                .foregroundColor(Theme.panelInk)
                 Text(subtitle)
                     .font(.system(size: 10))
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)

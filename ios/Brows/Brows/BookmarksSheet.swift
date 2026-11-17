@@ -7,13 +7,13 @@ struct BookmarksSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 List {
                     if model.bookmarks.isEmpty {
                         Text("No bookmarks yet. Tap the star in the address pill to save a page.")
                             .font(.system(size: 13))
-                            .foregroundColor(Theme.muted)
+                            .foregroundColor(Theme.panelMuted)
                             .listRowBackground(Color.clear)
                     }
 
@@ -25,10 +25,10 @@ struct BookmarksSheet: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(bookmark.title)
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Theme.ink)
+                                    .foregroundColor(Theme.panelInk)
                                 Text(bookmark.url)
                                     .font(.system(size: 11))
-                                    .foregroundColor(Theme.muted)
+                                    .foregroundColor(Theme.panelMuted)
                                     .lineLimit(1)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)

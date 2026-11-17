@@ -10,7 +10,7 @@ struct ExtensionsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
@@ -18,14 +18,14 @@ struct ExtensionsSheet: View {
                             HStack(spacing: 10) {
                                 Image(systemName: "shield.lefthalf.filled")
                                     .font(.system(size: 18))
-                                    .foregroundColor(Theme.muted)
+                                    .foregroundColor(Theme.panelMuted)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Brows Ad Blocker")
                                         .font(.system(size: 15, weight: .semibold))
-                                        .foregroundColor(Theme.ink)
+                                        .foregroundColor(Theme.panelInk)
                                     Text("\(model.settings.blockAds ? "On" : "Off") · \(model.settings.blockTrackers ? "trackers blocked" : "trackers allowed")")
                                         .font(.system(size: 10))
-                                        .foregroundColor(Theme.muted)
+                                        .foregroundColor(Theme.panelMuted)
                                 }
                                 Spacer(minLength: 0)
                                 Toggle("", isOn: Binding(

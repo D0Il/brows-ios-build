@@ -9,7 +9,7 @@ struct AppMenu: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.backdrop.ignoresSafeArea()
+                Theme.surface.ignoresSafeArea()
 
                 List {
                     Section {
@@ -66,20 +66,20 @@ struct AppMenu: View {
         HStack(spacing: 10) {
             Text("Zoom")
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(Theme.ink)
+                .foregroundColor(Theme.panelInk)
                 .frame(width: 70, alignment: .leading)
 
             Spacer(minLength: 0)
 
             Button { model.adjustZoom(by: -0.1) } label: { Image(systemName: "minus") }
-                .buttonStyle(GlassCircleButtonStyle())
+                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.panelMuted))
             Button { model.resetZoom() } label: {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 12, weight: .semibold))
             }
-            .buttonStyle(GlassCircleButtonStyle())
+            .buttonStyle(GlassCircleButtonStyle(glyph: Theme.panelInk))
             Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
-                .buttonStyle(GlassCircleButtonStyle())
+                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.panelMuted))
         }
         .listRowBackground(Color.white.opacity(0.10))
     }
@@ -88,11 +88,11 @@ struct AppMenu: View {
         HStack(spacing: 12) {
             Image(systemName: symbol)
                 .font(.system(size: 15))
-                .foregroundColor(Theme.muted)
+                .foregroundColor(Theme.panelMuted)
                 .frame(width: 22)
             Text(title)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(Theme.ink)
+                .foregroundColor(Theme.panelInk)
             Spacer(minLength: 0)
         }
         .contentShape(Rectangle())
