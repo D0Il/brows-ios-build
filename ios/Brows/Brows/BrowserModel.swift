@@ -861,6 +861,19 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     // MARK: History
 
+    /// WebKit publishes a page's title after `didFinish`, but the visit is already
+    /// recorded by then with the host standing in for the title. The entry is
+    /// corrected the moment the real title arrives, so history and the pill never
+    /// call a page "localhost".
+    func retitleVisit(_ url: URL?, title: String) {
+        guard let url, !title.isEmpty else { return }
+        guard let index = history.firstIndex(where: { $0.url == url.absoluteString }) else { return }
+        guard Date().timeIntervalSince(history[index].date) < 30 else { return }
+        guard history[index].title != title else { return }
+        history[index].title = title
+        save()
+    }
+
     func recordVisit(_ url: URL, title: String) {
         guard !(activeTab?.isPrivate ?? false) else { return }
         guard url.scheme == "http" || url.scheme == "https" else { return }

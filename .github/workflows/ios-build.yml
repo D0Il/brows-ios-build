@@ -6,6 +6,15 @@ on:
       - "ios/Brows/**"
       - ".github/workflows/ios-build.yml"
   workflow_dispatch:
+    inputs:
+      only_test:
+        description: "One test method (e.g. testAddressPillCompletesFromHistory); empty runs the suite"
+        required: false
+        default: ""
+      skip_captures:
+        description: "Skip the light/dark capture pass"
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -255,6 +264,9 @@ jobs:
           # The server step above changed into fixtures/; the screenshot belongs at
           # the workspace root so upload-artifact picks it up.
           cd "$GITHUB_WORKSPACE"
+          # Iterating on one test does not need the capture pass: skip_captures
+          # turns a thirty-minute loop into a build plus one test.
+          if [ "${{ github.event.inputs.skip_captures }}" != "true" ]; then
           xcrun simctl terminate "$DEVICE" dev.brows.ios || true
           xcrun simctl launch "$DEVICE" dev.brows.ios -BrowsOpenURL http://localhost:8000/article.html > /dev/null
           sleep 8
@@ -278,10 +290,19 @@ jobs:
               xcrun simctl io "$DEVICE" screenshot "captures/${sheet}-${mode}.png"
             done
           done
+          fi
 
       - name: Run UI tests
         working-directory: ios/Brows
+        env:
+          ONLY_TEST: ${{ github.event.inputs.only_test }}
         run: |
+          # -only-testing takes Target/Class/Method; empty runs the whole suite.
+          FILTER=""
+          if [ -n "$ONLY_TEST" ]; then
+            FILTER="-only-testing:BrowsUITests/BrowsUITests/$ONLY_TEST"
+            echo "only: $FILTER"
+          fi
           xcodebuild test \
             -project Brows.xcodeproj \
             -scheme Brows \
@@ -289,7 +310,8 @@ jobs:
             -derivedDataPath build-test \
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="-"
+            CODE_SIGN_IDENTITY="-" \
+            $FILTER
           echo "---- launch console ----"
           cat launch.txt || true
           echo "---- crash reports ----"

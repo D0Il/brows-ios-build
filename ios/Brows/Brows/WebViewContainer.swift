@@ -20,10 +20,12 @@ struct WebViewContainer: UIViewRepresentable {
         context.coordinator.titleObservation = webView.observe(\.title, options: [.new]) { [weak owner] view, _ in
             let title = view.title ?? ""
             guard !title.isEmpty else { return }
+            let url = view.url
             DispatchQueue.main.async {
                 owner?.update(tabId) { tab in
                     tab.title = title
                 }
+                owner?.retitleVisit(url, title: title)
             }
         }
         context.coordinator.observation = webView.observe(\.estimatedProgress, options: [.new]) { [weak owner] view, _ in
