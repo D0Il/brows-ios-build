@@ -259,7 +259,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var readerContent: ReaderContent?
     @Published var findQuery = ""
     @Published var findState = FindState()
-    @Published var readerFailed = false
+    /// A page command that could not complete, shown in the app's own card. A
+    /// system alert would speak in a voice the browser does not use anywhere else.
+    @Published var pageNotice: PageNotice?
     @Published var pdfFile: ExportFile?
     @Published var pendingPanel: PanelTarget?
     /// While the user is typing in the address field, navigation updates must not
@@ -1196,7 +1198,10 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                   let text = dict["text"] as? String, text.count > 200 else {
                 DispatchQueue.main.async {
                     self.readerContent = nil
-                    self.readerFailed = true
+                    self.pageNotice = PageNotice(
+                        title: "Reader mode",
+                        message: "This page has no article text to show in Reader."
+                    )
                 }
                 return
             }
@@ -1271,7 +1276,18 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         guard let webView = webViews[activeTabId] else { return }
         let configuration = WKPDFConfiguration()
         webView.createPDF(configuration: configuration) { [weak self] result in
-            guard let self, case let .success(data) = result else { return }
+            guard let self else { return }
+            // A PDF that was not written is not saved, and it says so. The old
+            // path reported this with the Reader copy, in a system alert.
+            guard case let .success(data) = result else {
+                DispatchQueue.main.async {
+                    self.pageNotice = PageNotice(
+                        title: "Save as PDF",
+                        message: "This page could not be turned into a PDF. Nothing was saved."
+                    )
+                }
+                return
+            }
             let raw = self.activeTab?.title ?? (self.activeTab?.url?.host ?? "Brows")
             let name = raw.replacingOccurrences(of: "/", with: "-").prefix(60)
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).pdf")
@@ -1279,7 +1295,12 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                 try data.write(to: url)
                 DispatchQueue.main.async { self.pdfFile = ExportFile(url: url) }
             } catch {
-                DispatchQueue.main.async { self.readerFailed = true }
+                DispatchQueue.main.async {
+                    self.pageNotice = PageNotice(
+                        title: "Save as PDF",
+                        message: "The PDF could not be written to disk. Nothing was saved."
+                    )
+                }
             }
         }
     }

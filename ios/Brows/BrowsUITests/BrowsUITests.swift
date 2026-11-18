@@ -675,6 +675,37 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 5))
     }
 
+    /// A page with no article text must fail in the app's own card. A system alert
+    /// would hand the failure to iOS chrome the browser never uses, and the desktop
+    /// lesson says the page must also stay exactly where it was.
+    func testReaderFailureUsesTheAppsOwnCard() {
+        let app = makeApp()
+        open("http://localhost:8000/other.html", in: app, expect: "Other page")
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20))
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        let readerRow = app.staticTexts["Reader mode"]
+        XCTAssertTrue(readerRow.waitForExistence(timeout: 10))
+        readerRow.tap()
+
+        let card = app.otherElements["notice.card"]
+        XCTAssertTrue(card.waitForExistence(timeout: 10), "reader failure showed no app card")
+        XCTAssertEqual(app.alerts.count, 0, "reader failure used a system alert")
+        XCTAssertTrue(app.staticTexts["notice.message"].exists, "card carries no message")
+        XCTAssertFalse(app.navigationBars["Reader"].exists, "reader opened with no article text")
+
+        app.buttons["notice.ok"].tap()
+        let gone = NSPredicate(format: "exists == false")
+        expectation(for: gone, evaluatedWith: card)
+        waitForExpectations(timeout: 5)
+        XCTAssertTrue(
+            app.webViews.staticTexts["Other page"].waitForExistence(timeout: 10),
+            "the page did not survive the failure"
+        )
+    }
+
     /// A real octet-stream navigation must land in the download list, not as text
     /// in the page. The workflow serves sample.bin on port 8000 for this test.
     func testDownloadStarts() {

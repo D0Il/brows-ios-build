@@ -84,12 +84,9 @@ struct BrowserView: View {
                 HTTPAuthCard(auth: auth).environmentObject(model)
             } else if let pending = model.pendingCredential {
                 CredentialSaveOverlay(pending: pending).environmentObject(model)
+            } else if let notice = model.pageNotice {
+                PageNoticeCard(notice: notice).environmentObject(model)
             }
-        }
-        .alert("Reader mode", isPresented: $model.readerFailed) {
-            Button("OK", role: .cancel) { model.readerFailed = false }
-        } message: {
-            Text("This page has no article text to show in Reader.")
         }
         .onChange(of: model.showingMenu) { open in
             if !open {
