@@ -756,7 +756,10 @@ final class BrowsUITests: XCTestCase {
     /// A favourite chip is a real link, not a label.
     func testBookmarkChipNavigates() {
         let app = makeApp()
-        open("http://localhost:8000/other.html", in: app)
+        // With an expected line the helper re-submits when the simulator drops the
+        // synthetic Return, which is how this test once failed with a WebView that
+        // had never left the start page.
+        open("http://localhost:8000/other.html", in: app, expect: "Other page")
         XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20))
 
         let star = app.buttons["rail.star"]
