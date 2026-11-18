@@ -8,10 +8,13 @@ struct BrowserView: View {
     private var compactRail: Bool { UIScreen.main.bounds.width < 430 }
 
     /// The pill's completions sit against the rail they belong to, on whichever
-    /// edge the address bar was put.
+    /// edge the address bar was put. The height is reserved exactly: without it
+    /// the card drew past its frame and the rail's glass covered the last row.
     @ViewBuilder private var suggestionPanel: some View {
         if model.isEditingAddress && !model.suggestions.isEmpty {
-            AddressSuggestionsPanel().environmentObject(model)
+            AddressSuggestionsPanel()
+                .environmentObject(model)
+                .frame(height: CGFloat(model.suggestions.count) * 44 + 10)
         }
     }
 
@@ -27,13 +30,17 @@ struct BrowserView: View {
             VStack(spacing: 0) {
                 TopStrip()
                 if !model.settings.addressBarBottom {
-                    BottomRail(compact: compactRail)
-                    suggestionPanel
+                    VStack(spacing: 8) {
+                        BottomRail(compact: compactRail)
+                        suggestionPanel
+                    }
                 }
                 Spacer(minLength: 0)
                 if model.settings.addressBarBottom {
-                    suggestionPanel
-                    BottomRail(compact: compactRail)
+                    VStack(spacing: 8) {
+                        suggestionPanel
+                        BottomRail(compact: compactRail)
+                    }
                 }
             }
 
