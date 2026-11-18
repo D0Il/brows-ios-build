@@ -78,6 +78,8 @@ struct BrowserView: View {
             // Exactly one of them exists at a time.
             if let dialog = model.pendingScriptDialog {
                 ScriptDialogCard(dialog: dialog).environmentObject(model)
+            } else if let notice = model.pendingLinkNotice {
+                LinkNoticeCard(notice: notice).environmentObject(model)
             } else if let auth = model.pendingHTTPAuth {
                 HTTPAuthCard(auth: auth).environmentObject(model)
             } else if let pending = model.pendingCredential {
@@ -128,6 +130,13 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.credentialstate")
                     .accessibilityLabel(model.credentialDebug)
+                // A link that vanishes and a link that was handed off look the
+                // same from inside the page, so the tests read this instead.
+                Text("lastroute")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.lastroute")
+                    .accessibilityLabel(model.lastRoute)
             }
         }
     }

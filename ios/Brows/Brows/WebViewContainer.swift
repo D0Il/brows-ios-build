@@ -185,8 +185,15 @@ struct WebViewContainer: UIViewRepresentable {
                 decisionHandler(.download)
                 return
             }
+            // mailto:, tel: and every other scheme the web view cannot render go
+            // to the system. Cancelling first is what leaves the page untouched:
+            // letting WebKit try would replace it with an error page.
+            if let url = navigationAction.request.url, model?.routeExternalLink(url) == true {
+                decisionHandler(.cancel)
+                return
+            }
             if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
-                model?.openInNewTab(url)
+                model?.openLinkInNewTab(url)
                 decisionHandler(.cancel)
                 return
             }
@@ -336,7 +343,7 @@ struct WebViewContainer: UIViewRepresentable {
                      for navigationAction: WKNavigationAction,
                      windowFeatures: WKWindowFeatures) -> WKWebView? {
             if let url = navigationAction.request.url {
-                model?.openInNewTab(url)
+                model?.openLinkInNewTab(url)
             }
             return nil
         }

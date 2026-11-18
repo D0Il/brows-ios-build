@@ -195,6 +195,15 @@ enum ScriptDialogAnswer: Equatable {
     case text(String?)
 }
 
+/// A link the browser could not take anywhere: the system refused the scheme or
+/// nothing on the device handles it. It is still an answer — the page stays
+/// exactly where it was and the browser says why, in its own card.
+struct PendingLinkNotice: Identifiable, Equatable {
+    var id = UUID()
+    var url: String
+    var scheme: String
+}
+
 private struct HTTPAuthAttempt {
     var hostKey: String
     var realm: String
@@ -246,6 +255,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var pendingCredential: PendingCredential?
     @Published var pendingHTTPAuth: PendingHTTPAuth?
     @Published var pendingScriptDialog: PendingScriptDialog?
+    @Published var pendingLinkNotice: PendingLinkNotice?
+    /// The last routing decision, exposed to the UI tests: a link that vanishes
+    /// and a link that was handed off look identical from inside the page.
+    @Published var lastRoute = ""
+    private var recentlyOpenedWindow: (url: String, at: Date)?
     /// WebKit expects exactly one answer per panel; the closure is taken out
     /// before it runs so a second answer can never reach the same page.
     private var scriptDialogCompletion: ((ScriptDialogAnswer) -> Void)?
@@ -406,6 +420,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                     realm: "Brows Fixture",
                     username: "browsuser"
                 )
+            case "linknotice":
+                self.pendingLinkNotice = PendingLinkNotice(
+                    url: "mailto:someone@brows.dev",
+                    scheme: "mailto"
+                )
             case "dialog":
                 self.pendingScriptDialog = PendingScriptDialog(
                     kind: .confirm,
@@ -514,7 +533,45 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         if webView.isLoading { webView.stopLoading() } else { webView.reload() }
     }
 
-    func openInNewTab(_ url: URL) { newTab(url) }
+    /// Schemes the web view renders itself. Anything else belongs to the system.
+    static let renderableSchemes: Set<String> = ["http", "https", "about", "file", "data", "blob", "javascript"]
+
+    /// `target="_blank"` and `window.open` can arrive twice — once as a policy
+    /// decision with no target frame and once as a new-window request — so the
+    /// same URL within two seconds is the same click and owes the page one tab.
+    func openLinkInNewTab(_ url: URL) {
+        let now = Date()
+        if let last = recentlyOpenedWindow, last.url == url.absoluteString,
+           now.timeIntervalSince(last.at) < 2 {
+            recentlyOpenedWindow = nil
+            return
+        }
+        recentlyOpenedWindow = (url.absoluteString, now)
+        newTab(url, private: activeTab?.isPrivate ?? false)
+    }
+
+    func openInNewTab(_ url: URL) { openLinkInNewTab(url) }
+
+    /// True when the navigation has been taken away from the web view. A page
+    /// that links to `mailto:` or `tel:` must reach the system and leave the page
+    /// untouched; a scheme nothing handles must say so rather than swallow the tap.
+    func routeExternalLink(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased(),
+              !Self.renderableSchemes.contains(scheme) else { return false }
+        lastRoute = "\(scheme) handed off"
+        UIApplication.shared.open(url, options: [:]) { [weak self] opened in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if opened {
+                    self.lastRoute = "\(scheme) opened"
+                } else {
+                    self.lastRoute = "\(scheme) refused"
+                    self.pendingLinkNotice = PendingLinkNotice(url: url.absoluteString, scheme: scheme)
+                }
+            }
+        }
+        return true
+    }
 
     // MARK: Zoom
 

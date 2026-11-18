@@ -159,16 +159,103 @@ final class BrowsUITests: XCTestCase {
         app.buttons["dialog.ok"].tap()
         XCTAssertTrue(app.webViews.staticTexts["confirmed"].waitForExistence(timeout: 10), "confirm OK did not answer true")
 
-        // prompt: what the user types is the value the page receives.
+        // prompt, untouched: the page must get the seeded default back, not nil
+        // and not the emptied field.
         app.webViews.buttons["Prompt"].tap()
         let field = app.textFields["dialog.field"]
         XCTAssertTrue(field.waitForExistence(timeout: 10), "prompt field missing")
-        field.tap()
+        XCTAssertEqual(field.value as? String, "Work", "prompt did not seed its default text")
+        waitUntilHittable(app.buttons["dialog.ok"])
+        app.buttons["dialog.ok"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["hello Work"].waitForExistence(timeout: 10),
+                      "an untouched prompt did not return its default")
+
+        // prompt, typed over: the page receives what the user left in the field.
+        app.webViews.buttons["Prompt"].tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+        let seeded = (field.value as? String) ?? ""
+        if !seeded.isEmpty {
+            field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: seeded.count))
+        }
         field.typeText("brows")
         waitUntilHittable(app.buttons["dialog.ok"])
         app.buttons["dialog.ok"].tap()
         XCTAssertTrue(app.webViews.staticTexts["hello brows"].waitForExistence(timeout: 10), "prompt text did not reach the page")
         XCTAssertFalse(app.buttons["dialog.ok"].exists, "dialog stayed on screen")
+    }
+
+    /// A link that opens a window becomes a real tab in the app, selected, and
+    /// closing it leaves the page that opened it intact.
+    func testNewWindowLinksOpenAndSelectANewTab() {
+        let app = makeApp()
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+
+        app.webViews.links["Open blank"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 25),
+                      "target=_blank did not load its page")
+        XCTAssertFalse(app.webViews.staticTexts["Links"].exists,
+                       "the new tab was not selected, the opener is still on screen")
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "target=_blank did not create exactly one tab")
+        let closes = app.buttons.matching(identifier: "tab.close")
+        XCTAssertTrue(closes.firstMatch.waitForExistence(timeout: 10))
+        // Tabs are in creation order: the opener is first, the new tab second.
+        closes.element(boundBy: 1).tap()
+        XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10), "closing the new tab did not update the count")
+        app.buttons["Done"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 10),
+                      "closing the new tab broke the opener")
+
+        // window.open is the same outcome, not a second copy of it.
+        app.webViews.buttons["Open popup"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 25),
+                      "window.open did not load its page")
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "window.open did not create exactly one tab")
+        app.buttons["Done"].tap()
+    }
+
+    /// `mailto:`, `tel:` and an unhandled scheme are handed off or explained, and
+    /// never replace the page: no blank tab, no error page, no stuck state.
+    func testExternalSchemesHandOffWithoutLeavingThePage() {
+        let app = makeApp()
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+
+        for (link, scheme) in [("Mail", "mailto"), ("Call", "tel")] {
+            app.webViews.links[link].tap()
+            XCTAssertTrue(waitForRoute(app, scheme), "\(scheme) was not routed anywhere")
+            // A refused handoff explains itself in the app's card; a handled one
+            // leaves nothing behind. Either way the page is untouched.
+            if app.buttons["linknotice.ok"].waitForExistence(timeout: 3) {
+                app.buttons["linknotice.ok"].tap()
+            }
+            XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5), "\(scheme) replaced the page")
+            app.buttons["rail.tabs"].tap()
+            XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10), "\(scheme) created a tab")
+            app.buttons["Done"].tap()
+        }
+
+        app.webViews.links["Unsupported"].tap()
+        XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 10), "an unsupported scheme was swallowed")
+        XCTAssertTrue(app.staticTexts["linknotice.message"].label.contains("brows-nothing"),
+                      "the notice did not name the scheme")
+        app.buttons["linknotice.ok"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5),
+                      "the page did not survive the unsupported scheme")
+    }
+
+    /// The routing decision is visible only to the browser, so the tests read the
+    /// same record the app keeps: `mailto opened` / `tel refused`.
+    private func waitForRoute(_ app: XCUIApplication, _ scheme: String, timeout: TimeInterval = 10) -> Bool {
+        let route = app.staticTexts["debug.lastroute"]
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label BEGINSWITH %@", scheme),
+            object: route
+        )
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 
     /// The simulator's networking process occasionally stalls for over a minute:
