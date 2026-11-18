@@ -277,7 +277,7 @@ jobs:
           # `-BrowsFocusPill`) and never reachable from a page.
           mkdir -p captures
           for mode in light dark; do
-            for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs auth authsave dialog linknotice suggest pill; do
+            for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs auth authsave dialog notice linknotice suggest pill; do
               xcrun simctl terminate "$DEVICE" dev.brows.ios > /dev/null 2>&1 || true
               args=(-BrowsUITestReset -BrowsCaptureSeed -BrowsAppearance "$mode" -BrowsOpenURL http://localhost:8000/article.html)
               if [ "$sheet" = "pill" ]; then

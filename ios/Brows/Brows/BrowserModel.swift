@@ -457,6 +457,12 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                         detail: "brows.dev"
                     )
                 ]
+            case "notice":
+                // The failure card Reader mode shows on a page with no article text.
+                self.pageNotice = PageNotice(
+                    title: "Reader mode",
+                    message: "This page has no article text to show in Reader."
+                )
             case "linknotice":
                 self.pendingLinkNotice = PendingLinkNotice(
                     url: "mailto:someone@brows.dev",
