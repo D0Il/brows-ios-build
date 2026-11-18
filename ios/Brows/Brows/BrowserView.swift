@@ -142,6 +142,11 @@ struct BrowserView: View {
                     .accessibilityLabel(model.credentialDebug)
                 // A link that vanishes and a link that was handed off look the
                 // same from inside the page, so the tests read this instead.
+                Text("history")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.history")
+                    .accessibilityLabel("\(model.history.count)|\(model.history.first?.title ?? "-")")
                 Text("lastroute")
                     .font(.system(size: 1))
                     .opacity(0.01)

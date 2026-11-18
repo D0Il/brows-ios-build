@@ -80,7 +80,7 @@ struct WebViewContainer: UIViewRepresentable {
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { sync(webView) }
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { sync(webView) }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            sync(webView)
+            sync(webView, finished: true)
             model?.didFinishHTTPAuth(url: webView.url, tabId: tabId)
             model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
             samplePageBackground(webView)
@@ -131,7 +131,10 @@ struct WebViewContainer: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { sync(webView) }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { sync(webView) }
 
-        private func sync(_ webView: WKWebView) {
+        /// `finished` is passed from the delegate rather than derived from
+        /// `isLoading`: a visit is recorded only when the document is done, because
+        /// at commit WebKit has the new URL but the previous document's title.
+        private func sync(_ webView: WKWebView, finished: Bool = false) {
             // The local start page is HTML, so WebKit reports it as about:blank.
             // Map that back to the start tab so the pill keeps its placeholder.
             let rawURL = webView.url
@@ -155,11 +158,9 @@ struct WebViewContainer: UIViewRepresentable {
                     tab.canGoForward = canForward
                     tab.isSecure = secure
                 }
-                // `didCommit` already has the new URL but still the previous
-                // document's title; recording there filed a page under the title
-                // of the page the user just left, and the pill then offered that
-                // title pointing at the wrong URL.
-                if !loading, let url, url != BrowserModel.home { self.model?.recordVisit(url, title: title) }
+                if finished, let url, url != BrowserModel.home {
+                    self.model?.recordVisit(url, title: title)
+                }
                 self.model?.scheduleSave()
 
                 // The page runs full-bleed under the glass, but its text must start

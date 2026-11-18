@@ -254,9 +254,8 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
         open("http://localhost:8000/other.html", in: app, expect: "Other page")
 
-        let field = app.textFields["rail.address"]
-        field.tap()
-        field.typeText("shape")
+        typeInPill("shape", in: app)
+        print("SUGGEST-DEBUG history=\(app.staticTexts["debug.history"].label) pill=\(app.textFields["rail.address"].value ?? "nil")")
 
         let rows = app.buttons.matching(identifier: "suggest.row")
         XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10),
@@ -304,9 +303,14 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 15))
 
         func submit() {
-            field.tap()
-            // Tapping the pill selects the whole URL, so typing must replace it.
-            field.typeText(url)
+            // Tapping the pill selects the whole URL, so typing must replace it. On
+            // a loaded runner the tap can land before the selection settles and the
+            // URL grows into a half-typed mess; re-tapping is the real fix.
+            for _ in 0..<3 {
+                field.tap()
+                field.typeText(url)
+                if (field.value as? String) == url { break }
+            }
             XCTAssertEqual(field.value as? String, url, "address pill did not replace the current URL")
             field.typeText("\n")
             // The simulator occasionally drops the synthetic hardware Return. The
@@ -412,6 +416,18 @@ final class BrowsUITests: XCTestCase {
     /// Dismissal is animated; a tap on the next surface during it lands nowhere.
     /// A sheet's navigation bar exists before the sheet is interactive; tapping
     /// during the presentation animation lands nowhere.
+    /// Types into the pill and proves the text was replaced, not appended.
+    private func typeInPill(_ text: String, in app: XCUIApplication) {
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        for _ in 0..<3 {
+            field.tap()
+            field.typeText(text)
+            if (field.value as? String) == text { return }
+        }
+        XCTFail("the pill would not replace its text with \(text): \(field.value ?? "nil") - the URL grew instead")
+    }
+
     private func waitUntilHittable(_ element: XCUIElement, timeout: TimeInterval = 10) {
         let expectation = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "exists == true AND hittable == true"),
