@@ -9,6 +9,10 @@ struct WebViewContainer: UIViewRepresentable {
     @ObservedObject var model: BrowserModel
 
     func makeUIView(context: Context) -> WKWebView {
+        // A popup's web view was built by WebKit around the opener's configuration;
+        // adopting it (instead of creating a second one) is what keeps the page's
+        // WindowProxy alive. It is already loading, so it gets no initial load here.
+        let supplied = model.takeSuppliedWebView(tabId)
         let webView = model.webView(for: tabId)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
@@ -39,7 +43,10 @@ struct WebViewContainer: UIViewRepresentable {
             }
         }
 
-        if webView.url == nil, let url = model.tabs.first(where: { $0.id == tabId })?.url {
+        if supplied {
+            context.coordinator.sync(webView)
+        }
+        if webView.url == nil, !supplied, let url = model.tabs.first(where: { $0.id == tabId })?.url {
             if url == BrowserModel.home {
                 if let start = StartPage.write(bookmarks: model.bookmarks) {
                     webView.loadFileURL(start, allowingReadAccessTo: start.deletingLastPathComponent())
@@ -136,7 +143,7 @@ struct WebViewContainer: UIViewRepresentable {
         /// `finished` is passed from the delegate rather than derived from
         /// `isLoading`: a visit is recorded only when the document is done, because
         /// at commit WebKit has the new URL but the previous document's title.
-        private func sync(_ webView: WKWebView, finished: Bool = false) {
+        func sync(_ webView: WKWebView, finished: Bool = false) {
             // The local start page is HTML, so WebKit reports it as about:blank.
             // Map that back to the start tab so the pill keeps its placeholder.
             let rawURL = webView.url
@@ -199,11 +206,10 @@ struct WebViewContainer: UIViewRepresentable {
                 decisionHandler(.cancel)
                 return
             }
-            if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
-                model?.openLinkInNewTab(url)
-                decisionHandler(.cancel)
-                return
-            }
+            // A new window is not decided here: WebKit follows this with
+            // `createWebViewWith`, which is the only place a popup can be given a
+            // real web view. Cancelling here is what used to make `window.open()`
+            // return null for OAuth and share flows.
             decisionHandler(.allow)
         }
 
@@ -349,10 +355,18 @@ struct WebViewContainer: UIViewRepresentable {
                      createWebViewWith configuration: WKWebViewConfiguration,
                      for navigationAction: WKNavigationAction,
                      windowFeatures: WKWindowFeatures) -> WKWebView? {
-            if let url = navigationAction.request.url {
-                model?.openLinkInNewTab(url)
+            guard let url = navigationAction.request.url, let model else { return nil }
+            // The page's window request is routed by the same rules as a typed
+            // address (`AddressResolver`, Foundation only, executed on Windows too).
+            switch AddressResolver.popup(url) {
+            case .newTab:
+                return model.adoptPopup(configuration, url: url)
+            case .handoff:
+                // A scheme this browser cannot render leaves the page exactly where
+                // it was and either hands off or says so in the app's card.
+                _ = model.routeExternalLink(url)
+                return nil
             }
-            return nil
         }
     }
 }

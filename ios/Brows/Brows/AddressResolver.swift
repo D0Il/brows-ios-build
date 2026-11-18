@@ -33,6 +33,20 @@ enum AddressResolver {
         return URL(string: text)
     }
 
+    /// What a page's `window.open`/`target=_blank` becomes. A renderable URL is a
+    /// tab; anything else is the system's, exactly like a tapped link.
+    enum PopupRoute: Equatable {
+        case newTab(URL)
+        case handoff(URL)
+    }
+
+    static func popup(_ url: URL) -> PopupRoute {
+        guard let scheme = url.scheme?.lowercased(), !renderableSchemes.contains(scheme) else {
+            return .newTab(url)
+        }
+        return .handoff(url)
+    }
+
     /// `nil` means no address could be built at all: the caller says so in the
     /// app's own card rather than leaving the submission unanswered.
     static func route(for input: String, search: (String) -> URL?) -> AddressRoute? {

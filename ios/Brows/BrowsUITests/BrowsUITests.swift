@@ -756,6 +756,54 @@ final class BrowsUITests: XCTestCase {
         )
     }
 
+    /// `window.open(url, name, features)` - the OAuth and share-button path - must
+    /// give the page a real window. Returning nil made `window.open()` null, which
+    /// pages read as "popup blocked", so the tab is opened *and* the window handed
+    /// back; the opener must survive and the count must be exactly one more.
+    func testWindowOpenWithFeaturesOpensOneSelectedTab() {
+        let app = makeApp()
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+
+        app.webViews.buttons["Open popup with features"].tap()
+
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+                      "window.open with features did not open the page")
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "a feature popup did not open exactly one tab")
+
+        // Back to the opener: it still has its page, and it saw a real window.
+        app.staticTexts["Links"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 10),
+                      "the opener page was lost")
+        XCTAssertTrue(app.webViews.staticTexts["opened"].waitForExistence(timeout: 15),
+                      "window.open returned no window, so the page read it as blocked: "
+                      + app.webViews.staticTexts["popup-result"].label)
+    }
+
+    /// A popup whose scheme the browser cannot render is refused in the app's own
+    /// card: no system alert, no tab, and the page stays exactly where it was.
+    func testRefusedPopupUsesTheAppsCard() {
+        let app = makeApp()
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+
+        app.webViews.buttons["Open refused popup"].tap()
+
+        XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 10),
+                      "a popup with an unrenderable scheme was swallowed")
+        XCTAssertEqual(app.alerts.count, 0, "the refusal borrowed system chrome")
+        XCTAssertTrue(app.staticTexts["linknotice.message"].label.contains("brows-nothing"),
+                      "the card did not name the scheme: \(app.staticTexts["linknotice.message"].label)")
+
+        app.buttons["linknotice.ok"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 10),
+                      "a refused popup replaced the page")
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10),
+                      "a refused popup created a tab")
+        app.buttons["Done"].tap()
+    }
+
     /// Typing an address the browser cannot build must not be a dead end: the pill
     /// keeps the text, the page stays, and the app says why in its own card.
     func testAddressPillExplainsAnAddressItCannotOpen() {

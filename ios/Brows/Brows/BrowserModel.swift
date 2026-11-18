@@ -279,7 +279,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// The last routing decision, exposed to the UI tests: a link that vanishes
     /// and a link that was handed off look identical from inside the page.
     @Published var lastRoute = ""
-    private var recentlyOpenedWindow: (url: String, at: Date)?
+    /// Tabs whose web view WebKit built for a popup. The container adopts them
+    /// instead of creating one from the tab's settings.
+    private var suppliedWebViews: Set<UUID> = []
     /// WebKit expects exactly one answer per panel; the closure is taken out
     /// before it runs so a second answer can never reach the same page.
     private var scriptDialogCompletion: ((ScriptDialogAnswer) -> Void)?
@@ -648,21 +650,44 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         if webView.isLoading { webView.stopLoading() } else { webView.reload() }
     }
 
-    /// `target="_blank"` and `window.open` can arrive twice — once as a policy
-    /// decision with no target frame and once as a new-window request — so the
-    /// same URL within two seconds is the same click and owes the page one tab.
+    /// A link that asked for a new window keeps its own page and adds one tab.
+    /// The popup path itself goes through `adoptPopup`, which hands the page a real
+    /// window instead of the `null` that makes OAuth flows think they were blocked.
     func openLinkInNewTab(_ url: URL) {
-        let now = Date()
-        if let last = recentlyOpenedWindow, last.url == url.absoluteString,
-           now.timeIntervalSince(last.at) < 2 {
-            recentlyOpenedWindow = nil
-            return
-        }
-        recentlyOpenedWindow = (url.absoluteString, now)
         newTab(url, private: activeTab?.isPrivate ?? false)
     }
 
     func openInNewTab(_ url: URL) { openLinkInNewTab(url) }
+
+    /// WebKit's own popup window, adopted as a tab. The configuration comes from
+    /// WebKit (it already carries the opener's content blocker, injected scripts
+    /// and data store), and returning this web view from `createWebViewWith` is
+    /// what gives the page a live WindowProxy. Window features such as width and
+    /// height have no meaning in a tabbed shell - the tab is the window, on every
+    /// phone browser - so they are honoured by opening the tab itself.
+    func adoptPopup(_ configuration: WKWebViewConfiguration, url: URL) -> WKWebView {
+        let tab = Tab(url: url, workspaceId: activeWorkspaceId, isPrivate: activeTab?.isPrivate ?? false)
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.allowsBackForwardNavigationGestures = true
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.underPageBackgroundColor = UIColor(Theme.backdropBottom)
+        webViews[tab.id] = webView
+        suppliedWebViews.insert(tab.id)
+        tabs.append(tab)
+        activeTabId = tab.id
+        isEditingAddress = false
+        suggestions = []
+        addressText = displayAddress(url)
+        lastRoute = "popup \(url.host ?? url.absoluteString)"
+        save()
+        return webView
+    }
+
+    /// True once: WebKit is already loading this web view, so the container must
+    /// not start a second load of its own.
+    func takeSuppliedWebView(_ id: UUID) -> Bool {
+        suppliedWebViews.remove(id) != nil
+    }
 
     /// True when the navigation has been taken away from the web view. A page
     /// that links to `mailto:` or `tel:` must reach the system and leave the page
