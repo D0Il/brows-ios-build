@@ -822,6 +822,46 @@ final class BrowsUITests: XCTestCase {
         }
     }
 
+    /// `window.open(url, "name")` twice with the same name: the second call must reach
+    /// the window WebKit already gave that name - the page compares the two returns and
+    /// writes `same-window`, `different-window` or `null-again`. A second tab here is the
+    /// duplicate OAuth/SSO and chat-widget popup the record lists as open.
+    func testWindowOpenReusesTheNamedWindow() {
+        let app = makeApp()
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+
+        app.webViews.buttons["named-first"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+                      "the named window did not open")
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "the first named open did not make exactly one tab")
+        app.staticTexts["Links"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["first-open"].waitForExistence(timeout: 15),
+                      "window.open returned no window on the first call")
+
+        app.webViews.buttons["named-again"].tap()
+
+        // Read the page's own verdict, so a failure says which contract broke.
+        let same = app.webViews.staticTexts["same-window"]
+        if !same.waitForExistence(timeout: 20) {
+            let verdict = app.webViews.staticTexts["different-window"].exists ? "different-window"
+                : (app.webViews.staticTexts["null-again"].exists ? "null-again" : "missing")
+            XCTFail("window.open(name) did not reuse the named window; the page says \(verdict)")
+        }
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "re-opening the named window made a duplicate tab")
+        // The reused window is the one that navigated, not a fresh tab.
+        XCTAssertTrue(app.staticTexts["Other page"].waitForExistence(timeout: 10),
+                      "the named window did not navigate to the second URL")
+        app.staticTexts["Other page"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 10),
+                      "the navigated named window did not show its page")
+    }
+
     /// A popup whose scheme the browser cannot render is refused in the app's own
     /// card: no system alert, no tab, and the page stays exactly where it was.
     func testRefusedPopupUsesTheAppsCard() {
