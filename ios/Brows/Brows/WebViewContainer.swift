@@ -270,7 +270,11 @@ struct WebViewContainer: UIViewRepresentable {
                 counter += 1
             }
 
-            let id = model.beginDownload(filename: suggestedFilename, source: response.url?.absoluteString ?? "")
+            let id = model.beginDownload(
+                filename: suggestedFilename,
+                source: response.url?.absoluteString ?? "",
+                isPrivate: model.isPrivateTab(tabId)
+            )
             downloadIds[key] = id
             destinations[key] = destination
             model.registerCancel(id) { download.cancel(nil) }

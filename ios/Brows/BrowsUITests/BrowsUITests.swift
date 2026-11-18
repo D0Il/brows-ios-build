@@ -756,6 +756,42 @@ final class BrowsUITests: XCTestCase {
         )
     }
 
+    /// A download started in a private tab must leave no trace on disk: its row
+    /// carries the source URL, so it may not be persisted and it may not reappear in
+    /// a later session. That is the same promise `save()` makes for private tabs.
+    func testPrivateDownloadIsNotPersisted() {
+        let app = makeApp()
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        let privateRow = app.staticTexts["New private tab"]
+        XCTAssertTrue(privateRow.waitForExistence(timeout: 10))
+        privateRow.tap()
+        XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10), "no private tab")
+
+        submitAddress("http://localhost:8000/sample.bin", in: app)
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "menu did not open")
+        app.staticTexts["Downloads"].tap()
+        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
+                      "the private download never started, so its trace cannot be judged")
+        app.buttons["Done"].tap()
+
+        // A fresh launch: the private tab is gone, so its download row must be too.
+        app.terminate()
+        let again = makeApp(reset: false)
+        again.buttons["rail.menu"].tap()
+        XCTAssertTrue(again.staticTexts["Downloads"].waitForExistence(timeout: 10),
+                      "menu did not open after the relaunch")
+        again.staticTexts["Downloads"].tap()
+        XCTAssertTrue(again.staticTexts["Nothing downloaded yet."].waitForExistence(timeout: 10),
+                      "a private download survived the relaunch; its row names the page that fetched it")
+        XCTAssertFalse(again.staticTexts["sample.bin"].exists,
+                       "the private download row was written to disk")
+        again.buttons["Done"].tap()
+    }
+
     /// `window.open(url, name, features)` - the OAuth and share-button path - must
     /// give the page a real window. Returning nil made `window.open()` null, which
     /// pages read as "popup blocked", so the tab is opened *and* the window handed

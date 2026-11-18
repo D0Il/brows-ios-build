@@ -119,6 +119,9 @@ struct DownloadItem: Identifiable, Codable, Equatable {
     var failed: Bool
     var localPath: String?
     var date = Date()
+    /// Optional so rows written before this flag existed still decode. A private
+    /// download's row names the URL it fetched, so it is never persisted.
+    var isPrivate: Bool? = nil
 }
 
 struct Credential: Identifiable, Codable, Equatable {
@@ -755,6 +758,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             recentlyClosed = Array(recentlyClosed.prefix(15))
         }
         tabs.removeAll { $0.id == tab.id }
+        if tab.isPrivate, !tabs.contains(where: { $0.isPrivate }) {
+            purgePrivateDownloads()
+        }
         if tabs.isEmpty {
             newTab()
             return
@@ -778,6 +784,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             webViews[id] = nil
         }
         tabs.removeAll { $0.isPrivate }
+        purgePrivateDownloads()
         if tabs.isEmpty {
             newTab()
             return
@@ -953,10 +960,36 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     // MARK: Downloads
 
-    func beginDownload(filename: String, source: String) -> UUID {
+    func beginDownload(filename: String, source: String, isPrivate: Bool) -> UUID {
         let id = UUID()
-        downloads.insert(DownloadItem(id: id, filename: filename, source: source, progress: 0, finished: false, failed: false), at: 0)
+        downloads.insert(DownloadItem(
+            id: id,
+            filename: filename,
+            source: source,
+            progress: 0,
+            finished: false,
+            failed: false,
+            isPrivate: isPrivate ? true : nil
+        ), at: 0)
         return id
+    }
+
+    func isPrivateTab(_ id: UUID) -> Bool {
+        tabs.first { $0.id == id }?.isPrivate ?? false
+    }
+
+    /// A private tab's download belongs to that session: the row carries the URL
+    /// the page fetched, so it is never written to disk, and it leaves with its file
+    /// when the last private tab closes - the same promise `save()` makes for tabs.
+    func purgePrivateDownloads() {
+        for item in downloads where item.isPrivate == true {
+            cancelHandlers[item.id] = nil
+            if let path = item.localPath {
+                try? FileManager.default.removeItem(atPath: path)
+            }
+        }
+        downloads.removeAll { $0.isPrivate == true }
+        save()
     }
 
     func updateDownload(_ id: UUID, progress: Double? = nil, finished: Bool? = nil, failed: Bool? = nil, path: String? = nil) {
