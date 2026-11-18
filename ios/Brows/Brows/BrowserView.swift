@@ -7,17 +7,6 @@ struct BrowserView: View {
 
     private var compactRail: Bool { UIScreen.main.bounds.width < 430 }
 
-    /// The pill's completions sit against the rail they belong to, on whichever
-    /// edge the address bar was put. The height is reserved exactly: without it
-    /// the card drew past its frame and the rail's glass covered the last row.
-    @ViewBuilder private var suggestionPanel: some View {
-        if model.isEditingAddress && !model.suggestions.isEmpty {
-            AddressSuggestionsPanel()
-                .environmentObject(model)
-                .frame(height: CGFloat(model.suggestions.count) * 44 + 10)
-        }
-    }
-
     var body: some View {
         ZStack(alignment: .bottom) {
             Theme.backdrop.ignoresSafeArea()
@@ -30,17 +19,11 @@ struct BrowserView: View {
             VStack(spacing: 0) {
                 TopStrip()
                 if !model.settings.addressBarBottom {
-                    VStack(spacing: 8) {
-                        BottomRail(compact: compactRail)
-                        suggestionPanel
-                    }
+                    BottomRail(compact: compactRail)
                 }
                 Spacer(minLength: 0)
                 if model.settings.addressBarBottom {
-                    VStack(spacing: 8) {
-                        suggestionPanel
-                        BottomRail(compact: compactRail)
-                    }
+                    BottomRail(compact: compactRail)
                 }
             }
 
@@ -420,6 +403,27 @@ struct BottomRail: View {
             Rectangle()
                 .fill(Color(red: 67 / 255, green: 78 / 255, blue: 96 / 255).opacity(0.14))
                 .frame(height: 1)
+        }
+        // The pill's completions ride on the rail and are pushed clear of it by
+        // their own height. An overlay is drawn on top and is not squeezed by the
+        // page's stack, which is what had put the last row under the glass.
+        .overlay(alignment: .top) {
+            if model.settings.addressBarBottom {
+                completions.offset(y: -(CGFloat(model.suggestions.count) * 44 + 16))
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if !model.settings.addressBarBottom {
+                completions.offset(y: CGFloat(model.suggestions.count) * 44 + 16)
+            }
+        }
+    }
+
+    @ViewBuilder private var completions: some View {
+        if model.isEditingAddress && !model.suggestions.isEmpty {
+            AddressSuggestionsPanel()
+                .environmentObject(model)
+                .frame(height: CGFloat(model.suggestions.count) * 44 + 10)
         }
     }
 
