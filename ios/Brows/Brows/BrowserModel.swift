@@ -864,8 +864,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func recordVisit(_ url: URL, title: String) {
         guard !(activeTab?.isPrivate ?? false) else { return }
         guard url.scheme == "http" || url.scheme == "https" else { return }
-        if let last = history.first, last.url == url.absoluteString,
-           Date().timeIntervalSince(last.date) < 5 { return }
+        // A revisit refreshes the entry's title instead of adding a second row, so
+        // a page that was first seen before its <title> parsed is corrected rather
+        // than searched forever by the wrong name.
+        if let index = history.firstIndex(where: { $0.url == url.absoluteString }),
+           Date().timeIntervalSince(history[index].date) < 5 {
+            if !title.isEmpty, history[index].title != title {
+                history[index].title = title
+                save()
+            }
+            return
+        }
         let entry = HistoryEntry(
             url: url.absoluteString,
             title: title.isEmpty ? (url.host ?? url.absoluteString) : title,

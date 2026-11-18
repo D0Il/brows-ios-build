@@ -155,7 +155,11 @@ struct WebViewContainer: UIViewRepresentable {
                     tab.canGoForward = canForward
                     tab.isSecure = secure
                 }
-                if let url, url != BrowserModel.home { self.model?.recordVisit(url, title: title) }
+                // `didCommit` already has the new URL but still the previous
+                // document's title; recording there filed a page under the title
+                // of the page the user just left, and the pill then offered that
+                // title pointing at the wrong URL.
+                if !loading, let url, url != BrowserModel.home { self.model?.recordVisit(url, title: title) }
                 self.model?.scheduleSave()
 
                 // The page runs full-bleed under the glass, but its text must start
