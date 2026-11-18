@@ -76,6 +76,19 @@ struct Tab: Identifiable, Equatable {
     }
 }
 
+/// One row in the address pill's completion list: a bookmark or a page from
+/// history, ranked the way a browser ranks them — a title match outranks a URL
+/// match, and a bookmark outranks history at the same strength.
+struct AddressSuggestion: Identifiable, Equatable {
+    enum Source: Equatable { case bookmark, history }
+
+    var id: String { "\(source == .bookmark ? "b" : "h"):\(url.absoluteString)" }
+    var source: Source
+    var title: String
+    var url: URL
+    var detail: String
+}
+
 struct Bookmark: Identifiable, Codable, Equatable {
     var id = UUID()
     var title: String
@@ -226,7 +239,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     @Published var tabs: [Tab] = []
     @Published var activeTabId: UUID = UUID()
-    @Published var addressText: String = ""
+    @Published var addressText: String = "" { didSet { refreshSuggestions() } }
     @Published var bookmarks: [Bookmark] = []
     @Published var workspaces: [Workspace] = []
     @Published var activeWorkspaceId: UUID = UUID()
@@ -251,7 +264,12 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var pendingPanel: PanelTarget?
     /// While the user is typing in the address field, navigation updates must not
     /// overwrite what they are typing.
-    @Published var isEditingAddress = false
+    @Published var isEditingAddress = false {
+        didSet {
+            if isEditingAddress { refreshSuggestions() } else { suggestions = [] }
+        }
+    }
+    @Published var suggestions: [AddressSuggestion] = []
     @Published var pendingCredential: PendingCredential?
     @Published var pendingHTTPAuth: PendingHTTPAuth?
     @Published var pendingScriptDialog: PendingScriptDialog?
@@ -420,6 +438,23 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                     realm: "Brows Fixture",
                     username: "browsuser"
                 )
+            case "suggest":
+                self.isEditingAddress = true
+                self.addressText = "shape"
+                self.suggestions = [
+                    AddressSuggestion(
+                        source: .history,
+                        title: "The shape of a browser",
+                        url: URL(string: "http://localhost:8000/article.html")!,
+                        detail: "localhost:8000"
+                    ),
+                    AddressSuggestion(
+                        source: .bookmark,
+                        title: "Brows",
+                        url: URL(string: "https://brows.dev")!,
+                        detail: "brows.dev"
+                    )
+                ]
             case "linknotice":
                 self.pendingLinkNotice = PendingLinkNotice(
                     url: "mailto:someone@brows.dev",
@@ -505,6 +540,66 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     // MARK: Navigation
+
+    /// Completion for the pill, from the same stores the desktop omnibox reads:
+    /// bookmarks and history. Nothing is fetched and nothing is guessed, so a row
+    /// always names a page this browser has actually visited or saved.
+    func refreshSuggestions() {
+        guard isEditingAddress else { return }
+        let query = addressText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else {
+            if !suggestions.isEmpty { suggestions = [] }
+            return
+        }
+
+        func score(_ title: String, _ raw: String, base: Int) -> Int {
+            let loweredTitle = title.lowercased()
+            let loweredURL = raw.lowercased()
+            if loweredTitle.hasPrefix(query) { return base + 12 }
+            if loweredTitle.contains(query) { return base + 8 }
+            if loweredURL.contains(query) { return base + 3 }
+            return 0
+        }
+
+        var ranked: [(suggestion: AddressSuggestion, score: Int)] = []
+        var seen = Set<String>()
+
+        for bookmark in bookmarks {
+            guard let url = URL(string: bookmark.url) else { continue }
+            let value = score(bookmark.title, bookmark.url, base: 40)
+            guard value > 0, seen.insert(bookmark.url).inserted else { continue }
+            ranked.append((AddressSuggestion(
+                source: .bookmark,
+                title: bookmark.title.isEmpty ? bookmark.url : bookmark.title,
+                url: url,
+                detail: url.host ?? bookmark.url
+            ), value))
+        }
+
+        for entry in history {
+            guard let url = URL(string: entry.url) else { continue }
+            let value = score(entry.title, entry.url, base: 20)
+            guard value > 0, seen.insert(entry.url).inserted else { continue }
+            ranked.append((AddressSuggestion(
+                source: .history,
+                title: entry.title.isEmpty ? entry.url : entry.title,
+                url: url,
+                detail: url.host ?? entry.url
+            ), value))
+        }
+
+        ranked.sort { $0.score > $1.score }
+        suggestions = ranked.prefix(6).map(\.suggestion)
+    }
+
+    /// A tapped row is a navigation the user already chose: the list closes and
+    /// the keyboard goes away before the page changes.
+    func openSuggestion(_ suggestion: AddressSuggestion) {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        isEditingAddress = false
+        suggestions = []
+        navigate(to: suggestion.url.absoluteString)
+    }
 
     func navigate(to input: String) {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)

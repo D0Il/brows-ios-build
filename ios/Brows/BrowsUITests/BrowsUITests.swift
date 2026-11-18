@@ -247,6 +247,29 @@ final class BrowsUITests: XCTestCase {
                       "the page did not survive the unsupported scheme")
     }
 
+    /// The pill completes from history the way the desktop omnibox does. Before
+    /// this every URL had to be typed in full, on every visit.
+    func testAddressPillCompletesFromHistory() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+        open("http://localhost:8000/other.html", in: app, expect: "Other page")
+
+        let field = app.textFields["rail.address"]
+        field.tap()
+        field.typeText("shape")
+
+        let rows = app.buttons.matching(identifier: "suggest.row")
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10),
+                      "the pill offered no completion for a page in history")
+        XCTAssertTrue(rows.firstMatch.label.contains("The shape of a browser"),
+                      "the suggestion did not name the page: \(rows.firstMatch.label)")
+        rows.firstMatch.tap()
+
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 15),
+                      "tapping the suggestion did not open the page")
+        XCTAssertFalse(app.buttons["suggest.row"].exists, "the completion list stayed open")
+    }
+
     /// The routing decision is visible only to the browser, so the tests read the
     /// same record the app keeps: `mailto opened` / `tel refused`.
     private func waitForRoute(_ app: XCUIApplication, _ scheme: String, timeout: TimeInterval = 10) -> Bool {

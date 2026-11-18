@@ -7,6 +7,14 @@ struct BrowserView: View {
 
     private var compactRail: Bool { UIScreen.main.bounds.width < 430 }
 
+    /// The pill's completions sit against the rail they belong to, on whichever
+    /// edge the address bar was put.
+    @ViewBuilder private var suggestionPanel: some View {
+        if model.isEditingAddress && !model.suggestions.isEmpty {
+            AddressSuggestionsPanel().environmentObject(model)
+        }
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Theme.backdrop.ignoresSafeArea()
@@ -20,9 +28,11 @@ struct BrowserView: View {
                 TopStrip()
                 if !model.settings.addressBarBottom {
                     BottomRail(compact: compactRail)
+                    suggestionPanel
                 }
                 Spacer(minLength: 0)
                 if model.settings.addressBarBottom {
+                    suggestionPanel
                     BottomRail(compact: compactRail)
                 }
             }
