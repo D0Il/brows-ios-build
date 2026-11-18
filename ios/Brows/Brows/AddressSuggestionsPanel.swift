@@ -30,7 +30,7 @@ struct AddressSuggestionsPanel: View {
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 14)
-                    .padding(.vertical, 9)
+                    .frame(minHeight: 44, alignment: .leading)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -46,11 +46,17 @@ struct AddressSuggestionsPanel: View {
             }
         }
         .padding(.vertical, 4)
+        // The panel must take its full height: when it was allowed to compress, the
+        // rows drew outside its frame, under the rail, and a row's tap landed on
+        // the rail's reload control instead.
+        .fixedSize(horizontal: false, vertical: true)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Theme.surface))
         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.16), radius: 18, y: 8)
         .padding(.horizontal, 14)
         .padding(.bottom, 6)
+        .layoutPriority(1)
+        .zIndex(1)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("suggest.panel")
     }

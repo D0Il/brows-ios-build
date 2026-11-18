@@ -263,6 +263,8 @@ final class BrowsUITests: XCTestCase {
                       "the pill offered no completion for a page in history")
         XCTAssertTrue(rows.firstMatch.label.contains("The shape of a browser"),
                       "the suggestion did not name the page: \(rows.firstMatch.label)")
+        waitUntilHittable(rows.firstMatch)
+        print("SUGGEST-DEBUG row=\(rows.firstMatch.frame) reload=\(app.buttons["rail.reload"].frame)")
         rows.firstMatch.tap()
 
         XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 15),
