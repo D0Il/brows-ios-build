@@ -830,7 +830,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
-        app.webViews.buttons["named-first"].tap()
+        app.webViews.buttons["Open named window"].tap()
         XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
                       "the named window did not open")
 
@@ -841,7 +841,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.webViews.staticTexts["first-open"].waitForExistence(timeout: 15),
                       "window.open returned no window on the first call")
 
-        app.webViews.buttons["named-again"].tap()
+        app.webViews.buttons["Re-open named window"].tap()
 
         // Read the page's own verdict, so a failure says which contract broke.
         let same = app.webViews.staticTexts["same-window"]
