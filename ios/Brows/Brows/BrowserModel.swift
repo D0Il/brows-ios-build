@@ -1711,7 +1711,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         if let data = try? JSONEncoder().encode(history) {
             UserDefaults.standard.set(data, forKey: historyKey)
         }
-        if let data = try? JSONEncoder().encode(downloads) {
+        if let data = try? JSONEncoder().encode(downloads.filter { $0.isPrivate != true }) {
             UserDefaults.standard.set(data, forKey: downloadsKey)
         }
     }
