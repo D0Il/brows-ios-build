@@ -614,18 +614,30 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         guard !trimmed.isEmpty else { return }
         guard let id = activeTab?.id else { newTab(); return }
 
-        let target: URL?
-        if trimmed.contains("://") {
-            target = URL(string: trimmed)
-        } else if trimmed.contains(".") && !trimmed.contains(" ") {
-            target = URL(string: "https://" + trimmed)
-        } else {
-            target = settings.searchEngine.searchURL(for: trimmed)
+        // The rules live in `AddressResolver` (Foundation only) so they are compiled
+        // and executed on Windows as well as in the simulator. What the user types is
+        // routed the way a tapped link is: a scheme the web view cannot render
+        // belongs to the system, and prefixing `https://` onto `mailto:` used to
+        // build a nonsense host instead.
+        guard let route = AddressResolver.route(for: trimmed, search: { settings.searchEngine.searchURL(for: $0) }) else {
+            // An address the browser cannot even build a URL from used to return in
+            // silence: the pill kept the text and the page never moved.
+            pageNotice = PageNotice(
+                title: "Address",
+                message: "Brows could not open that address, so the page was left where it was."
+            )
+            return
         }
-        guard let url = target else { return }
-        isEditingAddress = false
-        addressText = url.absoluteString
-        webViews[id]?.load(URLRequest(url: url))
+
+        switch route {
+        case .open(let url):
+            isEditingAddress = false
+            addressText = url.absoluteString
+            webViews[id]?.load(URLRequest(url: url))
+        case .handoff(let url):
+            isEditingAddress = false
+            _ = routeExternalLink(url)
+        }
     }
 
     func goBack() { webViews[activeTab?.id ?? UUID()]?.goBack() }
@@ -635,9 +647,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         guard let tab = activeTab, let webView = webViews[tab.id] else { return }
         if webView.isLoading { webView.stopLoading() } else { webView.reload() }
     }
-
-    /// Schemes the web view renders itself. Anything else belongs to the system.
-    static let renderableSchemes: Set<String> = ["http", "https", "about", "file", "data", "blob", "javascript"]
 
     /// `target="_blank"` and `window.open` can arrive twice — once as a policy
     /// decision with no target frame and once as a new-window request — so the
@@ -660,7 +669,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// untouched; a scheme nothing handles must say so rather than swallow the tap.
     func routeExternalLink(_ url: URL) -> Bool {
         guard let scheme = url.scheme?.lowercased(),
-              !Self.renderableSchemes.contains(scheme) else { return false }
+              !AddressResolver.renderableSchemes.contains(scheme) else { return false }
         lastRoute = "\(scheme) handed off"
         UIApplication.shared.open(url, options: [:]) { [weak self] opened in
             DispatchQueue.main.async {

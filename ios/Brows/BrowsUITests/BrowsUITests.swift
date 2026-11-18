@@ -298,6 +298,25 @@ final class BrowsUITests: XCTestCase {
         return element.waitForExistence(timeout: timeout)
     }
 
+    /// Put text in the pill and submit it without assuming a page loads: the
+    /// rejected-address and typed-scheme cases end somewhere other than a page.
+    private func submitAddress(_ text: String, in app: XCUIApplication) {
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        for _ in 0..<3 {
+            field.tap()
+            field.typeText(text)
+            if (field.value as? String) == text { break }
+        }
+        XCTAssertEqual(field.value as? String, text, "address pill did not take the typed text")
+        field.typeText("\n")
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.waitForExistence(timeout: 3) {
+            let go = keyboard.buttons["Go"]
+            if go.exists { go.tap() }
+        }
+    }
+
     private func open(_ url: String, in app: XCUIApplication, expect text: String? = nil) {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
@@ -735,6 +754,48 @@ final class BrowsUITests: XCTestCase {
             app.buttons["download.share"].waitForExistence(timeout: 20),
             "download never finished (no share action on the row)"
         )
+    }
+
+    /// Typing an address the browser cannot build must not be a dead end: the pill
+    /// keeps the text, the page stays, and the app says why in its own card.
+    func testAddressPillExplainsAnAddressItCannotOpen() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+
+        submitAddress("https://exa mple.com", in: app)
+
+        XCTAssertTrue(app.otherElements["notice.card"].waitForExistence(timeout: 10),
+                      "an unbuildable address was swallowed in silence")
+        XCTAssertEqual(app.alerts.count, 0, "the failure borrowed system chrome")
+        XCTAssertTrue(app.staticTexts["notice.message"].label.contains("could not open that address"),
+                      "the card did not say what happened: \(app.staticTexts["notice.message"].label)")
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 10),
+                      "a rejected address replaced the page")
+
+        app.buttons["notice.ok"].tap()
+        let gone = NSPredicate(format: "exists == false")
+        expectation(for: gone, evaluatedWith: app.otherElements["notice.card"])
+        waitForExpectations(timeout: 5)
+    }
+
+    /// A typed scheme is routed like a tapped one: `mailto:` reaches the system (or
+    /// gets the app's refusal card) and never becomes an `https://mailto:` page.
+    func testTypedExternalSchemeRoutesInsteadOfBecomingAPage() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+
+        submitAddress("mailto:someone@brows.dev", in: app)
+
+        XCTAssertTrue(waitForRoute(app, "mailto"), "a typed mailto was not routed anywhere")
+        if app.buttons["linknotice.ok"].waitForExistence(timeout: 3) {
+            app.buttons["linknotice.ok"].tap()
+        }
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 10),
+                      "a typed mailto replaced the page")
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10),
+                      "a typed mailto created a tab")
+        app.buttons["Done"].tap()
     }
 
     /// The start page's own SEARCH bubble is wired to navigation, not decoration.
