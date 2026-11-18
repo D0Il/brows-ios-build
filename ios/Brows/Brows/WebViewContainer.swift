@@ -360,9 +360,7 @@ struct WebViewContainer: UIViewRepresentable {
             // address (`AddressResolver`, Foundation only, executed on Windows too).
             switch AddressResolver.popup(url) {
             case .newTab:
-                // PLANTED: the old behaviour — a tab, but no web view, so window.open() is null.
-                model.openLinkInNewTab(url)
-                return nil
+                return model.adoptPopup(configuration, url: url)
             case .handoff:
                 // A scheme this browser cannot render leaves the page exactly where
                 // it was and either hands off or says so in the app's card.

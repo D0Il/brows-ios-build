@@ -776,9 +776,14 @@ final class BrowsUITests: XCTestCase {
         app.staticTexts["Links"].tap()
         XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 10),
                       "the opener page was lost")
-        XCTAssertTrue(app.webViews.staticTexts["opened"].waitForExistence(timeout: 15),
-                      "window.open returned no window, so the page read it as blocked: "
-                      + app.webViews.staticTexts["popup-result"].label)
+        // The page writes "opened" only when window.open gave it a window; a nil
+        // return is what it writes as "blocked". Read the word, not an element that
+        // only exists on one branch, so a failure reports the page's own verdict.
+        let opened = app.webViews.staticTexts["opened"]
+        if !opened.waitForExistence(timeout: 15) {
+            let verdict = app.webViews.staticTexts["blocked"].exists ? "blocked" : "missing"
+            XCTFail("window.open returned no window; the page says \(verdict)")
+        }
     }
 
     /// A popup whose scheme the browser cannot render is refused in the app's own
