@@ -725,26 +725,29 @@ final class BrowsUITests: XCTestCase {
         )
     }
 
-    /// A real octet-stream navigation must land in the download list, not as text
-    /// in the page. The workflow serves sample.bin on port 8000 for this test.
+    /// A real octet-stream navigation must land in the download list as a finished
+    /// row, not as text in the page. The workflow serves sample.bin on port 8000.
+    /// The row is not matched by name: a file left by an earlier test makes this
+    /// transfer write sample-1.bin, and a finished row renames itself to the file it
+    /// actually wrote (`updateDownload(path:)`). That is the row telling the truth,
+    /// so the assertion is the finished row, not the filename (runs 44509250031 and
+    /// 44516877871 failed on the name alone while the transfer itself worked).
     func testDownloadStarts() {
         let app = makeApp()
 
-        func listed() -> Bool {
+        func finishedRow() -> Bool {
             app.buttons["rail.menu"].tap()
             guard app.staticTexts["Site information"].waitForExistence(timeout: 10),
                   app.staticTexts["Downloads"].waitForExistence(timeout: 10) else { return false }
             // Downloads sits in the menu's second section, above the fold.
             app.staticTexts["Downloads"].tap()
-            if app.staticTexts["sample.bin"].waitForExistence(timeout: 20) { return true }
-            // Distinguish the two causes: fixture text on the page means the response
-            // policy allowed a binary through (re-submitting cannot help), no text
-            // means the navigation never reached the server.
-            print("DOWNLOAD-DEBUG no row; fixture text on page: "
-                  + "\(app.webViews.staticTexts["brows download fixture"].exists)")
+            // The share action exists only on a row whose transfer finished.
+            if app.buttons["download.share"].waitForExistence(timeout: 20) {
+                app.buttons["Done"].tap()
+                return true
+            }
             // Wait for the sheet to leave before the caller re-submits. A tap that
-            // lands while it is still animating away submits nothing, which is how
-            // the retry in runs 44448769168 and 44509250031 failed as well.
+            // lands while it is still animating away submits nothing.
             let done = app.buttons["Done"]
             if done.exists { done.tap() }
             let gone = NSPredicate(format: "exists == false")
@@ -754,17 +757,17 @@ final class BrowsUITests: XCTestCase {
         }
 
         open("http://localhost:8000/sample.bin", in: app)
-        if !listed() {
+        if !finishedRow() {
             // No row means the request may never have left the app; a second
             // navigation is a real one (see openRetrying). Nothing here prints
             // element lists: querying a stale snapshot throws and hides the reason.
-            print("DOWNLOAD-DEBUG first navigation produced no row; submitting again")
+            print("DOWNLOAD-DEBUG first navigation produced no finished row; submitting again")
             open("http://localhost:8000/sample.bin", in: app)
-            XCTAssertTrue(listed(), "download did not start or was not listed")
+            XCTAssertTrue(finishedRow(), "download did not start or did not finish")
         }
-        XCTAssertTrue(
-            app.buttons["download.share"].waitForExistence(timeout: 20),
-            "download never finished (no share action on the row)"
+        XCTAssertFalse(
+            app.webViews.staticTexts["brows download fixture"].exists,
+            "the binary rendered as page text instead of downloading"
         )
     }
 
