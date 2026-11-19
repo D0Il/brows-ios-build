@@ -1007,9 +1007,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         return isPrivate ? base.appendingPathComponent("Private", isDirectory: true) : base
     }
 
+    /// Files only: the normal folder contains the private one, and a directory is not
+    /// a download.
     static func downloadFileCount(private isPrivate: Bool) -> Int {
         let folder = downloadsDirectory(private: isPrivate)
-        return (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil))?.count ?? 0
+        let keys: [URLResourceKey] = [.isRegularFileKey]
+        let entries = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys)) ?? []
+        return entries.filter { (try? $0.resourceValues(forKeys: Set(keys)).isRegularFile) == true }.count
     }
 
     /// A kill runs no cleanup hook, so the next launch is the only place that can still
