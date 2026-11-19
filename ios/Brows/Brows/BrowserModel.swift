@@ -989,7 +989,34 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             }
         }
         downloads.removeAll { $0.isPrivate == true }
+        // A transfer can leave a file with no row (cancelled, or interrupted), so the
+        // directory itself is emptied - never the normal one.
+        sweepPrivateDownloads()
         save()
+    }
+
+    /// Private downloads live in their own directory, so a launch can tell from the
+    /// file system alone which files must not outlive the private session. The
+    /// normal `Downloads` folder is the parent and is never swept.
+    static func downloadsDirectory(private isPrivate: Bool) -> URL {
+        let base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Downloads", isDirectory: true)
+        return isPrivate ? base.appendingPathComponent("Private", isDirectory: true) : base
+    }
+
+    static func downloadFileCount(private isPrivate: Bool) -> Int {
+        let folder = downloadsDirectory(private: isPrivate)
+        return (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil))?.count ?? 0
+    }
+
+    /// A kill runs no cleanup hook, so the next launch is the only place that can still
+    /// keep the promise. Runs before anything reads the download state.
+    func sweepPrivateDownloads() {
+        let folder = BrowserModel.downloadsDirectory(private: true)
+        guard let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
+        for file in files {
+            try? FileManager.default.removeItem(at: file)
+        }
     }
 
     func updateDownload(_ id: UUID, progress: Double? = nil, finished: Bool? = nil, failed: Bool? = nil, path: String? = nil) {

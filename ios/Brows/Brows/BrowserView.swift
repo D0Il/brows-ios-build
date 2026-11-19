@@ -108,6 +108,13 @@ struct BrowserView: View {
                               : model.launchAppearance == "dark" ? .dark : nil)
         .overlay(alignment: .topLeading) {
             VStack(spacing: 0) {
+                // Test-only probe: the two download directories by file count, so a
+                // relaunch can prove a private file was swept and a normal one stayed.
+                Text("downloads")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("audit.downloadfiles")
+                    .accessibilityLabel("private \(BrowserModel.downloadFileCount(private: true)) normal \(BrowserModel.downloadFileCount(private: false))")
                 if !model.contrastAudit.isEmpty {
                     Text("audit")
                         .font(.system(size: 1))

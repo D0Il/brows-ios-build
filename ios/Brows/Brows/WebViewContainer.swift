@@ -256,8 +256,7 @@ struct WebViewContainer: UIViewRepresentable {
                 return
             }
 
-            let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("Downloads", isDirectory: true)
+            let folder = BrowserModel.downloadsDirectory(private: model.isPrivateTab(tabId))
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
 
             var destination = folder.appendingPathComponent(suggestedFilename)

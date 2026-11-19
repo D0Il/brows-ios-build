@@ -822,6 +822,119 @@ final class BrowsUITests: XCTestCase {
         }
     }
 
+    private func openDownloads(in app: XCUIApplication) {
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "menu did not open")
+        app.staticTexts["Downloads"].tap()
+    }
+
+    private func newPrivateTab(in app: XCUIApplication) {
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10), "menu did not open")
+        app.swipeUp()
+        let row = app.staticTexts["New private tab"]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "no New private tab row")
+        row.tap()
+        XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10), "no private tab badge")
+    }
+
+    /// A kill runs no cleanup hook, so the next launch is what keeps the promise: the
+    /// private download folder is swept and the normal one is untouched. A second
+    /// launch proves the sweep is repeatable (the orphan-file case).
+    func testPrivateDownloadFileIsSweptOnNextLaunch() {
+        let app = makeApp()
+
+        submitAddress("http://localhost:8000/sample.bin", in: app)
+        openDownloads(in: app)
+        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
+                      "the normal download never started")
+        app.buttons["Done"].tap()
+
+        newPrivateTab(in: app)
+        submitAddress("http://localhost:8000/sample.bin", in: app)
+        openDownloads(in: app)
+        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
+                      "the private download never started")
+        app.buttons["Done"].tap()
+
+        XCTAssertEqual(app.staticTexts["audit.downloadfiles"].label, "private 1 normal 1",
+                       "the two download folders did not hold one file each before the kill")
+
+        // Kill mid-session. The private tab is not restored; its file must not survive.
+        app.terminate()
+        let again = makeApp(reset: false)
+        XCTAssertEqual(again.staticTexts["audit.downloadfiles"].label, "private 0 normal 1",
+                       "a private download file survived the relaunch, or the sweep took the normal one")
+
+        openDownloads(in: again)
+        XCTAssertTrue(again.staticTexts["sample.bin"].waitForExistence(timeout: 10),
+                      "the normal download row was lost with the private files")
+        again.buttons["Done"].tap()
+
+        again.terminate()
+        let third = makeApp(reset: false)
+        XCTAssertEqual(third.staticTexts["audit.downloadfiles"].label, "private 0 normal 1",
+                       "the orphan sweep did not hold on a second launch")
+    }
+
+    /// Ending the private session deletes its files at once, and only its files.
+    func testClosingPrivateTabsDeletesTheirDownloadFiles() {
+        let app = makeApp()
+
+        submitAddress("http://localhost:8000/sample.bin", in: app)
+        openDownloads(in: app)
+        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
+                      "the normal download never started")
+        app.buttons["Done"].tap()
+
+        newPrivateTab(in: app)
+        submitAddress("http://localhost:8000/sample.bin", in: app)
+        openDownloads(in: app)
+        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
+                      "the private download never started")
+        app.buttons["Done"].tap()
+        XCTAssertEqual(app.staticTexts["audit.downloadfiles"].label, "private 1 normal 1")
+
+        app.buttons["rail.tabs"].tap()
+        let closePrivate = app.buttons["Close private"]
+        XCTAssertTrue(closePrivate.waitForExistence(timeout: 10),
+                      "no Close private control while a private tab exists")
+        closePrivate.tap()
+        app.buttons["Done"].tap()
+
+        XCTAssertEqual(app.staticTexts["audit.downloadfiles"].label, "private 0 normal 1",
+                       "closing the private tabs left a private file, or took the normal one")
+    }
+
+    /// A popup named by a private page is private too: the tab carries the badge, and a
+    /// relaunch neither restores the popup nor the private session it came from.
+    func testNamedPopupFromAPrivateTabStaysPrivate() {
+        let app = makeApp()
+        newPrivateTab(in: app)
+
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+        app.webViews.buttons["Open named window again"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+                      "the named popup did not open from the private tab")
+        XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10),
+                      "the popup opened from a private tab is not marked private")
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "the private named popup did not make one tab")
+        XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10),
+                      "the gallery does not mark the named popup private")
+        app.buttons["Done"].tap()
+
+        app.terminate()
+        let again = makeApp(reset: false)
+        XCTAssertFalse(again.staticTexts["PRIVATE"].exists,
+                       "a private named popup was restored on relaunch")
+        again.buttons["rail.tabs"].tap()
+        XCTAssertTrue(again.staticTexts["1 open"].waitForExistence(timeout: 10),
+                      "the relaunch restored tabs from the private session")
+    }
+
     /// `window.open(url, "name")` twice with the same name: the second call must reach
     /// the window WebKit already gave that name - the page compares the two returns and
     /// writes `same-window`, `different-window` or `null-again`. A second tab here is the
