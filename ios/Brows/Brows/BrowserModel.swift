@@ -702,6 +702,14 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         guard let scheme = url.scheme?.lowercased(),
               !AddressResolver.renderableSchemes.contains(scheme) else { return false }
         lastRoute = "\(scheme) handed off"
+        // A scheme nothing declares is refused synchronously. Waiting for the
+        // open callback left the tap looking swallowed: the callback for an
+        // unknown scheme can arrive late or never, and no notice was drawn.
+        if !UIApplication.shared.canOpenURL(url) {
+            lastRoute = "\(scheme) refused"
+            pendingLinkNotice = PendingLinkNotice(url: url.absoluteString, scheme: scheme)
+            return true
+        }
         UIApplication.shared.open(url, options: [:]) { [weak self] opened in
             DispatchQueue.main.async {
                 guard let self else { return }
