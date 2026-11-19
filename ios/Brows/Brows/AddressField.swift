@@ -23,7 +23,7 @@ struct AddressField: UIViewRepresentable {
         field.attributedPlaceholder = NSAttributedString(
             string: "SEARCH",
             attributes: [
-                .foregroundColor: UIColor(Theme.muted),
+                .foregroundColor: UIColor(Theme.panelMuted),
                 .font: UIFont.systemFont(ofSize: 15)
             ]
         )

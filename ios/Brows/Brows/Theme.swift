@@ -191,11 +191,27 @@ struct GlassPane: View {
 /// bubble is 30px; on a phone the touch frame is 36 so it stays tappable.
 struct GlassCircleButtonStyle: ButtonStyle {
     var enabled: Bool = true
-    var glyph: Color = Theme.muted
+    var glyph: Color = Theme.panelMuted
     private let bubbleRadius: CGFloat = 8
     private let drop = Color(red: 24 / 255, green: 31 / 255, blue: 44 / 255)
 
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
+        if #available(iOS 26.0, *) {
+            configuration.label
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
+                .frame(width: 36, height: 36)
+                .glassEffect(
+                    .regular.interactive(),
+                    in: RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                )
+        } else {
+            legacyBody(configuration)
+        }
+    }
+
+    private func legacyBody(_ configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .semibold))
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))

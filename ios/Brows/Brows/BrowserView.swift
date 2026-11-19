@@ -186,31 +186,18 @@ struct TopStrip: View {
                 Text(model.activeTab?.title ?? "New Tab")
                     .font(.system(size: 11, weight: .medium))
                     .lineLimit(1)
-                    .foregroundColor(Theme.ink)
+                    .foregroundColor(Theme.panelInk)
 
                 if model.activeTab?.isPrivate == true {
                     Text("PRIVATE")
                         .font(.system(size: 8, weight: .bold))
                         .tracking(1)
-                        .foregroundColor(Theme.muted)
+                        .foregroundColor(Theme.panelMuted)
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [Theme.tabActiveTop, Theme.tabActiveBottom],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .strokeBorder(Theme.tabBorder, lineWidth: 1)
-            )
+            .browsGlass(cornerRadius: 9)
             .frame(maxWidth: 230, alignment: .leading)
 
             Spacer(minLength: 0)
@@ -219,7 +206,7 @@ struct TopStrip: View {
                 ProgressView(value: progress)
                     .progressViewStyle(.linear)
                     .frame(width: 56)
-                    .tint(Theme.ink)
+                    .tint(Theme.panelInk)
             }
         }
         .padding(.horizontal, 10)
@@ -295,7 +282,7 @@ struct BottomRail: View {
                 } label: {
                     Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.ink)
+                        .foregroundColor(Theme.panelInk)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("rail.star")
@@ -304,57 +291,7 @@ struct BottomRail: View {
             .padding(.horizontal, 12)
             .frame(height: 40)
             .frame(minWidth: 126)
-            .background(
-                ZStack {
-                    // The desktop rail's omnibox is a solid white pill; the glass
-                    // gradient rides on that plate. On the phone the rail floats
-                    // over the page, so without the plate the address and the
-                    // selection handles sat directly on article text.
-                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(model.isEditingAddress ? Color.white : Color.white.opacity(0.95))
-                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(model.isEditingAddress ? Theme.pillFocusWash : Theme.pillWash)
-                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: model.isEditingAddress
-                                    ? [Theme.pillFocusTop, Theme.pillFocusBottom]
-                                    : [Theme.pillTop, Theme.pillBottom],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                }
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                    .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
-            )
-            // location_bar.css:29-31 — inset 0 1px 0 rgba(255,255,255,.42),
-            // inset 0 -1px 0 rgba(47,58,75,.045), 0 1px 5px rgba(38,47,61,.035).
-            .overlay(alignment: .top) {
-                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                    .stroke(Theme.pillInnerTop, lineWidth: 1)
-                    .mask(
-                        LinearGradient(
-                            colors: [.white, .clear],
-                            startPoint: .top,
-                            endPoint: UnitPoint(x: 0.5, y: 0.25)
-                        )
-                    )
-            }
-            .overlay(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                    .stroke(Theme.pillInnerBottom, lineWidth: 1)
-                    .mask(
-                        LinearGradient(
-                            colors: [.clear, .white],
-                            startPoint: UnitPoint(x: 0.5, y: 0.75),
-                            endPoint: .bottom
-                        )
-                    )
-            }
-            .shadow(color: Theme.pillDrop, radius: 5, x: 0, y: 1)
+            .browsGlass(cornerRadius: Theme.pillRadius)
             .layoutPriority(2)
 
             if !model.bookmarks.isEmpty && !model.isEditingAddress {
@@ -405,7 +342,7 @@ struct BottomRail: View {
         .padding(.horizontal, 8)
         .padding(.top, 8)
         .padding(.bottom, 4)
-        .background(GlassPane().ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
+        .background(Color.clear.browsGlass(cornerRadius: 0).ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
         // app.css: the band's own `border-top: 1px rgba(72,84,102,.07)` and
         // `inset 0 -1px 0 rgba(67,78,96,.14)` edge the glass without filling it.
         .overlay(alignment: .top) {
@@ -458,7 +395,7 @@ struct BottomRail: View {
             }
         }
         .buttonStyle(CompactControlStyle())
-        .foregroundColor(Theme.muted)
+        .foregroundColor(Theme.panelMuted)
     }
 
     private func railButton(_ symbol: String, id: String, action: @escaping () -> Void) -> some View {
@@ -472,12 +409,19 @@ struct BottomRail: View {
 
 /// Small square glass control for the folded cluster.
 struct CompactControlStyle: ButtonStyle {
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .frame(width: 30, height: 28)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
-            )
+        if #available(iOS 26.0, *) {
+            configuration.label
+                .frame(width: 30, height: 28)
+                .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 7))
+        } else {
+            configuration.label
+                .frame(width: 30, height: 28)
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
+                )
+        }
     }
 }
