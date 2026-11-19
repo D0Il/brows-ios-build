@@ -239,7 +239,9 @@ final class BrowsUITests: XCTestCase {
         }
 
         app.webViews.links["Unsupported"].tap()
-        XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 10), "an unsupported scheme was swallowed")
+        let route = app.staticTexts["debug.lastroute"]
+        XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 10),
+                      "an unsupported scheme was swallowed (last route: \(route.exists ? route.label : "none"))")
         XCTAssertTrue(app.staticTexts["linknotice.message"].label.contains("brows-nothing"),
                       "the notice did not name the scheme")
         app.buttons["linknotice.ok"].tap()
