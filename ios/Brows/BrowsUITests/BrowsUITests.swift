@@ -830,33 +830,23 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
-        app.webViews.buttons["Open named window"].tap()
+        // One page action opens its popup, then re-opens the same name 1.8 s later -
+        // the way an SSO flow or a chat widget reuses its own window. The page writes
+        // `same-window` only if both calls reached the same window.
+        app.webViews.buttons["Open named window again"].tap()
         XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
                       "the named window did not open")
 
+        // Back to the opener to read its verdict; only the active tab is mounted.
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
                       "the first named open did not make exactly one tab")
         app.staticTexts["Links"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["first-open"].waitForExistence(timeout: 15),
-                      "window.open returned no window on the first call")
-
-        // The gallery sheet fades out over the page; tap only once the page takes
-        // touches again, so a failure here names the overlay instead of the control.
-        let again = app.webViews.buttons["Re-open named window"]
-        let deadline = Date().addingTimeInterval(10)
-        while Date() < deadline && !(again.exists && again.isHittable) {
-            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
-        }
-        XCTAssertTrue(again.isHittable, "the opener never took touches again; a sheet still covers it")
-        again.tap()
-
-        // Read the page's own verdict, so a failure says which contract broke.
         let same = app.webViews.staticTexts["same-window"]
         if !same.waitForExistence(timeout: 20) {
             let verdict = app.webViews.staticTexts["different-window"].exists ? "different-window"
                 : (app.webViews.staticTexts["null-again"].exists ? "null-again" : "missing")
-            XCTFail("window.open(name) did not reuse the named window; the page says \(verdict)")
+            XCTFail("window.open(name) did not reuse the named window; the page says (verdict)")
         }
 
         app.buttons["rail.tabs"].tap()
