@@ -236,13 +236,15 @@ final class BrowsUITests: XCTestCase {
             app.buttons["rail.tabs"].tap()
             XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10), "\(scheme) created a tab")
             app.buttons["Done"].tap()
+            // A gallery that is still animating out keeps its hit area: the next
+            // tap landed on it and opened a new home tab instead of reaching the
+            // page (run 44616349399). The page is only tappable once it is gone.
+            waitUntilGone(app.buttons["Done"])
+            XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5),
+                          "the page was not frontmost after closing the gallery")
         }
 
         app.webViews.links["Unsupported"].tap()
-        if !app.buttons["linknotice.ok"].waitForExistence(timeout: 3) {
-            print("UNSUPPORTED-TREE")
-            print(app.debugDescription)
-        }
         let route = app.staticTexts["debug.lastroute"]
         XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 7),
                       "an unsupported scheme was swallowed (last route: \(route.exists ? route.label : "none"))")
@@ -311,6 +313,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         for _ in 0..<3 {
             field.tap()
+            _ = app.keyboards.firstMatch.waitForExistence(timeout: 2)
             field.typeText(text)
             if (field.value as? String) == text { break }
         }
@@ -333,6 +336,7 @@ final class BrowsUITests: XCTestCase {
             // URL grows into a half-typed mess; re-tapping is the real fix.
             for _ in 0..<3 {
                 field.tap()
+                _ = app.keyboards.firstMatch.waitForExistence(timeout: 2)
                 field.typeText(url)
                 if (field.value as? String) == url { break }
             }
