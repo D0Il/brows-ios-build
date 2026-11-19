@@ -291,7 +291,57 @@ struct BottomRail: View {
             .padding(.horizontal, 12)
             .frame(height: 40)
             .frame(minWidth: 126)
-            .background(Color.clear.browsGlass(cornerRadius: Theme.pillRadius).allowsHitTesting(false))
+            .background(
+                ZStack {
+                    // The desktop rail's omnibox is a solid white pill; the glass
+                    // gradient rides on that plate. On the phone the rail floats
+                    // over the page, so without the plate the address and the
+                    // selection handles sat directly on article text.
+                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                        .fill(model.isEditingAddress ? Color.white : Color.white.opacity(0.95))
+                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                        .fill(model.isEditingAddress ? Theme.pillFocusWash : Theme.pillWash)
+                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: model.isEditingAddress
+                                    ? [Theme.pillFocusTop, Theme.pillFocusBottom]
+                                    : [Theme.pillTop, Theme.pillBottom],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
+            )
+            // location_bar.css:29-31 — inset 0 1px 0 rgba(255,255,255,.42),
+            // inset 0 -1px 0 rgba(47,58,75,.045), 0 1px 5px rgba(38,47,61,.035).
+            .overlay(alignment: .top) {
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .stroke(Theme.pillInnerTop, lineWidth: 1)
+                    .mask(
+                        LinearGradient(
+                            colors: [.white, .clear],
+                            startPoint: .top,
+                            endPoint: UnitPoint(x: 0.5, y: 0.25)
+                        )
+                    )
+            }
+            .overlay(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .stroke(Theme.pillInnerBottom, lineWidth: 1)
+                    .mask(
+                        LinearGradient(
+                            colors: [.clear, .white],
+                            startPoint: UnitPoint(x: 0.5, y: 0.75),
+                            endPoint: .bottom
+                        )
+                    )
+            }
+            .shadow(color: Theme.pillDrop, radius: 5, x: 0, y: 1)
             .layoutPriority(2)
 
             if !model.bookmarks.isEmpty && !model.isEditingAddress {
