@@ -412,9 +412,18 @@ struct CompactControlStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .frame(width: 30, height: 28)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
-            )
+            .background(compactGlass(configuration))
+    }
+
+    @ViewBuilder
+    private func compactGlass(_ configuration: Configuration) -> some View {
+        if #available(iOS 26.0, *) {
+            Color.clear
+                .browsGlass(cornerRadius: 7)
+                .allowsHitTesting(false)
+        } else {
+            RoundedRectangle(cornerRadius: 7)
+                .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
+        }
     }
 }

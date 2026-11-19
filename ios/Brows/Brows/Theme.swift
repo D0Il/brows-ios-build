@@ -200,59 +200,36 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .font(.system(size: 16, weight: .semibold))
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
-            .background(
-                ZStack {
-                    // Rail styling: white circular controls. The bubble gradient
-                    // and its hairline still ride on top; the white plate is what
-                    // keeps the glyph legible when the rail floats over a page.
-                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(Color.white.opacity(0.95))
-                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(Theme.bubbleWash)
-                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
-                                    Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                }
-            )
-            .overlay(
+            .background(controlGlass(configuration))
+    }
+
+    @ViewBuilder
+    private func controlGlass(_ configuration: Configuration) -> some View {
+        // Apple's material, but a background: a glass layer on a control takes
+        // the touch before the Button can, which is what hid the menu.
+        if #available(iOS 26.0, *) {
+            Color.clear
+                .browsGlass(cornerRadius: bubbleRadius)
+                .allowsHitTesting(false)
+        } else {
+            ZStack {
                 RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                    .stroke(Color.white.opacity(configuration.isPressed ? 0.19 : 0.30), lineWidth: 1)
-            )
-            .overlay(alignment: .top) {
+                    .fill(Color.white.opacity(0.95))
                 RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                    .stroke(Color.white.opacity(0.56), lineWidth: 1)
-                    .mask(
+                    .fill(Theme.bubbleWash)
+                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                    .fill(
                         LinearGradient(
-                            colors: [.white, .clear],
+                            colors: [
+                                Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
+                                Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
+                            ],
                             startPoint: .top,
-                            endPoint: UnitPoint(x: 0.5, y: 0.45)
-                        )
-                    )
-            }
-            // toolbar_button.css:36-40 — inset 0 -1px rgba(34,44,60,.075),
-            // 0 1px 2px rgba(24,31,44,.075), 0 4px 12px rgba(24,31,44,.045).
-            .overlay(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                    .stroke(Color(red: 34 / 255, green: 44 / 255, blue: 60 / 255).opacity(0.075), lineWidth: 1)
-                    .mask(
-                        LinearGradient(
-                            colors: [.clear, .white],
-                            startPoint: UnitPoint(x: 0.5, y: 0.55),
                             endPoint: .bottom
                         )
                     )
             }
-            .shadow(color: drop.opacity(0.075), radius: 2, x: 0, y: 1)
-            .shadow(color: drop.opacity(0.045), radius: 12, x: 0, y: 4)
-            .opacity(enabled ? 1 : 0.55)
+        }
     }
 }
 
@@ -284,5 +261,13 @@ extension View {
         } else {
             self
         }
+    }
+}
+
+extension View {
+    /// Glass belongs behind the content: a glass layer that is itself hit-testable
+    /// takes taps from the buttons inside the card.
+    func browsGlassBackground(cornerRadius: CGFloat) -> some View {
+        background(Color.clear.browsGlass(cornerRadius: cornerRadius).allowsHitTesting(false))
     }
 }

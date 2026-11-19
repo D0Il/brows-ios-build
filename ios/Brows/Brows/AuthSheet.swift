@@ -59,7 +59,7 @@ struct CredentialSaveOverlay: View {
             }
             .padding(20)
             .frame(maxWidth: 340)
-            .browsGlass(cornerRadius: 18)
+            .browsGlassBackground(cornerRadius: 18)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
             .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
             .padding(24)
@@ -182,7 +182,7 @@ struct HTTPAuthCard: View {
         }
         .padding(20)
         .frame(maxWidth: 340)
-        .browsGlass(cornerRadius: 18)
+        .browsGlassBackground(cornerRadius: 18)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)

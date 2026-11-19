@@ -50,7 +50,7 @@ struct AddressSuggestionsPanel: View {
         // rows drew outside its frame, under the rail, and a row's tap landed on
         // the rail's reload control instead.
         .fixedSize(horizontal: false, vertical: true)
-        .browsGlass(cornerRadius: 16)
+        .browsGlassBackground(cornerRadius: 16)
         
         .shadow(color: Color.black.opacity(0.16), radius: 18, y: 8)
         .padding(.horizontal, 14)
