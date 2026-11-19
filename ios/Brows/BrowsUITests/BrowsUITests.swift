@@ -822,6 +822,18 @@ final class BrowsUITests: XCTestCase {
         }
     }
 
+    private func downloadFileCounts(_ app: XCUIApplication) -> (privateCount: Int, normalCount: Int) {
+        // "private 1 normal 2", from the app's own folders. The normal folder is not
+        // emptied by the test reset, so callers compare it against a baseline.
+        let label = app.staticTexts["audit.downloadfiles"].label
+        let parts = label.split(separator: " ")
+        guard parts.count == 4, let priv = Int(parts[1]), let norm = Int(parts[3]) else {
+            XCTFail("the download-folder probe did not report counts; it says (label)")
+            return (-1, -1)
+        }
+        return (priv, norm)
+    }
+
     private func openDownloads(in app: XCUIApplication) {
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "menu did not open")
@@ -843,6 +855,7 @@ final class BrowsUITests: XCTestCase {
     /// launch proves the sweep is repeatable (the orphan-file case).
     func testPrivateDownloadFileIsSweptOnNextLaunch() {
         let app = makeApp()
+        let baseline = downloadFileCounts(app).normalCount
 
         submitAddress("http://localhost:8000/sample.bin", in: app)
         openDownloads(in: app)
@@ -857,14 +870,16 @@ final class BrowsUITests: XCTestCase {
                       "the private download never started")
         app.buttons["Done"].tap()
 
-        XCTAssertEqual(app.staticTexts["audit.downloadfiles"].label, "private 1 normal 1",
-                       "the two download folders did not hold one file each before the kill")
+        let beforeKill = downloadFileCounts(app)
+        XCTAssertEqual(beforeKill.privateCount, 1, "the private file did not land in the private folder")
+        XCTAssertEqual(beforeKill.normalCount, baseline + 1, "the normal file did not land in the normal folder")
 
         // Kill mid-session. The private tab is not restored; its file must not survive.
         app.terminate()
         let again = makeApp(reset: false)
-        XCTAssertEqual(again.staticTexts["audit.downloadfiles"].label, "private 0 normal 1",
-                       "a private download file survived the relaunch, or the sweep took the normal one")
+        let afterLaunch = downloadFileCounts(again)
+        XCTAssertEqual(afterLaunch.privateCount, 0, "a private download file survived the relaunch")
+        XCTAssertEqual(afterLaunch.normalCount, baseline + 1, "the sweep took the normal file")
 
         openDownloads(in: again)
         XCTAssertTrue(again.staticTexts["sample.bin"].waitForExistence(timeout: 10),
@@ -873,13 +888,15 @@ final class BrowsUITests: XCTestCase {
 
         again.terminate()
         let third = makeApp(reset: false)
-        XCTAssertEqual(third.staticTexts["audit.downloadfiles"].label, "private 0 normal 1",
-                       "the orphan sweep did not hold on a second launch")
+        let afterSecond = downloadFileCounts(third)
+        XCTAssertEqual(afterSecond.privateCount, 0, "the orphan sweep did not hold on a second launch")
+        XCTAssertEqual(afterSecond.normalCount, baseline + 1, "the normal file was swept on a later launch")
     }
 
     /// Ending the private session deletes its files at once, and only its files.
     func testClosingPrivateTabsDeletesTheirDownloadFiles() {
         let app = makeApp()
+        let baseline = downloadFileCounts(app).normalCount
 
         submitAddress("http://localhost:8000/sample.bin", in: app)
         openDownloads(in: app)
@@ -893,7 +910,9 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
                       "the private download never started")
         app.buttons["Done"].tap()
-        XCTAssertEqual(app.staticTexts["audit.downloadfiles"].label, "private 1 normal 1")
+        let beforeClose = downloadFileCounts(app)
+        XCTAssertEqual(beforeClose.privateCount, 1, "the private file did not land in the private folder")
+        XCTAssertEqual(beforeClose.normalCount, baseline + 1)
 
         app.buttons["rail.tabs"].tap()
         let closePrivate = app.buttons["Close private"]
@@ -902,8 +921,9 @@ final class BrowsUITests: XCTestCase {
         closePrivate.tap()
         app.buttons["Done"].tap()
 
-        XCTAssertEqual(app.staticTexts["audit.downloadfiles"].label, "private 0 normal 1",
-                       "closing the private tabs left a private file, or took the normal one")
+        let afterClose = downloadFileCounts(app)
+        XCTAssertEqual(afterClose.privateCount, 0, "closing the private tabs left a private file")
+        XCTAssertEqual(afterClose.normalCount, baseline + 1, "closing private tabs took the normal file")
     }
 
     /// A popup named by a private page is private too: the tab carries the badge, and a

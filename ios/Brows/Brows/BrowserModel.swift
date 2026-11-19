@@ -351,6 +351,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             }
         }
         load()
+        // Before any surface can read the download state: files from a private session
+        // that was killed (no cleanup hook ran) are gone now.
+        sweepPrivateDownloads()
         loadCredentials()
         blockerExceptions = UserDefaults.standard.stringArray(forKey: "brows.blockerExceptions") ?? []
         rebuildBlocker()
