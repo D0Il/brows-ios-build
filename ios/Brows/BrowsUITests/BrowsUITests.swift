@@ -240,8 +240,8 @@ final class BrowsUITests: XCTestCase {
 
         app.webViews.links["Unsupported"].tap()
         if !app.buttons["linknotice.ok"].waitForExistence(timeout: 3) {
-            print("UNSUPPORTED-TREE
-\(app.debugDescription)")
+            print("UNSUPPORTED-TREE")
+            print(app.debugDescription)
         }
         let route = app.staticTexts["debug.lastroute"]
         XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 7),
