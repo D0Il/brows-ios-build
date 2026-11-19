@@ -24,7 +24,9 @@ struct PageNoticeCard: View {
     }
 
     private var card: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        ZStack {
+            GlassLayer(cornerRadius: 18)
+            VStack(alignment: .leading, spacing: 14) {
             Text(notice.title)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(Theme.panelMuted)
@@ -47,10 +49,10 @@ struct PageNoticeCard: View {
             .buttonStyle(.plain)
             .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
             .accessibilityIdentifier("notice.ok")
+            }
+            .padding(20)
         }
-        .padding(20)
         .frame(maxWidth: 340)
-        .browsGlassBackground(cornerRadius: 18)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)

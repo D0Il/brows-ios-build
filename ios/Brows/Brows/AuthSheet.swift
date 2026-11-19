@@ -17,6 +17,8 @@ struct CredentialSaveOverlay: View {
     }
 
     private var card: some View {
+        ZStack {
+            GlassLayer(cornerRadius: 18)
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Save password?")
@@ -58,8 +60,8 @@ struct CredentialSaveOverlay: View {
                     .accessibilityIdentifier("save.notNow")
             }
             .padding(20)
-            .frame(maxWidth: 340)
-            .browsGlassBackground(cornerRadius: 18)
+        }
+        .frame(maxWidth: 340)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
             .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
             .padding(24)
@@ -119,7 +121,9 @@ struct HTTPAuthCard: View {
     }
 
     private var card: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        ZStack {
+            GlassLayer(cornerRadius: 18)
+            VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(auth.host)
                     .font(.system(size: 17, weight: .semibold))
@@ -181,8 +185,8 @@ struct HTTPAuthCard: View {
             .disabled(incomplete)
         }
         .padding(20)
+        }
         .frame(maxWidth: 340)
-        .browsGlassBackground(cornerRadius: 18)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)

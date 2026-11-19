@@ -239,13 +239,6 @@ extension View {
     }
 }
 
-extension View {
-    /// Glass belongs behind the content: a glass layer that is itself hit-testable
-    /// takes taps from the buttons inside the card.
-    func browsGlassBackground(cornerRadius: CGFloat) -> some View {
-        background(Color.clear.browsGlass(cornerRadius: cornerRadius).allowsHitTesting(false))
-    }
-}
 
 /// iOS 26's own Liquid Glass. Apple's current material is the design target, so
 /// every Brows pane asks the system for it; the app's rail pane is only the
@@ -262,5 +255,16 @@ extension View {
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             )
         }
+    }
+}
+
+/// Glass as a sibling layer behind card content. A glass *background* under a
+/// control takes that control's tap; a sibling layer does not.
+struct GlassLayer: View {
+    var cornerRadius: CGFloat
+    var body: some View {
+        Color.clear
+            .browsGlass(cornerRadius: cornerRadius)
+            .allowsHitTesting(false)
     }
 }

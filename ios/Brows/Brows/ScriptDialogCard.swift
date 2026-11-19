@@ -26,6 +26,8 @@ struct ScriptDialogCard: View {
     }
 
     private var card: some View {
+        ZStack {
+            GlassLayer(cornerRadius: 18)
         VStack(alignment: .leading, spacing: 14) {
             // The page's host, in the same muted line the credential card uses, so
             // a dialog is always attributable to the site that raised it.
@@ -75,8 +77,8 @@ struct ScriptDialogCard: View {
             }
         }
         .padding(20)
+        }
         .frame(maxWidth: 340)
-        .browsGlassBackground(cornerRadius: 18)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)
