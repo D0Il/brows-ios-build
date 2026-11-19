@@ -891,9 +891,12 @@ final class BrowsUITests: XCTestCase {
         XCTAssertEqual(afterLaunch.privateCount, 0, "a private download file survived the relaunch")
         XCTAssertEqual(afterLaunch.normalCount, baseline + 1, "the sweep took the normal file")
 
+        // The file name is not asserted: earlier tests leave same-named files in the
+        // normal folder, so the app may have stored this one as `sample-1.bin`. What
+        // matters is that the normal row survived and the private one did not.
         openDownloads(in: again)
-        XCTAssertTrue(again.staticTexts["sample.bin"].waitForExistence(timeout: 10),
-                      "the normal download row was lost with the private files")
+        XCTAssertEqual(waitForFinishedDownloads(1, in: again), 1,
+                       "the normal download row was lost with the private files; the sheet has no row")
         again.buttons["Done"].tap()
 
         again.terminate()
@@ -950,8 +953,10 @@ final class BrowsUITests: XCTestCase {
                       "the popup opened from a private tab is not marked private")
 
         app.buttons["rail.tabs"].tap()
-        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
-                      "the private named popup did not make one tab")
+        let countLabel = app.staticTexts.matching(NSPredicate(format: "label ENDSWITH ' open'")).firstMatch
+        XCTAssertTrue(countLabel.waitForExistence(timeout: 10), "the gallery showed no tab count")
+        XCTAssertEqual(countLabel.label, "2 open",
+                       "the private named popup did not make one tab; the gallery says (countLabel.label)")
         XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10),
                       "the gallery does not mark the named popup private")
         app.buttons["Done"].tap()
