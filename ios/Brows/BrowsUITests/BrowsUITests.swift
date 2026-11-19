@@ -822,6 +822,17 @@ final class BrowsUITests: XCTestCase {
         }
     }
 
+    /// Waits for `count` finished download rows. A previous row already shows a share
+    /// button, so waiting on the button alone would pass without a new transfer.
+    private func waitForFinishedDownloads(_ count: Int, in app: XCUIApplication) -> Int {
+        let rows = app.buttons.matching(identifier: "download.share")
+        let deadline = Date().addingTimeInterval(30)
+        while Date() < deadline && rows.count < count {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        return rows.count
+    }
+
     private func downloadFileCounts(_ app: XCUIApplication) -> (privateCount: Int, normalCount: Int) {
         // "private 1 normal 2", from the app's own folders. The normal folder is not
         // emptied by the test reset, so callers compare it against a baseline.
@@ -859,15 +870,14 @@ final class BrowsUITests: XCTestCase {
 
         submitAddress("http://localhost:8000/sample.bin", in: app)
         openDownloads(in: app)
-        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
-                      "the normal download never started")
+        XCTAssertEqual(waitForFinishedDownloads(1, in: app), 1, "the normal download never finished")
         app.buttons["Done"].tap()
 
         newPrivateTab(in: app)
         submitAddress("http://localhost:8000/sample.bin", in: app)
         openDownloads(in: app)
-        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
-                      "the private download never started")
+        XCTAssertEqual(waitForFinishedDownloads(2, in: app), 2,
+                       "the private download never finished; the sheet still shows no second row")
         app.buttons["Done"].tap()
 
         let beforeKill = downloadFileCounts(app)
