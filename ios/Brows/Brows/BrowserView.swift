@@ -291,7 +291,7 @@ struct BottomRail: View {
             .padding(.horizontal, 12)
             .frame(height: 40)
             .frame(minWidth: 126)
-            .browsGlass(cornerRadius: Theme.pillRadius)
+            .background(Color.clear.browsGlass(cornerRadius: Theme.pillRadius).allowsHitTesting(false))
             .layoutPriority(2)
 
             if !model.bookmarks.isEmpty && !model.isEditingAddress {
@@ -342,7 +342,7 @@ struct BottomRail: View {
         .padding(.horizontal, 8)
         .padding(.top, 8)
         .padding(.bottom, 4)
-        .background(Color.clear.browsGlass(cornerRadius: 0).ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
+        .background(Color.clear.browsGlass(cornerRadius: 0).allowsHitTesting(false).ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
         // app.css: the band's own `border-top: 1px rgba(72,84,102,.07)` and
         // `inset 0 -1px 0 rgba(67,78,96,.14)` edge the glass without filling it.
         .overlay(alignment: .top) {
@@ -409,19 +409,12 @@ struct BottomRail: View {
 
 /// Small square glass control for the folded cluster.
 struct CompactControlStyle: ButtonStyle {
-    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        if #available(iOS 26.0, *) {
-            configuration.label
-                .frame(width: 30, height: 28)
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 7))
-        } else {
-            configuration.label
-                .frame(width: 30, height: 28)
-                .background(
-                    RoundedRectangle(cornerRadius: 7)
-                        .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
-                )
-        }
+        configuration.label
+            .frame(width: 30, height: 28)
+            .background(
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
+            )
     }
 }
