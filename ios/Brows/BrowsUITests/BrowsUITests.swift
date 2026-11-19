@@ -737,7 +737,19 @@ final class BrowsUITests: XCTestCase {
             // Downloads sits in the menu's second section, above the fold.
             app.staticTexts["Downloads"].tap()
             if app.staticTexts["sample.bin"].waitForExistence(timeout: 20) { return true }
-            app.buttons["Done"].tap()
+            // Distinguish the two causes: fixture text on the page means the response
+            // policy allowed a binary through (re-submitting cannot help), no text
+            // means the navigation never reached the server.
+            print("DOWNLOAD-DEBUG no row; fixture text on page: "
+                  + "\(app.webViews.staticTexts["brows download fixture"].exists)")
+            // Wait for the sheet to leave before the caller re-submits. A tap that
+            // lands while it is still animating away submits nothing, which is how
+            // the retry in runs 44448769168 and 44509250031 failed as well.
+            let done = app.buttons["Done"]
+            if done.exists { done.tap() }
+            let gone = NSPredicate(format: "exists == false")
+            expectation(for: gone, evaluatedWith: done)
+            waitForExpectations(timeout: 5)
             return false
         }
 
