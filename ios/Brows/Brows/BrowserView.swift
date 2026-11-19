@@ -392,7 +392,7 @@ struct BottomRail: View {
         .padding(.horizontal, 8)
         .padding(.top, 8)
         .padding(.bottom, 4)
-        .background(Color.clear.browsGlass(cornerRadius: 0).allowsHitTesting(false).ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
+        .background(GlassPane().ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
         // app.css: the band's own `border-top: 1px rgba(72,84,102,.07)` and
         // `inset 0 -1px 0 rgba(67,78,96,.14)` edge the glass without filling it.
         .overlay(alignment: .top) {
