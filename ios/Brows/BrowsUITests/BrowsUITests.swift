@@ -784,13 +784,8 @@ final class BrowsUITests: XCTestCase {
         privateRow.tap()
         XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10), "no private tab")
 
-        submitAddress("http://localhost:8000/sample.bin", in: app)
-
-        app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "menu did not open")
-        app.staticTexts["Downloads"].tap()
-        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
-                      "the private download never started, so its trace cannot be judged")
+        XCTAssertEqual(startDownload("http://localhost:8000/sample.bin", in: app, rows: 1), 1,
+                       "the private download never started, so its trace cannot be judged")
         app.buttons["Done"].tap()
 
         // A fresh launch: the private tab is gone, so its download row must be too.
@@ -848,6 +843,29 @@ final class BrowsUITests: XCTestCase {
         return rows.count
     }
 
+    /// Submits a download and leaves its sheet open, returning the finished rows it
+    /// shows. The simulator occasionally drops the synthetic Return on a loaded
+    /// runner, so the request never leaves the app; a missing row is re-submitted
+    /// once as a real navigation, the same rule `openRetrying` follows. The retry is
+    /// never hidden behind a longer wait, and a second transfer would still fail the
+    /// caller's count.
+    private func startDownload(_ url: String, in app: XCUIApplication, rows: Int) -> Int {
+        submitAddress(url, in: app)
+        openDownloads(in: app)
+        var count = waitForFinishedDownloads(rows, in: app)
+        if count < rows {
+            print("DOWNLOAD-DEBUG first submission showed \(count) of \(rows) rows; submitting again")
+            app.buttons["Done"].tap()
+            let gone = NSPredicate(format: "exists == false")
+            expectation(for: gone, evaluatedWith: app.buttons["Done"])
+            waitForExpectations(timeout: 5)
+            submitAddress(url, in: app)
+            openDownloads(in: app)
+            count = waitForFinishedDownloads(rows, in: app)
+        }
+        return count
+    }
+
     private func downloadFileCounts(_ app: XCUIApplication) -> (privateCount: Int, normalCount: Int) {
         // "private 1 normal 2", from the app's own folders. The normal folder is not
         // emptied by the test reset, so callers compare it against a baseline.
@@ -883,15 +901,12 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         let baseline = downloadFileCounts(app).normalCount
 
-        submitAddress("http://localhost:8000/sample.bin", in: app)
-        openDownloads(in: app)
-        XCTAssertEqual(waitForFinishedDownloads(1, in: app), 1, "the normal download never finished")
+        XCTAssertEqual(startDownload("http://localhost:8000/sample.bin", in: app, rows: 1), 1,
+                       "the normal download never finished")
         app.buttons["Done"].tap()
 
         newPrivateTab(in: app)
-        submitAddress("http://localhost:8000/sample.bin", in: app)
-        openDownloads(in: app)
-        XCTAssertEqual(waitForFinishedDownloads(2, in: app), 2,
+        XCTAssertEqual(startDownload("http://localhost:8000/sample.bin", in: app, rows: 2), 2,
                        "the private download never finished; the sheet still shows no second row")
         app.buttons["Done"].tap()
 
@@ -926,17 +941,13 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         let baseline = downloadFileCounts(app).normalCount
 
-        submitAddress("http://localhost:8000/sample.bin", in: app)
-        openDownloads(in: app)
-        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
-                      "the normal download never started")
+        XCTAssertEqual(startDownload("http://localhost:8000/sample.bin", in: app, rows: 1), 1,
+                       "the normal download never started")
         app.buttons["Done"].tap()
 
         newPrivateTab(in: app)
-        submitAddress("http://localhost:8000/sample.bin", in: app)
-        openDownloads(in: app)
-        XCTAssertTrue(app.buttons["download.share"].waitForExistence(timeout: 25),
-                      "the private download never started")
+        XCTAssertEqual(startDownload("http://localhost:8000/sample.bin", in: app, rows: 2), 2,
+                       "the private download never started")
         app.buttons["Done"].tap()
         let beforeClose = downloadFileCounts(app)
         XCTAssertEqual(beforeClose.privateCount, 1, "the private file did not land in the private folder")
