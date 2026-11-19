@@ -363,9 +363,7 @@ struct WebViewContainer: UIViewRepresentable {
             // address (`AddressResolver`, Foundation only, executed on Windows too).
             switch AddressResolver.popup(url) {
             case .newTab:
-                // RED PROOF ONLY: the pre-fix path, which cannot return a window.
-                model.openLinkInNewTab(url)
-                return nil
+                return model.adoptPopup(configuration, url: url)
             case .handoff:
                 // A scheme this browser cannot render leaves the page exactly where
                 // it was and either hands off or says so in the app's card.
