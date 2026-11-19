@@ -15,7 +15,7 @@ struct TabSwitcher: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.surface.ignoresSafeArea()
+                Color.clear.ignoresSafeArea()
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {

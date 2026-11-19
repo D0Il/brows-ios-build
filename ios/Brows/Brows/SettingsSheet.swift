@@ -10,7 +10,7 @@ struct SettingsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.surface.ignoresSafeArea()
+                Color.clear.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {

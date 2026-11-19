@@ -18,7 +18,7 @@ struct PasswordsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.surface.ignoresSafeArea()
+                Color.clear.ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
@@ -183,7 +183,7 @@ struct PasswordsSheet: View {
     private var importSheet: some View {
         NavigationView {
             ZStack {
-                Theme.surface.ignoresSafeArea()
+                Color.clear.ignoresSafeArea()
                 VStack(spacing: 10) {
                     Text("Paste the JSON exported from Brows' Passwords panel.")
                         .font(.system(size: 12))

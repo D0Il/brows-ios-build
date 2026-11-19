@@ -7,7 +7,7 @@ struct BookmarksSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.surface.ignoresSafeArea()
+                Color.clear.ignoresSafeArea()
 
                 List {
                     if model.bookmarks.isEmpty {
@@ -42,6 +42,7 @@ struct BookmarksSheet: View {
                         }
                     }
                 }
+                .scrollContentBackground(.hidden)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }

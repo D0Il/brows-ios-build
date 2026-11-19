@@ -255,3 +255,21 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .opacity(enabled ? 1 : 0.55)
     }
 }
+
+/// iOS 26's own Liquid Glass. Apple's current material is the design target, so
+/// every Brows card asks the system for it; the app's rail pane is only the
+/// fallback for a pre-26 runtime. The flat surface fill is gone: a sheet is the
+/// platform's glass, a card is a glass effect over the page.
+extension View {
+    @ViewBuilder
+    func browsGlass(cornerRadius: CGFloat) -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        } else {
+            self.background(
+                GlassPane(cornerRadius: cornerRadius)
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            )
+        }
+    }
+}

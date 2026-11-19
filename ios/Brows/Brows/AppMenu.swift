@@ -9,7 +9,7 @@ struct AppMenu: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Theme.surface.ignoresSafeArea()
+                Color.clear.ignoresSafeArea()
 
                 List {
                     Section {
@@ -46,6 +46,7 @@ struct AppMenu: View {
                         row("Close private tabs", "xmark.circle") { model.closeAllPrivate() }
                     }
                 }
+                .scrollContentBackground(.hidden)
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
             }
