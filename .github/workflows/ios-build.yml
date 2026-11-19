@@ -173,6 +173,8 @@ jobs:
           <button id="named-first" onclick="window.browsNamedWindow = window.open('/article.html','browsNamed'); document.getElementById('named-result').textContent = window.browsNamedWindow ? 'first-open' : 'first-null'">Open named window</button>
           <button id="named-again" onclick="window.browsNamedWindow = window.open('/article.html','browsNamed'); setTimeout(function(){ var w = window.open('/other.html','browsNamed'); document.getElementById('named-result').textContent = w === window.browsNamedWindow ? 'same-window' : (w ? 'different-window' : 'null-again'); }, 1800)">Open named window again</button>
           <p id="named-result">none</p>
+          <button id="named-fresh" onclick="var w = window.open('/other.html','browsNamed'); document.getElementById('fresh-result').textContent = w ? 'fresh-open' : 'fresh-null'">Open the closed name again</button>
+          <p id="fresh-result">none</p>
           <a href="/other.html" target="_blank">Open blank</a>
           <button onclick="window.open('/article.html','_blank')">Open popup</button>
           <button id="features" onclick="var w = window.open('/article.html','oauth','width=420,height=640,menubar=no'); document.getElementById('popup-result').textContent = w ? 'opened' : 'blocked'">Open popup with features</button>

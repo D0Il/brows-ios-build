@@ -771,6 +771,46 @@ final class BrowsUITests: XCTestCase {
         )
     }
 
+    /// A name outlives the window it named only as a name: once that popup is
+    /// closed, the next `window.open(url, name)` must create a fresh, selected web
+    /// view and return it. A dropped navigation or a `null` return breaks every
+    /// flow that reuses a window it already closed.
+    func testNamedWindowReopensAfterItsPopupIsClosed() {
+        let app = makeApp()
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+
+        app.webViews.buttons["Open named window"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+                      "the named window did not open")
+
+        // Tabs are in creation order: opener first, the named popup second.
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "the first named open did not make exactly one tab")
+        let closes = app.buttons.matching(identifier: "tab.close")
+        XCTAssertTrue(closes.firstMatch.waitForExistence(timeout: 10))
+        closes.element(boundBy: 1).tap()
+        XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10),
+                      "closing the named popup did not close its tab")
+        app.buttons["Done"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 10),
+                      "the opener did not survive closing the named popup")
+
+        // Same name, no window alive: WebKit must create a fresh one.
+        app.webViews.buttons["Open the closed name again"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20),
+                      "reopening a closed name dropped the navigation")
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
+                      "reopening the closed name did not make exactly one fresh tab")
+        XCTAssertTrue(app.staticTexts["Other page"].waitForExistence(timeout: 10),
+                      "the fresh tab is not the page the page requested")
+        app.staticTexts["Links"].tap()
+        XCTAssertTrue(app.webViews.staticTexts["fresh-open"].waitForExistence(timeout: 20),
+                      "window.open returned no window for the closed name")
+    }
+
     /// A download started in a private tab must leave no trace on disk: its row
     /// carries the source URL, so it may not be persisted and it may not reappear in
     /// a later session. That is the same promise `save()` makes for private tabs.
