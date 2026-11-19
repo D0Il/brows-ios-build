@@ -39,33 +39,43 @@ struct BrowserView: View {
         .sheet(isPresented: $model.showingTabSwitcher) {
             TabSwitcher().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingBookmarks) {
             BookmarksSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingHistory) {
             HistorySheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingMenu) {
             AppMenu().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingWorkspaces) {
             WorkspacesSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingSiteInfo) {
             SiteInfoSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingDownloads) {
             DownloadsSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingPasswords) {
             PasswordsSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingExtensions) {
             ExtensionsSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(isPresented: $model.showingSettings) {
             SettingsSheet().environmentObject(model)
         }
+        .browsSheetBackground()
         .sheet(item: $model.readerContent) { content in
             ReaderSheet(content: content).environmentObject(model)
         }

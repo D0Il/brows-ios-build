@@ -8,7 +8,7 @@ struct DownloadsSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear.ignoresSafeArea()
+                Color.clear.ignoresSafeArea().browsGlass(cornerRadius: 0)
 
                 if model.downloads.isEmpty {
                     Text("Nothing downloaded yet.")

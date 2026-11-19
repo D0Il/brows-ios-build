@@ -11,7 +11,7 @@ struct WorkspacesSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear.ignoresSafeArea()
+                Color.clear.ignoresSafeArea().browsGlass(cornerRadius: 0)
 
                 VStack(spacing: 12) {
                     ScrollView {
@@ -144,7 +144,7 @@ struct HistorySheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear.ignoresSafeArea()
+                Color.clear.ignoresSafeArea().browsGlass(cornerRadius: 0)
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {

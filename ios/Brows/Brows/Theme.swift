@@ -273,3 +273,16 @@ extension View {
         }
     }
 }
+
+extension View {
+    /// A sheet's platform background is opaque; Brows sheets are glass, so the
+    /// system fill is cleared and the sheet's own pane is the only surface.
+    @ViewBuilder
+    func browsSheetBackground() -> some View {
+        if #available(iOS 16.4, *) {
+            self.presentationBackground(.clear)
+        } else {
+            self
+        }
+    }
+}

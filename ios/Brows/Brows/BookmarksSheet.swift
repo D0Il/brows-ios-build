@@ -7,7 +7,7 @@ struct BookmarksSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear.ignoresSafeArea()
+                Color.clear.ignoresSafeArea().browsGlass(cornerRadius: 0)
 
                 List {
                     if model.bookmarks.isEmpty {

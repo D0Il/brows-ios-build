@@ -9,7 +9,7 @@ struct AppMenu: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear.ignoresSafeArea()
+                Color.clear.ignoresSafeArea().browsGlass(cornerRadius: 0)
 
                 List {
                     Section {
