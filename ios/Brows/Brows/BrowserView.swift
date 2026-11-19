@@ -414,7 +414,7 @@ struct CompactControlStyle: ButtonStyle {
         if #available(iOS 26.0, *) {
             configuration.label
                 .frame(width: 30, height: 28)
-                .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 7))
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 7))
         } else {
             configuration.label
                 .frame(width: 30, height: 28)
