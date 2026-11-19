@@ -200,54 +200,29 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .font(.system(size: 16, weight: .semibold))
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
-            .background(controlGlass(configuration))
-    }
-
-    @ViewBuilder
-    private func controlGlass(_ configuration: Configuration) -> some View {
-        // Apple's material, but a background: a glass layer on a control takes
-        // the touch before the Button can, which is what hid the menu.
-        if #available(iOS 26.0, *) {
-            Color.clear
-                .browsGlass(cornerRadius: bubbleRadius)
-                .allowsHitTesting(false)
-        } else {
-            ZStack {
-                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                    .fill(Color.white.opacity(0.95))
-                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                    .fill(Theme.bubbleWash)
-                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
-                                Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
+            .background(
+                ZStack {
+                    // Rail styling: white circular controls. The bubble gradient
+                    // and its hairline ride on top; the plate keeps the glyph
+                    // legible over a page. Glass on a control takes its tap, so
+                    // the material lives on the rail and the panes, not here.
+                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                        .fill(Color.white.opacity(0.95))
+                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                        .fill(Theme.bubbleWash)
+                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
+                                    Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
-            }
-        }
-    }
-}
-
-/// iOS 26's own Liquid Glass. Apple's current material is the design target, so
-/// every Brows card asks the system for it; the app's rail pane is only the
-/// fallback for a pre-26 runtime. The flat surface fill is gone: a sheet is the
-/// platform's glass, a card is a glass effect over the page.
-extension View {
-    @ViewBuilder
-    func browsGlass(cornerRadius: CGFloat) -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        } else {
-            self.background(
-                GlassPane(cornerRadius: cornerRadius)
-                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                }
             )
-        }
     }
 }
 
