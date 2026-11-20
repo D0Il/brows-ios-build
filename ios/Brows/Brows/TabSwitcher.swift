@@ -119,8 +119,12 @@ struct TabSwitcher: View {
 
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
+                // brows_surface.css: `.tab-search-row.active .tab-search-copy
+                // strong { font-weight: 700 }`. The white plate alone is white on
+                // white in the light sheet, so the weight is what names the tab
+                // you are on.
                 titleText(tab)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 13, weight: active ? .bold : .semibold))
                     .lineLimit(2)
                     .foregroundColor(primary)
                 Spacer(minLength: 0)

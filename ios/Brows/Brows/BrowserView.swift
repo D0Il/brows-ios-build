@@ -290,7 +290,7 @@ struct BottomRail: View {
                 } label: {
                     Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.panelInk)
+                        .foregroundColor(Theme.plateInk)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("rail.star")

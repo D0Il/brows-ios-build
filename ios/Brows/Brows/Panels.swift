@@ -39,7 +39,7 @@ struct WorkspacesSheet: View {
                         } label: {
                             Image(systemName: "plus")
                         }
-                        .buttonStyle(GlassCircleButtonStyle(glyph: Theme.panelMuted))
+                        .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateMuted))
                         .accessibilityIdentifier("workspace.add")
                         .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }

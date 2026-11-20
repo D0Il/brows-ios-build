@@ -62,6 +62,10 @@ struct CredentialSaveOverlay: View {
             .padding(20)
         }
         .frame(maxWidth: 340)
+            // Hug the content: the scrim fills the screen, and the glass layer took
+            // all of that height, so the save card was a screen-sized pane
+            // (capture authsave-dark, run 44656125222).
+            .fixedSize(horizontal: false, vertical: true)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
             .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
             .padding(24)
@@ -187,6 +191,10 @@ struct HTTPAuthCard: View {
         .padding(20)
         }
         .frame(maxWidth: 340)
+        // Hug the content: the scrim fills the screen, and the glass layer took all
+        // of that height, so the auth card was a screen-sized pane (capture
+        // auth-dark, run 44656125222).
+        .fixedSize(horizontal: false, vertical: true)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)

@@ -79,6 +79,10 @@ struct ScriptDialogCard: View {
         .padding(20)
         }
         .frame(maxWidth: 340)
+        // Hug the content: the full-screen scrim in the same ZStack otherwise hands
+        // the glass a full-height proposal, and the dialog filled the screen with
+        // its text centred (capture dialog-dark, run 44656125222).
+        .fixedSize(horizontal: false, vertical: true)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)

@@ -47,6 +47,11 @@ struct LinkNoticeCard: View {
             .padding(20)
         }
         .frame(maxWidth: 340)
+        // The scrim beside this card fills the screen, and the glass layer inside
+        // takes whatever height it is offered: without this the card stretched to
+        // most of the screen with its content floating in the middle (capture
+        // linknotice-dark, run 44656125222). A card hugs its own content.
+        .fixedSize(horizontal: false, vertical: true)
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.rowBorder, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.18), radius: 24, y: 12)
         .padding(24)

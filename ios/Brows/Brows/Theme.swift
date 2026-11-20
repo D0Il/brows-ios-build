@@ -44,6 +44,11 @@ enum Theme {
     /// carry white text in dark. The placeholder is the light muted token for the
     /// same reason: the field itself is white in both modes.
     static let plateInk = Color(panelInkLight)
+    /// Muted ink for a glyph or label on a white plate. The desktop's rail glyph
+    /// is #68717f in both appearances; the adaptive muted goes pale (#aab2be) on
+    /// a white plate in dark mode, which is what hid the rail's reload arrow and
+    /// the menu's zoom glyphs.
+    static let plateMuted = Color(panelMutedLight)
     static let fieldPlaceholder = Color(panelMutedLight)
 
     /// Desktop `--accent: #3f4753` is the monochrome switch fill; it must not flip
@@ -191,7 +196,7 @@ struct GlassPane: View {
 /// bubble is 30px; on a phone the touch frame is 36 so it stays tappable.
 struct GlassCircleButtonStyle: ButtonStyle {
     var enabled: Bool = true
-    var glyph: Color = Theme.panelMuted
+    var glyph: Color = Theme.plateMuted
     private let bubbleRadius: CGFloat = 8
     private let drop = Color(red: 24 / 255, green: 31 / 255, blue: 44 / 255)
 
