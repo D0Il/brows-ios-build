@@ -62,8 +62,8 @@ struct SettingsSheet: View {
                                         .foregroundColor(Theme.panelInk)
                                     Spacer(minLength: 0)
                                 }
-                                .padding(12)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 7)
                             }
                             .buttonStyle(.plain)
                             if cleared {
@@ -120,8 +120,8 @@ struct SettingsSheet: View {
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(Theme.panelInk)
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
+        .padding(.vertical, 6)
+        .padding(.horizontal, 7)
     }
 }
 
@@ -132,23 +132,48 @@ struct ToggleRow: View {
     var identifier: String? = nil
 
     var body: some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
+        // `.settings-toggle`: an 18 px gutter holding a 14×14 checkbox with `margin-top: 2px`,
+        // then the copy — the desktop draws a checkbox, not an iOS switch
+        // (`brows_surface.css:590-600`). The Toggle keeps the switch accessibility role the
+        // suite asserts while the body draws the desktop control.
+        Toggle(isOn: $isOn) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                                    .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Theme.panelInk)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Theme.panelInk)
                 Text(subtitle)
                     .font(.system(size: 10))
                     .foregroundColor(Theme.panelMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer(minLength: 0)
-            Toggle("", isOn: $isOn)
-                .labelsHidden()
-                .tint(Theme.toggleTint)
-                .accessibilityIdentifier(identifier ?? "settings.toggle.\(title)")
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
+        .toggleStyle(DesktopCheckboxStyle())
+        .accessibilityIdentifier(identifier ?? "settings.toggle.\(title)")
+    }
+}
+
+/// The desktop's checkbox: a 14×14 rounded square, `.settings-toggle input`
+/// (`brows_surface.css:596-600`), filled with `--accent` when on.
+struct DesktopCheckboxStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(configuration.isOn ? Theme.toggleTint : Color.clear)
+                .overlay(RoundedRectangle(cornerRadius: 3).stroke(configuration.isOn ? Theme.toggleTint : Theme.glassStroke, lineWidth: 1))
+                .overlay(
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundColor(.white)
+                        .opacity(configuration.isOn ? 1 : 0)
+                )
+                .frame(width: 14, height: 14)
+                .padding(.top, 2)
+                .contentShape(Rectangle())
+                .onTapGesture { configuration.isOn.toggle() }
+            configuration.label
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { configuration.isOn.toggle() }
+        }
     }
 }

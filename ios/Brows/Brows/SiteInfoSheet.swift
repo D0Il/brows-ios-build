@@ -19,7 +19,7 @@ struct SiteInfoSheet: View {
                                 ("Scheme", info.scheme == "https:" ? "HTTPS — encrypted" : info.scheme),
                                 ("Host", info.host),
                                 ("Path", info.path)
-                            ])
+                            ], first: true)
                             group("STORAGE", rows: [
                                 ("Cookies", "\(info.cookies) readable"),
                                 ("localStorage", byteString(info.localStorageBytes)),
@@ -108,36 +108,43 @@ struct SiteInfoSheet: View {
         .background(RoundedRectangle(cornerRadius: 16).fill(Theme.rowFill))
     }
 
-    private func group(_ title: String, rows: [(String, String)]) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+    /// `.siteinfo-section`: no well and no rounded card — a 1 px rule above the section, a
+    /// 9.5 px weight-660 uppercase head at `.06em`, then 11.5 px rows with the value muted at
+    /// 10.5 px on the right (`brows_surface.css:2191-2230`).
+    private func group(_ title: String, rows: [(String, String)], first: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
             Text(title)
-                .font(.system(size: 10, weight: .semibold))
-                .tracking(1.2)
+                .font(.system(size: 9.5, weight: .semibold))
+                .tracking(0.57)
                 .foregroundColor(Theme.panelMuted)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6)
+                .padding(.bottom, 3)
 
             ForEach(rows, id: \.0) { pair in
-                HStack {
+                HStack(spacing: 10) {
                     Text(pair.0)
-                        .font(.system(size: 13))
-                        .foregroundColor(Theme.panelMuted)
-                    Spacer(minLength: 12)
-                    Text(pair.1)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 11.5))
                         .foregroundColor(Theme.panelInk)
-                        .multilineTextAlignment(.trailing)
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                    Text(pair.1)
+                        .font(.system(size: 10.5))
+                        .foregroundColor(Theme.panelMuted)
+                        .lineLimit(1)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
-                .background(Theme.rowFill)
-
-                if pair.0 != rows.last?.0 {
-                    Divider().background(Theme.rowBorder)
-                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal, 2)
+        .padding(.top, first ? 2 : 7)
+        .padding(.bottom, 4)
+        .overlay(alignment: .top) {
+            if !first {
+                Rectangle().fill(Theme.sectionRule).frame(height: 1)
+            }
+        }
     }
 
     private func byteString(_ bytes: Int) -> String {

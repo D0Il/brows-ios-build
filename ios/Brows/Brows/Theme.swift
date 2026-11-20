@@ -38,6 +38,13 @@ enum Theme {
         light: UIColor(white: 1, alpha: 0.70),
         dark: UIColor(white: 1, alpha: 0.12)
     )
+    /// `.siteinfo-section` is separated from the section above by a 1 px rule, not by a plate:
+    /// `border-top: 1px solid rgba(71,82,96,.10)` (`brows_surface.css:2191`), and the dark block
+    /// carries the same hairline as white .10.
+    static let sectionRule = adaptive(
+        light: UIColor(red: 71 / 255, green: 82 / 255, blue: 96 / 255, alpha: 0.10),
+        dark: UIColor(white: 1, alpha: 0.10)
+    )
 
     /// The plate fill itself. `brows_surface.css:9` sets `--plate-rgb: 255,255,255` and
     /// `:876-880` sets `--plate-rgb: 34,38,45` in the dark block, where every plate at
