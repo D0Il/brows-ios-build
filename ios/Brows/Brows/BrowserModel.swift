@@ -282,6 +282,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// The last routing decision, exposed to the UI tests: a link that vanishes
     /// and a link that was handed off look identical from inside the page.
     @Published var lastRoute = ""
+
+    /// Test-only: the most recent navigation decisions, oldest first. A link tap
+    /// that never reaches the policy handler and a page that quietly becomes the
+    /// start page look identical from outside; this is the record that tells them
+    /// apart.
+    @Published private(set) var navTrail: [String] = []
+
+    func navNote(_ entry: String) {
+        navTrail.append(entry)
+        if navTrail.count > 10 { navTrail.removeFirst(navTrail.count - 10) }
+    }
     /// Tabs whose web view WebKit built for a popup. The container adopts them
     /// instead of creating one from the tab's settings.
     private var suppliedWebViews: Set<UUID> = []

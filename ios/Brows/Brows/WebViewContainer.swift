@@ -16,6 +16,7 @@ struct WebViewContainer: UIViewRepresentable {
         let webView = model.webView(for: tabId)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        model.navNote("make url=\(webView.url?.absoluteString ?? "nil") supplied=\(supplied)")
 
         let owner = model
         // The tab pane names the page; WebKit sets the title after load, and SPAs
@@ -86,7 +87,10 @@ struct WebViewContainer: UIViewRepresentable {
 
         // MARK: Navigation
 
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { sync(webView) }
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            model?.navNote("start \(webView.url?.absoluteString ?? "nil")")
+            sync(webView)
+        }
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { sync(webView) }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             sync(webView, finished: true)
@@ -137,8 +141,14 @@ struct WebViewContainer: UIViewRepresentable {
                 alpha: 1
             )
         }
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { sync(webView) }
-        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { sync(webView) }
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            model?.navNote("fail \((error as NSError).domain)#\((error as NSError).code) url=\(webView.url?.absoluteString ?? "nil")")
+            sync(webView)
+        }
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            model?.navNote("failp \((error as NSError).domain)#\((error as NSError).code) url=\(webView.url?.absoluteString ?? "nil")")
+            sync(webView)
+        }
 
         /// `finished` is passed from the delegate rather than derived from
         /// `isLoading`: a visit is recorded only when the document is done, because
@@ -147,6 +157,7 @@ struct WebViewContainer: UIViewRepresentable {
             // The local start page is HTML, so WebKit reports it as about:blank.
             // Map that back to the start tab so the pill keeps its placeholder.
             let rawURL = webView.url
+            model?.navNote("sync raw=\(rawURL?.absoluteString ?? "nil")")
             let isStart = rawURL == nil
                 || rawURL?.absoluteString == "about:blank"
                 || rawURL?.isFileURL == true
@@ -203,6 +214,7 @@ struct WebViewContainer: UIViewRepresentable {
             // to the system. Cancelling first is what leaves the page untouched:
             // letting WebKit try would replace it with an error page.
             if let url = navigationAction.request.url, model?.routeExternalLink(url) == true {
+                model?.navNote("policy \(url.absoluteString) -> cancel")
                 decisionHandler(.cancel)
                 return
             }
@@ -211,6 +223,7 @@ struct WebViewContainer: UIViewRepresentable {
             // real web view. Cancelling here is what used to make `window.open()`
             // return null for OAuth and share flows.
             decisionHandler(.allow)
+            model?.navNote("policy \(navigationAction.request.url?.absoluteString ?? "nil") -> allow")
         }
 
         func webView(_ webView: WKWebView,

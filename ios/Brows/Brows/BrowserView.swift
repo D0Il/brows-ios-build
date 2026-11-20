@@ -166,6 +166,11 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.tabs")
                     .accessibilityLabel("\(model.tabs.count)|\(model.activeTab?.url?.absoluteString ?? "-")")
+                Text("nav")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.nav")
+                    .accessibilityLabel(model.navTrail.joined(separator: " ; "))
             }
         }
     }
