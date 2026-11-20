@@ -282,17 +282,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// The last routing decision, exposed to the UI tests: a link that vanishes
     /// and a link that was handed off look identical from inside the page.
     @Published var lastRoute = ""
-
-    /// Test-only: the most recent navigation decisions, oldest first. A link tap
-    /// that never reaches the policy handler and a page that quietly becomes the
-    /// start page look identical from outside; this is the record that tells them
-    /// apart.
-    @Published private(set) var navTrail: [String] = []
-
-    func navNote(_ entry: String) {
-        navTrail.append(entry)
-        if navTrail.count > 40 { navTrail.removeFirst(navTrail.count - 40) }
-    }
     /// Tabs whose web view WebKit built for a popup. The container adopts them
     /// instead of creating one from the tab's settings.
     private var suppliedWebViews: Set<UUID> = []
@@ -753,7 +742,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     // MARK: Tabs
 
     func newTab(_ url: URL? = nil, private isPrivate: Bool = false) {
-        navNote("newTab now=\(tabs.count + 1)")
         isEditingAddress = false
         let tab = Tab(url: url ?? BrowserModel.home, workspaceId: activeWorkspaceId, isPrivate: isPrivate)
         tabs.append(tab)
@@ -771,7 +759,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func close(_ tab: Tab) {
-        navNote("close was=\(tabs.count)")
         if let webView = webViews[tab.id] {
             webView.stopLoading()
             webView.navigationDelegate = nil
@@ -1724,11 +1711,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     func update(_ tabId: UUID, _ mutate: (inout Tab) -> Void) {
         guard let index = tabs.firstIndex(where: { $0.id == tabId }) else { return }
-        let before = tabs[index].url
         mutate(&tabs[index])
-        if tabs[index].url != before {
-            navNote("url \(before?.absoluteString ?? "nil") -> \(tabs[index].url?.absoluteString ?? "nil")")
-        }
         if tabId == activeTabId, let url = tabs[index].url, !isEditingAddress {
             addressText = displayAddress(url)
         }

@@ -156,21 +156,14 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.lastroute")
                     .accessibilityLabel(model.lastRoute)
-                // The tab gallery is a sheet, so reading the count through it puts
-                // a dismissing sheet over the page's bottom links: the next tap
-                // landed on the gallery's new-tab card and opened a home tab
-                // (runs 44616349399 and 44633695874). The model's tab list is the
-                // same fact with nothing in front of the page.
+                // The tab gallery is a sheet, so reading the count through it
+                // means a sheet sits over the page between taps. The model's tab
+                // list is the same fact with nothing in front of the page.
                 Text("tabs")
                     .font(.system(size: 1))
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.tabs")
                     .accessibilityLabel("\(model.tabs.count)|\(model.activeTab?.url?.absoluteString ?? "-")")
-                Text("nav")
-                    .font(.system(size: 1))
-                    .opacity(0.01)
-                    .accessibilityIdentifier("debug.nav")
-                    .accessibilityLabel(model.navTrail.joined(separator: " ; "))
             }
         }
     }

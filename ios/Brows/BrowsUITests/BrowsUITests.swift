@@ -233,11 +233,12 @@ final class BrowsUITests: XCTestCase {
                 app.buttons["linknotice.ok"].tap()
             }
             XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5), "\(scheme) replaced the page")
-            // The count comes from the app's own record rather than the gallery.
-            // Opening the gallery here leaves a dismissing sheet over the page's
-            // bottom links, and the next tap landed on the gallery's new-tab card
-            // instead of the link (runs 44616349399 and 44633695874: the app ended
-            // on a fresh home tab with last route still `tel refused`).
+            // The count comes from the app's own record rather than the gallery,
+            // so no sheet is ever open over the page while it is being tapped.
+            // Run 44652824094 showed why that matters: this page's scheme links
+            // sat at the end of the document, under the bottom rail, and the tap
+            // meant for "Unsupported" hit rail.back and went back to the start
+            // page. The fixture keeps them at the top for the same reason.
             let tabs = app.staticTexts["debug.tabs"].label
             XCTAssertTrue(tabs.hasPrefix("1|"), "\(scheme) created a tab: \(tabs)")
             XCTAssertTrue(tabs.hasSuffix("links.html"), "\(scheme) navigated the page: \(tabs)")
@@ -245,12 +246,7 @@ final class BrowsUITests: XCTestCase {
 
         app.webViews.links["Unsupported"].tap()
         let route = app.staticTexts["debug.lastroute"]
-        let noticeOK = app.buttons["linknotice.ok"]
-        if !noticeOK.waitForExistence(timeout: 7) {
-            print("UNSUPPORTED-DEBUG tabs=\(app.staticTexts["debug.tabs"].label) hist=\(app.staticTexts["debug.history"].label) pill=\(app.textFields["rail.address"].value ?? "nil") webviews=\(app.webViews.count) done=\(app.buttons["Done"].exists)")
-            print("UNSUPPORTED-NAV \(app.staticTexts["debug.nav"].label)")
-        }
-        XCTAssertTrue(noticeOK.exists,
+        XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 7),
                       "an unsupported scheme was swallowed (last route: \(route.exists ? route.label : "none"))")
         XCTAssertTrue(app.staticTexts["linknotice.message"].label.contains("brows-nothing"),
                       "the notice did not name the scheme")
