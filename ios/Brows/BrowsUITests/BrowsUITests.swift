@@ -233,15 +233,14 @@ final class BrowsUITests: XCTestCase {
                 app.buttons["linknotice.ok"].tap()
             }
             XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5), "\(scheme) replaced the page")
-            app.buttons["rail.tabs"].tap()
-            XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10), "\(scheme) created a tab")
-            app.buttons["Done"].tap()
-            // A gallery that is still animating out keeps its hit area: the next
-            // tap landed on it and opened a new home tab instead of reaching the
-            // page (run 44616349399). The page is only tappable once it is gone.
-            waitUntilGone(app.buttons["Done"])
-            XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5),
-                          "the page was not frontmost after closing the gallery")
+            // The count comes from the app's own record rather than the gallery.
+            // Opening the gallery here leaves a dismissing sheet over the page's
+            // bottom links, and the next tap landed on the gallery's new-tab card
+            // instead of the link (runs 44616349399 and 44633695874: the app ended
+            // on a fresh home tab with last route still `tel refused`).
+            let tabs = app.staticTexts["debug.tabs"].label
+            XCTAssertTrue(tabs.hasPrefix("1|"), "\(scheme) created a tab: \(tabs)")
+            XCTAssertTrue(tabs.hasSuffix("links.html"), "\(scheme) navigated the page: \(tabs)")
         }
 
         app.webViews.links["Unsupported"].tap()
