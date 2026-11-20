@@ -50,6 +50,20 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             build
 
+      # The device build above is unsigned on purpose (no certificate on CI). Sign it ad-hoc with the
+      # app's entitlements before zipping, so the ipa carries its keychain access group: an ipa
+      # without one cannot save a password on a device (SecItemAdd -34018) and a sideloader has no
+      # entitlements to preserve when it re-signs.
+      - name: Sign the device app (ad-hoc, with entitlements)
+        working-directory: ios/Brows
+        run: |
+          set -e
+          APP=build/Build/Products/Release-iphoneos/Brows.app
+          codesign --force --sign - --timestamp=none             --entitlements Brows/Brows.entitlements "$APP"
+          codesign -dv --entitlements :- "$APP" 2>&1 | tee signature.txt
+          grep -q "keychain-access-groups" signature.txt
+          test -d "$APP/_CodeSignature"
+
       - name: Package ipa
         working-directory: ios/Brows
         run: |
