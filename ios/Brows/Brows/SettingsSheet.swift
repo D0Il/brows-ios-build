@@ -14,14 +14,14 @@ struct SettingsSheet: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
-                        section("APPEARANCE") {
+                        section("Appearance") {
                             ToggleRow(title: "Address bar at the bottom", subtitle: "Safari, Chrome and Opera all default to this", isOn: Binding(
                                 get: { model.settings.addressBarBottom },
                                 set: { model.settings.addressBarBottom = $0; model.saveSettings() }
                             ), identifier: "settings.addressBarBottom")
                         }
 
-                        section("SEARCH") {
+                        section("Search") {
                             VStack(alignment: .leading, spacing: 8) {
                                 Picker("Search engine", selection: Binding(
                                     get: { model.settings.searchEngine },
@@ -37,7 +37,7 @@ struct SettingsSheet: View {
                             .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
                         }
 
-                        section("PRIVACY") {
+                        section("Privacy") {
                             ToggleRow(title: "Block ads", subtitle: "WebKit content rules", isOn: Binding(
                                 get: { model.settings.blockAds },
                                 set: { model.settings.blockAds = $0; model.saveSettings() }
@@ -52,7 +52,7 @@ struct SettingsSheet: View {
                             ))
                         }
 
-                        section("DATA") {
+                        section("Data") {
                             Button {
                                 model.clearWebsiteData { cleared = true }
                             } label: {
@@ -73,7 +73,7 @@ struct SettingsSheet: View {
                             }
                         }
 
-                        section("ABOUT") {
+                        section("About") {
                             infoRow("Brows", model.appVersion)
                             infoRow("Engine", "WebKit (WKWebView)")
                             infoRow("Desktop build", "Chromium fork, Windows")
@@ -93,14 +93,21 @@ struct SettingsSheet: View {
         .navigationViewStyle(.stack)
     }
 
+    /// `.settings-group` in `brows_surface.css`: a card of `rgba(plate,.59)`, a `.74` rim, radius 14,
+    /// 12 px of padding and a `0 4px 13px` lift; its title is 13 px at weight 720 in the panel ink,
+    /// sentence case — not the muted, tracked capitals a plain iOS form would use.
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 9) {
             Text(title)
-                .font(.system(size: 10, weight: .semibold))
-                .tracking(1.2)
-                .foregroundColor(Theme.panelMuted)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(Theme.panelInk)
             content()
         }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.plateBase.opacity(0.59)))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.glassStroke, lineWidth: 1))
+        .shadow(color: Color(red: 37 / 255, green: 47 / 255, blue: 60 / 255).opacity(0.09), radius: 6.5, x: 0, y: 4)
     }
 
     private func infoRow(_ title: String, _ value: String) -> some View {
