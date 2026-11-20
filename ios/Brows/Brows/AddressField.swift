@@ -18,6 +18,14 @@ struct AddressField: UIViewRepresentable {
         field.delegate = context.coordinator
         field.accessibilityIdentifier = "rail.address"
         field.font = .systemFont(ofSize: 15)
+        // The desktop omnibox keeps the host legible while it is focused: the text
+        // stays inside the pill. UIKit scrolls a text field to the *end* of a
+        // selection, so a selected long URL showed only its tail and the host
+        // vanished (capture pill-dark). Shrink to fit instead, and the whole URL
+        // remains visible inside the pill.
+        field.adjustsFontSizeToFitWidth = true
+        field.minimumFontSize = 10
+
         field.textColor = UIColor(Theme.ink)
         field.tintColor = UIColor(Theme.ink)
         field.attributedPlaceholder = NSAttributedString(

@@ -283,7 +283,9 @@ struct BottomRail: View {
                     autoFocus: model.focusPillOnLaunch
                 )
                 .frame(maxWidth: .infinity)
-                .frame(height: 24)
+                // The pill is 40 pt; a 24 pt field put the selection handles on the
+                // rail outside the plate. The field takes the pill's inner height.
+                .frame(height: 34)
 
                 Button {
                     model.toggleBookmark()
