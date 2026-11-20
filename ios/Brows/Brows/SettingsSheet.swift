@@ -59,11 +59,11 @@ struct SettingsSheet: View {
                                 HStack {
                                     Text("Clear history, cookies and site data")
                                         .font(.system(size: 13, weight: .medium))
-                                        .foregroundColor(Theme.ink)
+                                        .foregroundColor(Theme.panelInk)
                                     Spacer(minLength: 0)
                                 }
                                 .padding(12)
-                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.9)))
+                                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
                             }
                             .buttonStyle(.plain)
                             if cleared {

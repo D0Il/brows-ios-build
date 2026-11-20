@@ -47,7 +47,7 @@ struct SiteInfoSheet: View {
                                     .foregroundColor(Theme.plateInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.9)))
+                                    .background(RoundedRectangle(cornerRadius: 14).fill(Theme.plateBase.opacity(0.9)))
                             }
                             .buttonStyle(.plain)
 
@@ -59,7 +59,7 @@ struct SiteInfoSheet: View {
                                     .foregroundColor(Theme.plateInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(RoundedRectangle(cornerRadius: 14).fill(Color.white.opacity(0.9)))
+                                    .background(RoundedRectangle(cornerRadius: 14).fill(Theme.plateBase.opacity(0.9)))
                             }
                             .buttonStyle(.plain)
                         } else {

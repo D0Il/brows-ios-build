@@ -73,14 +73,14 @@ struct AppMenu: View {
             Spacer(minLength: 0)
 
             Button { model.adjustZoom(by: -0.1) } label: { Image(systemName: "minus") }
-                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk))
+                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
             Button { model.resetZoom() } label: {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 12, weight: .semibold))
             }
-            .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk))
+            .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
             Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
-                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk))
+                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
         }
         .listRowBackground(Theme.rowFill)
     }

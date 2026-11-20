@@ -28,13 +28,13 @@ struct SiteBadge: View {
                     } else {
                         Text(String(host.prefix(1)).uppercased())
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(Theme.muted)
+                            .foregroundColor(Theme.panelMuted)
                     }
                 }
             } else {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
             }
         }
         .frame(width: 26, height: 26)

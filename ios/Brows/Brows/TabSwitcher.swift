@@ -19,17 +19,17 @@ struct TabSwitcher: View {
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
-                        Image(systemName: "magnifyingglass").foregroundColor(Theme.muted)
+                        Image(systemName: "magnifyingglass").foregroundColor(Theme.panelMuted)
                         TextField("", text: $query, prompt: Text("Search tabs").foregroundColor(Theme.fieldPlaceholder))
                             .textFieldStyle(.plain)
                             .accessibilityLabel("Search tabs")
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
-                            .foregroundColor(Theme.ink)
+                            .foregroundColor(Theme.panelInk)
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 40)
-                    .background(Capsule().fill(Color.white))
+                    .background(Capsule().fill(Theme.plateBase))
 
                     HStack {
                         Text(query.isEmpty ? "\(model.tabs.count) open" : "\(results.count) of \(model.tabs.count) tabs")
@@ -114,8 +114,8 @@ struct TabSwitcher: View {
         // translucent over the dark surface, so their ink flips like the desktop's
         // dark media block.
         let active = model.activeTabId == tab.id
-        let primary = active ? Theme.ink : Theme.panelInk
-        let secondary = active ? Theme.muted : Theme.panelMuted
+        let primary = active ? Theme.panelInk : Theme.panelInk
+        let secondary = active ? Theme.panelMuted : Theme.panelMuted
 
         return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
@@ -172,7 +172,7 @@ struct TabSwitcher: View {
         .frame(height: 118, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(model.activeTabId == tab.id ? Color.white.opacity(0.95) : Theme.rowFill)
+                .fill(model.activeTabId == tab.id ? Theme.plate : Theme.rowFill)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)

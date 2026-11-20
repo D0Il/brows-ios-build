@@ -32,24 +32,37 @@ enum Theme {
     /// with its .7 border in light, and the dark block's white washes in dark.
     static let rowFill = adaptive(
         light: UIColor(white: 1, alpha: 0.5),
-        dark: UIColor(white: 1, alpha: 0.10)
+        dark: UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 0.55)
     )
     static let rowBorder = adaptive(
         light: UIColor(white: 1, alpha: 0.70),
         dark: UIColor(white: 1, alpha: 0.12)
     )
 
-    /// White fields and action plates keep the desktop light-mode ink in BOTH
-    /// appearances; using the adaptive panel ink here is what made a white plate
-    /// carry white text in dark. The placeholder is the light muted token for the
-    /// same reason: the field itself is white in both modes.
-    static let plateInk = Color(panelInkLight)
-    /// Muted ink for a glyph or label on a white plate. The desktop's rail glyph
-    /// is #68717f in both appearances; the adaptive muted goes pale (#aab2be) on
-    /// a white plate in dark mode, which is what hid the rail's reload arrow and
-    /// the menu's zoom glyphs.
-    static let plateMuted = Color(panelMutedLight)
-    static let fieldPlaceholder = Color(panelMutedLight)
+    /// The plate fill itself. `brows_surface.css:9` sets `--plate-rgb: 255,255,255` and
+    /// `:876-880` sets `--plate-rgb: 34,38,45` in the dark block, where every plate at
+    /// alpha >= .5 is `rgba(var(--plate-rgb),alpha)`. A literal white fill in dark is a
+    /// plate the desktop never paints: it is why the dark tab card, tab search field,
+    /// workspace row and site-info card read as white slabs beside their desktop pairs.
+    static let plateBase = adaptive(
+        light: UIColor(white: 1, alpha: 1),
+        dark: UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 1)
+    )
+    /// `.95` is the rail's plate alpha (`rgba(var(--plate-rgb),.95)`).
+    static let plate = plateBase.opacity(0.95)
+    /// The rail's own bubbles stay the desktop light plate in both appearances:
+    /// `toolbar_button.css` describes white circular controls, and the desktop rail is
+    /// native views, so nothing in `port/site` pairs it — do not flip it without one.
+    static let railPlate = Color.white.opacity(0.95)
+
+    /// Ink for text and glyphs on a plate. The plate is adaptive now (`plate`), so the
+    /// ink follows it: `--ink` is #20242b in light and #f2f4f8 in the dark block, and
+    /// `--muted` is #657080 / #aab2be (`brows_surface.css:877-879`). Pairing the dark
+    /// captures against port/site showed white plates carrying light-mode ink; fixing
+    /// the plate without the ink would only invert the bug.
+    static let plateInk = adaptive(light: panelInkLight, dark: panelInkDark)
+    static let plateMuted = adaptive(light: panelMutedLight, dark: panelMutedDark)
+    static let fieldPlaceholder = adaptive(light: panelMutedLight, dark: panelMutedDark)
 
     /// Desktop `--accent: #3f4753` is the monochrome switch fill; it must not flip
     /// to near-white in dark or the white knob disappears into the track.
@@ -83,7 +96,13 @@ enum Theme {
         let detail = failures.map { "\($0.0)=\(String(format: "%.1f", ratio($0.1, $0.2)))" }.joined(separator: " ")
         return "FAIL " + detail
     }
-    static let glassStroke = Color.white.opacity(0.72)
+    /// The surface rim: `rgba(255,255,255,.76)` in light, `rgba(255,255,255,.14)` in the
+    /// desktop's dark block (`brows_surface.css:882`). A .72 rim in dark is a bright
+    /// outline the desktop never draws.
+    static let glassStroke = adaptive(
+        light: UIColor(white: 1, alpha: 0.76),
+        dark: UIColor(white: 1, alpha: 0.14)
+    )
     static let backdropTop = Color(red: 0.09, green: 0.16, blue: 0.28)
     static let backdropBottom = Color(red: 0.03, green: 0.05, blue: 0.10)
 
@@ -197,6 +216,10 @@ struct GlassPane: View {
 struct GlassCircleButtonStyle: ButtonStyle {
     var enabled: Bool = true
     var glyph: Color = Theme.plateMuted
+    /// The bubble fill. Rail controls keep `Theme.railPlate` (the desktop's white
+    /// circular control); plates *inside* a sheet pass `Theme.plate` so they go dark
+    /// with the desktop's dark block instead of punching a white hole in the sheet.
+    var plate: Color = Theme.railPlate
     private let bubbleRadius: CGFloat = 8
     private let drop = Color(red: 24 / 255, green: 31 / 255, blue: 44 / 255)
 
@@ -212,7 +235,7 @@ struct GlassCircleButtonStyle: ButtonStyle {
                     // legible over a page. Glass on a control takes its tap, so
                     // the material lives on the rail and the panes, not here.
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(Color.white.opacity(0.95))
+                        .fill(plate)
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
                         .fill(Theme.bubbleWash)
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)

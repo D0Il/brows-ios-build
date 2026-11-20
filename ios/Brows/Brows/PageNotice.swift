@@ -42,12 +42,12 @@ struct PageNoticeCard: View {
             } label: {
                 Text("OK")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Theme.ink)
+                    .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
             }
             .buttonStyle(.plain)
-            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase))
             .accessibilityIdentifier("notice.ok")
             }
             .padding(20)

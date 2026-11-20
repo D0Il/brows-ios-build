@@ -69,10 +69,10 @@ struct PasswordsSheet: View {
             } label: {
                 Text("Save")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Theme.ink)
+                    .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.9)))
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
             }
             .buttonStyle(.plain)
         }
@@ -159,10 +159,10 @@ struct PasswordsSheet: View {
             } label: {
                 Text("Export")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(Theme.ink)
+                    .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.9)))
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
             }
             .buttonStyle(.plain)
 
@@ -203,10 +203,10 @@ struct PasswordsSheet: View {
                     } label: {
                         Text("Import")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(Theme.ink)
+                            .foregroundColor(Theme.panelInk)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 11)
-                            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.9)))
+                            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
                     }
                     .buttonStyle(.plain)
                 }
@@ -230,19 +230,19 @@ struct PasswordsSheet: View {
             .keyboardType(keyboard)
             .autocapitalization(.none)
             .disableAutocorrection(true)
-            .foregroundColor(Theme.ink)
+            .foregroundColor(Theme.panelInk)
             .padding(.horizontal, 10)
             .frame(height: 38)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
     }
 
     private func secureField(_ label: String, text: Binding<String>) -> some View {
         SecureField("", text: text, prompt: Text(label).foregroundColor(Theme.fieldPlaceholder))
             .textFieldStyle(.plain)
             .accessibilityLabel(label)
-            .foregroundColor(Theme.ink)
+            .foregroundColor(Theme.panelInk)
             .padding(.horizontal, 10)
             .frame(height: 38)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
     }
 }

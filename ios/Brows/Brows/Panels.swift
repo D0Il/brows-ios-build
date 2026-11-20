@@ -28,10 +28,10 @@ struct WorkspacesSheet: View {
                             .accessibilityLabel("New workspace")
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
-                            .foregroundColor(Theme.ink)
+                            .foregroundColor(Theme.panelInk)
                             .padding(.horizontal, 12)
                             .frame(height: 40)
-                            .background(Capsule().fill(Color.white))
+                            .background(Capsule().fill(Theme.plateBase))
 
                         Button {
                             model.addWorkspace(named: newName)
@@ -39,7 +39,7 @@ struct WorkspacesSheet: View {
                         } label: {
                             Image(systemName: "plus")
                         }
-                        .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateMuted))
+                        .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateMuted, plate: Theme.plate))
                         .accessibilityIdentifier("workspace.add")
                         .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
@@ -69,17 +69,17 @@ struct WorkspacesSheet: View {
                 Text(workspace.initials)
                     .font(.system(size: 11, weight: .bold))
                     .tracking(1)
-                    .foregroundColor(Theme.muted)
+                    .foregroundColor(Theme.panelMuted)
                     .frame(width: 34, height: 34)
-                    .background(Circle().fill(Color.white.opacity(0.9)))
+                    .background(Circle().fill(Theme.plateBase.opacity(0.9)))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workspace.name)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(active ? Theme.ink : Theme.panelInk)
+                        .foregroundColor(active ? Theme.panelInk : Theme.panelInk)
                     Text("\(count) tab\(count == 1 ? "" : "s")")
                         .font(.system(size: 11))
-                        .foregroundColor(active ? Theme.muted : Theme.panelMuted)
+                        .foregroundColor(active ? Theme.panelMuted : Theme.panelMuted)
                 }
 
                 Spacer(minLength: 0)
@@ -88,13 +88,13 @@ struct WorkspacesSheet: View {
                     Text("CURRENT")
                         .font(.system(size: 8, weight: .bold))
                         .tracking(1)
-                        .foregroundColor(active ? Theme.muted : Theme.panelMuted)
+                        .foregroundColor(active ? Theme.panelMuted : Theme.panelMuted)
                 }
             }
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(active ? Color.white.opacity(0.95) : Theme.rowFill)
+                    .fill(active ? Theme.plate : Theme.rowFill)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16).stroke(Theme.glassStroke, lineWidth: active ? 1 : 0.5)
@@ -148,17 +148,17 @@ struct HistorySheet: View {
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
-                        Image(systemName: "magnifyingglass").foregroundColor(Theme.muted)
+                        Image(systemName: "magnifyingglass").foregroundColor(Theme.panelMuted)
                         TextField("", text: $query, prompt: Text("Search history").foregroundColor(Theme.fieldPlaceholder))
                             .textFieldStyle(.plain)
                             .accessibilityLabel("Search history")
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
-                            .foregroundColor(Theme.ink)
+                            .foregroundColor(Theme.panelInk)
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 40)
-                    .background(Capsule().fill(Color.white))
+                    .background(Capsule().fill(Theme.plateBase))
 
                     if entries.isEmpty {
                         Text(model.history.isEmpty ? "Nothing in history yet." : "No matches.")
