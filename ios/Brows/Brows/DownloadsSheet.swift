@@ -105,6 +105,9 @@ struct DownloadsSheet: View {
                 Text("\(ByteCountFormatter.string(fromByteCount: Int64(fileSize(item.localPath)), countStyle: .file)) saved")
                     .font(.system(size: 10))
                     .foregroundColor(Theme.panelMuted)
+                    // Align with the filename, not the card's edge (capture
+                    // downloads-dark: "23 bytes saved" sat under the icon).
+                    .padding(.leading, 28)
             }
         }
         .padding(12)

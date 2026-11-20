@@ -72,7 +72,7 @@ struct PasswordsSheet: View {
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
+                    .panelButtonPlate()
             }
             .buttonStyle(.plain)
         }
@@ -162,7 +162,7 @@ struct PasswordsSheet: View {
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase.opacity(0.9)))
+                    .panelButtonPlate()
             }
             .buttonStyle(.plain)
 
@@ -174,7 +174,7 @@ struct PasswordsSheet: View {
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 12).stroke(Theme.rowFill))
+                    .panelButtonPlate()
             }
             .buttonStyle(.plain)
         }

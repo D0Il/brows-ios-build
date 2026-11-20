@@ -27,7 +27,11 @@ struct ScriptDialogCard: View {
 
     private var card: some View {
         ZStack {
-            GlassLayer(cornerRadius: 18)
+            // The desktop's alert is a solid plate. The glass layer let the
+            // article's own lines show through the message (captures
+            // notice-light, dialog-light, linknotice-light).
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Theme.plateBase)
         VStack(alignment: .leading, spacing: 14) {
             // The page's host, in the same muted line the credential card uses, so
             // a dialog is always attributable to the site that raised it.

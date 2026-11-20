@@ -418,12 +418,12 @@ struct BottomRail: View {
         // page's stack, which is what had put the last row under the glass.
         .overlay(alignment: .top) {
             if model.settings.addressBarBottom {
-                completions.offset(y: -(CGFloat(model.suggestions.count) * 44 + 16))
+                completions.offset(y: -(CGFloat(model.suggestions.count) * 52 + 16))
             }
         }
         .overlay(alignment: .bottom) {
             if !model.settings.addressBarBottom {
-                completions.offset(y: CGFloat(model.suggestions.count) * 44 + 16)
+                completions.offset(y: CGFloat(model.suggestions.count) * 52 + 16)
             }
         }
     }
@@ -432,7 +432,7 @@ struct BottomRail: View {
         if model.isEditingAddress && !model.suggestions.isEmpty {
             AddressSuggestionsPanel()
                 .environmentObject(model)
-                .frame(height: CGFloat(model.suggestions.count) * 44 + 10)
+                .frame(height: CGFloat(model.suggestions.count) * 52 + 8)
         }
     }
 

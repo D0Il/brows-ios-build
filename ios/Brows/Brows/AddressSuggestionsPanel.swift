@@ -32,7 +32,7 @@ struct AddressSuggestionsPanel: View {
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 14)
-                    .frame(minHeight: 44, alignment: .leading)
+                    .frame(height: 52, alignment: .leading)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)

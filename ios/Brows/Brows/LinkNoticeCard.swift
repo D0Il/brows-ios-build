@@ -19,7 +19,11 @@ struct LinkNoticeCard: View {
 
     private var card: some View {
         ZStack {
-            GlassLayer(cornerRadius: 18)
+            // The desktop's alert is a solid plate. The glass layer let the
+            // article's own lines show through the message (captures
+            // notice-light, dialog-light, linknotice-light).
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Theme.plateBase)
             VStack(alignment: .leading, spacing: 14) {
             Text(notice.scheme)
                 .font(.system(size: 12, weight: .semibold))
@@ -41,7 +45,7 @@ struct LinkNoticeCard: View {
                     .padding(.vertical, 12)
             }
             .buttonStyle(.plain)
-            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase))
+            .panelButtonPlate()
             .accessibilityIdentifier("linknotice.ok")
             }
             .padding(20)

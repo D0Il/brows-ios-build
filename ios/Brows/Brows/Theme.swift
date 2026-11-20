@@ -262,6 +262,23 @@ struct GlassCircleButtonStyle: ButtonStyle {
 }
 
 extension View {
+    /// The desktop's plate for a button: the plate fill plus the hairline rim that
+    /// keeps it visible on a sheet that is also white. Without the rim the OK /
+    /// Save / Export buttons were white rectangles on a white card and read as
+    /// plain centred text (captures notice-light, passwords-light, siteinfo-light).
+    func panelButtonPlate(cornerRadius: CGFloat = 12) -> some View {
+        self
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Theme.plateBase.opacity(0.9))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Theme.rowBorder, lineWidth: 1)
+                    .allowsHitTesting(false)
+            )
+    }
+
     /// A sheet's platform background is opaque; Brows sheets are glass, so the
     /// system fill is cleared and the sheet's own pane is the only surface.
     @ViewBuilder
