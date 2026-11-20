@@ -291,7 +291,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     func navNote(_ entry: String) {
         navTrail.append(entry)
-        if navTrail.count > 10 { navTrail.removeFirst(navTrail.count - 10) }
+        if navTrail.count > 40 { navTrail.removeFirst(navTrail.count - 40) }
     }
     /// Tabs whose web view WebKit built for a popup. The container adopts them
     /// instead of creating one from the tab's settings.
@@ -753,6 +753,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     // MARK: Tabs
 
     func newTab(_ url: URL? = nil, private isPrivate: Bool = false) {
+        navNote("newTab now=\(tabs.count + 1)")
         isEditingAddress = false
         let tab = Tab(url: url ?? BrowserModel.home, workspaceId: activeWorkspaceId, isPrivate: isPrivate)
         tabs.append(tab)
@@ -770,6 +771,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func close(_ tab: Tab) {
+        navNote("close was=\(tabs.count)")
         if let webView = webViews[tab.id] {
             webView.stopLoading()
             webView.navigationDelegate = nil
@@ -1722,7 +1724,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     func update(_ tabId: UUID, _ mutate: (inout Tab) -> Void) {
         guard let index = tabs.firstIndex(where: { $0.id == tabId }) else { return }
+        let before = tabs[index].url
         mutate(&tabs[index])
+        if tabs[index].url != before {
+            navNote("url \(before?.absoluteString ?? "nil") -> \(tabs[index].url?.absoluteString ?? "nil")")
+        }
         if tabId == activeTabId, let url = tabs[index].url, !isEditingAddress {
             addressText = displayAddress(url)
         }

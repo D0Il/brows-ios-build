@@ -13,6 +13,7 @@ struct WebViewContainer: UIViewRepresentable {
         // adopting it (instead of creating a second one) is what keeps the page's
         // WindowProxy alive. It is already loading, so it gets no initial load here.
         let supplied = model.takeSuppliedWebView(tabId)
+        model.navNote("make-begin supplied=\(supplied)")
         let webView = model.webView(for: tabId)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
