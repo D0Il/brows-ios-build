@@ -18,7 +18,10 @@ struct CredentialSaveOverlay: View {
 
     private var card: some View {
         ZStack {
-            GlassLayer(cornerRadius: 18)
+            // The desktop's auth prompt is a solid plate; the glass card let the page's
+            // own text sit behind the fields and the Sign in label.
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Theme.plateBase)
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Save password?")
@@ -126,7 +129,10 @@ struct HTTPAuthCard: View {
 
     private var card: some View {
         ZStack {
-            GlassLayer(cornerRadius: 18)
+            // The desktop's auth prompt is a solid plate; the glass card let the page's
+            // own text sit behind the fields and the Sign in label.
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Theme.plateBase)
             VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(auth.host)
