@@ -249,6 +249,7 @@ final class BrowsUITests: XCTestCase {
         if !noticeOK.waitForExistence(timeout: 7) {
             print("UNSUPPORTED-DEBUG tabs=\(app.staticTexts["debug.tabs"].label) hist=\(app.staticTexts["debug.history"].label) pill=\(app.textFields["rail.address"].value ?? "nil") webviews=\(app.webViews.count) done=\(app.buttons["Done"].exists)")
             print("UNSUPPORTED-NAV \(app.staticTexts["debug.nav"].label)")
+        }
         XCTAssertTrue(noticeOK.exists,
                       "an unsupported scheme was swallowed (last route: \(route.exists ? route.label : "none"))")
         XCTAssertTrue(app.staticTexts["linknotice.message"].label.contains("brows-nothing"),
