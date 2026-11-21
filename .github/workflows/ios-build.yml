@@ -109,6 +109,9 @@ jobs:
       - name: Verify the shard plan covers every test method
         run: python3 .github/ci/check-shards.py
 
+      # The runner is macos-15-arm64 and so is every simulator it spawns. The
+      # default generic simulator build is universal, which only makes the app and
+      # the XCTest runner bundle bigger for xcodebuild to install on each shard.
       - name: Build for testing
         working-directory: ios/Brows
         run: |
@@ -118,6 +121,7 @@ jobs:
             -destination "generic/platform=iOS Simulator" \
             -configuration Debug \
             -derivedDataPath build-test \
+            ARCHS=arm64 \
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="-" \
@@ -143,6 +147,15 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
           xcodebuild -version
 
+      # Boot the device before the artifact download: the 80-220 s cold boot then
+      # overlaps the download and the fixture server instead of following them.
+      - name: Start the simulator booting
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
+          echo "device: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
+
       - uses: actions/download-artifact@v4
         with:
           name: Brows-testbuild
@@ -152,12 +165,7 @@ jobs:
         run: |
           set -e
           xcrun simctl list runtimes
-          # The JSON form of simctl list takes 20-45 s on a cold runner; the text
-          # table is instant and lists the newest runtime first.
-          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
-          echo "device: $DEVICE"
           xcrun simctl list devices | grep "$DEVICE" || true
-          xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl install "$DEVICE" ios/Brows/build-test/Build/Products/Debug-iphonesimulator/Brows.app
           xcrun simctl launch "$DEVICE" dev.brows.ios | tee launch.txt || echo "LAUNCH_RC=$?"
@@ -204,6 +212,15 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
           xcodebuild -version
 
+      # Boot the device before the artifact download: the 80-220 s cold boot then
+      # overlaps the download and the fixture server instead of following them.
+      - name: Start the simulator booting
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
+          echo "device: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
+
       - uses: actions/download-artifact@v4
         with:
           name: Brows-testbuild
@@ -221,9 +238,7 @@ jobs:
           ONLY=$(python3 -c "import json;d=json.load(open('$GITHUB_WORKSPACE/.github/ci/shards.json'));print(' '.join('-only-testing:BrowsUITests/BrowsUITests/'+t for t in d['${{ matrix.shard }}']))")
           echo "shard ${{ matrix.shard }} methods:"
           printf '%s\n' $ONLY
-          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
           echo "device: $DEVICE"
-          xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
           RC=0
           xcodebuild test-without-building \
@@ -261,6 +276,13 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
           xcodebuild -version
 
+      - name: Start the simulator booting
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
+          echo "device: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
+
       - uses: actions/download-artifact@v4
         with:
           name: Brows-testbuild
@@ -277,9 +299,7 @@ jobs:
           set -euo pipefail
           XCTESTRUN=$(ls build-test/Build/Products/*.xctestrun | head -1)
           echo "xctestrun: $XCTESTRUN"
-          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
           echo "device: $DEVICE"
-          xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
           echo "only: $ONLY_TEST"
           xcodebuild test-without-building \
