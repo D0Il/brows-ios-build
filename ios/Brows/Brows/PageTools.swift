@@ -60,6 +60,7 @@ enum PageTools {
     (function () {
       if (window.__browsPopupGuard) { return; }
       window.__browsPopupGuard = true;
+      try { window.webkit.messageHandlers.browsPopup.postMessage('guard-ready'); } catch (error) {}
       var renderable = /^(https?|about|file|data|blob|javascript)$/i;
       var original = window.open;
       window.open = function (url) {

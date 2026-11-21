@@ -1616,9 +1616,12 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             navigate(to: query)
             return
         }
-        if message.name == "browsPopup", let text = message.body as? String,
-           let url = URL(string: text) {
-            _ = routeExternalLink(url)
+        if message.name == "browsPopup", let text = message.body as? String {
+            if text == "guard-ready" {
+                lastRoute = "popup guard ready"
+                return
+            }
+            if let url = URL(string: text) { _ = routeExternalLink(url) }
             return
         }
         guard message.name == "browsCredentials",

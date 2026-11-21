@@ -269,12 +269,12 @@ struct BottomRail: View {
                 if canBack {
                     railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
                 } else {
-                    Color.clear.frame(minWidth: 44, minHeight: 44)
+                    Color.clear.frame(width: 44, height: 44)
                 }
                 if canForward {
                     railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
                 } else {
-                    Color.clear.frame(minWidth: 44, minHeight: 44)
+                    Color.clear.frame(width: 44, height: 44)
                 }
             }
 
