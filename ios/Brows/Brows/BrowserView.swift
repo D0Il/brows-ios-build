@@ -22,6 +22,9 @@ struct BrowserView: View {
             // The platform's own glass, full-bleed: the sheet surface is the
             // same Liquid Glass the dock uses, not a material slab.
             .background(Color.clear.browsGlass(cornerRadius: 0).ignoresSafeArea())
+            // The app has no iOS-blue accent: Done and every other control in a
+            // panel uses the desktop's ink, never the system tint.
+            .tint(Theme.panelInk)
             .transition(.opacity)
             .zIndex(2)
             .onAppear { model.refreshPanelBackdrop() }

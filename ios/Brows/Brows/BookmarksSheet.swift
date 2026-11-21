@@ -85,6 +85,7 @@ struct BookmarksSheet: View {
                     }
                 }
                 .scrollContentBackground(.hidden)
+                .listRowSeparatorTint(Theme.sectionRule)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }

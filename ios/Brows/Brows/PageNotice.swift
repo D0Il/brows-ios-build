@@ -30,7 +30,7 @@ struct PageNoticeCard: View {
             // page behind it is still the backdrop. A plain fill reads as a slab and
             // an empty glassEffect renders nothing, letting the article's lines
             // through unblurred (captures notice-light, dialog-light, linknotice-light).
-            GlassPane(cornerRadius: 18, plate: true, backdrop: model.panelBackdrop)
+            Color.clear.browsGlass(cornerRadius: 18)
             VStack(alignment: .leading, spacing: 14) {
             Text(notice.title)
                 .font(.system(size: 12, weight: .semibold))

@@ -124,7 +124,7 @@ struct SettingsSheet: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.plateBase.opacity(0.59)))
+        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.rowFill))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.glassStroke, lineWidth: 1))
         .shadow(color: Color(red: 37 / 255, green: 47 / 255, blue: 60 / 255).opacity(0.09), radius: 6.5, x: 0, y: 4)
     }

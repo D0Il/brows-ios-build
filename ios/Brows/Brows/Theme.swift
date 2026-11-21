@@ -33,8 +33,8 @@ enum Theme {
     /// Rows and plates inside a sheet: the desktop's rgba(var(--plate-rgb),.5)
     /// with its .7 border in light, and the dark block's white washes in dark.
     static let rowFill = adaptive(
-        light: UIColor(white: 1, alpha: 0.5),
-        dark: UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 0.55)
+        light: UIColor(white: 1, alpha: 0.28),
+        dark: UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 0.45)
     )
     static let rowBorder = adaptive(
         light: UIColor(white: 1, alpha: 0.70),
@@ -59,7 +59,7 @@ enum Theme {
     )
     /// A plate inside a sheet is `rgba(var(--plate-rgb),.62)` (`brows_surface.css`):
     /// at .95 it read as a white slab on top of the sheet's own glass.
-    static let plate = plateBase.opacity(0.62)
+    static let plate = plateBase.opacity(0.30)
     /// The pane's own tint. Light glass must stay see-through over a page;
     /// the dark block keeps the desktop's heavier plate.
     static let plateAlpha = 0.30
