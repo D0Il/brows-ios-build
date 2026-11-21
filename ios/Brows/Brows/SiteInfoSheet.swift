@@ -9,7 +9,7 @@ struct SiteInfoSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear.ignoresSafeArea().browsGlass(cornerRadius: 0)
+                GlassPane(cornerRadius: 0).ignoresSafeArea()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {

@@ -27,11 +27,11 @@ struct ScriptDialogCard: View {
 
     private var card: some View {
         ZStack {
-            // The desktop's alert is a solid plate. The glass layer let the
-            // article's own lines show through the message (captures
-            // notice-light, dialog-light, linknotice-light).
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Theme.plateBase)
+            // A material pane, not a fill: the desktop alert is a glass plate and the
+            // page behind it is still the backdrop. A plain fill reads as a slab and
+            // an empty glassEffect renders nothing, letting the article's lines
+            // through unblurred (captures notice-light, dialog-light, linknotice-light).
+            GlassPane(cornerRadius: 18)
         VStack(alignment: .leading, spacing: 14) {
             // The page's host, in the same muted line the credential card uses, so
             // a dialog is always attributable to the site that raised it.

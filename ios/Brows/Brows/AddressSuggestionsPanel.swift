@@ -10,8 +10,7 @@ struct AddressSuggestionsPanel: View {
         ZStack {
             // A popup plate, not glass: the desktop's row popup is solid, and the
             // article's lines were legible through the suggestion rows.
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Theme.plateBase)
+            GlassPane(cornerRadius: 16)
             VStack(spacing: 0) {
             ForEach(Array(model.suggestions.enumerated()), id: \.element.id) { index, suggestion in
                 Button {

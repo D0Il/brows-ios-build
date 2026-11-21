@@ -187,6 +187,11 @@ struct GlassPane: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
+                // The desktop pane is `backdrop-filter: blur(var(--glass-blur))`
+                // under its tint. Paint alone is a slab with a little transparency,
+                // not glass: the page behind it must be blurred through the pane.
+                BackdropBlur()
+
                 Theme.railBase.opacity(Theme.railBaseAlpha)
 
                 LinearGradient(
@@ -213,6 +218,26 @@ struct GlassPane: View {
                 }
             }
         }
+    }
+}
+
+/// The backdrop of a glass pane: a real blur of whatever is behind it. The desktop
+/// gets this from `backdrop-filter`; UIKit's effect view is the same operation.
+struct BackdropBlur: UIViewRepresentable {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        let view = UIVisualEffectView(effect: UIBlurEffect(style: style))
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ view: UIVisualEffectView, context: Context) {
+        view.effect = UIBlurEffect(style: style)
+    }
+
+    private var style: UIBlurEffect.Style {
+        colorScheme == .dark ? .systemUltraThinMaterialDark : .systemUltraThinMaterialLight
     }
 }
 
