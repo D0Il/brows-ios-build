@@ -1,0 +1,47 @@
+{
+  "1": [
+    "testExternalSchemesHandOffWithoutLeavingThePage",
+    "testFindInPage",
+    "testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice",
+    "testNewWindowLinksOpenAndSelectANewTab",
+    "testPageControlsSitBeforeThePill",
+    "testPrivateDownloadIsNotPersisted",
+    "testReaderFailureUsesTheAppsOwnCard",
+    "testStartPageSearchNavigates",
+    "testWorkspaceSwitch"
+  ],
+  "2": [
+    "testAddressPillCompletesFromHistory",
+    "testAddressPillExplainsAnAddressItCannotOpen",
+    "testBookmarkStar",
+    "testPrivateTabBadge",
+    "testRefusedPopupUsesTheAppsCard",
+    "testTypedExternalSchemeRoutesInsteadOfBecomingAPage",
+    "testWindowOpenReusesTheNamedWindow",
+    "testWindowOpenWithFeaturesOpensOneSelectedTab",
+    "testWorkspaceDelete"
+  ],
+  "3": [
+    "testAppearanceTokensPassContrastAudit",
+    "testBookmarkChipNavigates",
+    "testBothAppearancesOpenTheMenu",
+    "testClosingPrivateTabsDeletesTheirDownloadFiles",
+    "testHTTPAuthPromptCompletesAndSaves",
+    "testNavigationFromAddressPill",
+    "testPrivateDownloadFileIsSweptOnNextLaunch",
+    "testRailAndMenuPanels",
+    "testReaderMode",
+    "testStartPageSearchField"
+  ],
+  "4": [
+    "testAddressBarTopSetting",
+    "testCloseTab",
+    "testDownloadStarts",
+    "testJavaScriptDialogsAnswerThePage",
+    "testNamedPopupFromAPrivateTabStaysPrivate",
+    "testNamedWindowReopensAfterItsPopupIsClosed",
+    "testPasswordSaveAndAutofill",
+    "testSiteBlockingToggle",
+    "testTabGallerySearch"
+  ]
+}

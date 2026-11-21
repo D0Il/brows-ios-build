@@ -5,6 +5,7 @@ on:
     paths:
       - "ios/Brows/**"
       - ".github/workflows/ios-build.yml"
+      - ".github/ci/**"
   workflow_dispatch:
     inputs:
       only_test:
@@ -16,6 +17,11 @@ on:
         type: boolean
         default: false
 
+# The suite is 37 methods in one XCTestCase class. Xcode parallel testing
+# distributes by class, so it cannot fan this suite out — the shards below do it
+# by method instead: one build, then four runners running disjoint -only-testing
+# subsets in parallel. The plan lives in .github/ci/shards.json and is checked
+# against the class before any shard starts.
 jobs:
   build:
     runs-on: macos-15
@@ -77,22 +83,52 @@ jobs:
           name: Brows-ipa
           path: ios/Brows/Brows.ipa
 
-      # Ad-hoc signed, with Brows.entitlements: an unsigned app has no keychain
-      # access group, so SecItemAdd fails with -34018 (errSecMissingEntitlement)
-      # and every password save is silently rejected.
-      - name: Build for simulator
+      # A dropped or duplicated method is the one failure mode sharding adds, and
+      # it would look like a green run. Refuse to start a shard on a bad plan.
+      - name: Verify the shard plan covers every test method
+        run: python3 .github/ci/check-shards.py
+
+      # Build once for every test job: build-for-testing writes the .xctestrun and
+      # the ad-hoc-signed simulator app. The shards and the capture pass download
+      # this artifact and run test-without-building, so no job compiles twice.
+      - name: Build for testing
         working-directory: ios/Brows
         run: |
           xcodebuild \
             -project Brows.xcodeproj \
             -scheme Brows \
-            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
             -configuration Debug \
-            -derivedDataPath build-sim \
+            -derivedDataPath build-test \
             CODE_SIGNING_ALLOWED=YES \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="-" \
-            build
+            build-for-testing
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Brows-testbuild
+          path: ios/Brows/build-test/Build/Products
+          retention-days: 3
+
+  # Screenshots are not tests, but they need the same app the shards install.
+  # Runs beside the shards instead of in front of them.
+  captures:
+    needs: build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          ls /Applications | grep -i "^Xcode" || true
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Brows-testbuild
+          path: ios/Brows/build-test/Build/Products
 
       - name: Launch in simulator and capture
         run: |
@@ -103,7 +139,7 @@ jobs:
           xcrun simctl list devices | grep "$DEVICE" || true
           xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
-          xcrun simctl install "$DEVICE" ios/Brows/build-sim/Build/Products/Debug-iphonesimulator/Brows.app
+          xcrun simctl install "$DEVICE" ios/Brows/build-test/Build/Products/Debug-iphonesimulator/Brows.app
           xcrun simctl launch "$DEVICE" dev.brows.ios | tee launch.txt || echo "LAUNCH_RC=$?"
           sleep 10
           xcrun simctl spawn "$DEVICE" launchctl list | grep dev.brows.ios | tee -a launch.txt || echo "NOT RUNNING"
@@ -112,249 +148,12 @@ jobs:
           echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
 
       - name: Serve fixtures
-        run: |
-          mkdir -p fixtures
-          printf 'brows download fixture\n' > fixtures/sample.bin
-          cat > fixtures/login.html <<'HTML'
-          <!doctype html>
-          <html>
-          <head>
-          <meta name="viewport" content="width=device-width,initial-scale=1">
-          <title>Login Fixture</title>
-          <style>
-          body{font-family:-apple-system,Helvetica,sans-serif;padding:24px;color:#1b1f27}
-          input{display:block;width:100%;box-sizing:border-box;font-size:16px;padding:10px;margin:8px 0;border:1px solid #99a;border-radius:8px}
-          button{font-size:16px;padding:10px 18px;border-radius:8px;border:0;background:#1b1f27;color:#fff}
-          #mirror{font-size:14px;color:#333;margin-top:18px}
-          </style>
-          </head>
-          <body>
-          <h1>Sign in</h1>
-          <form id="login" method="get" action="/other.html">
-          <input id="u" name="username" type="text" autocomplete="username" aria-label="Username" placeholder="Username">
-          <input id="p" name="password" type="password" aria-label="Password" placeholder="Password">
-          <button type="submit">Log in</button>
-          </form>
-          <pre id="mirror">U= P=</pre>
-          <script>
-          var u=document.getElementById('u');var p=document.getElementById('p');
-          function mirror(){document.getElementById('mirror').textContent='U='+u.value+' P='+p.value;}
-          [u,p].forEach(function(el){el.addEventListener('input',mirror);el.addEventListener('change',mirror);});
-          document.getElementById('login').addEventListener('submit',function(event){event.preventDefault();});
-          </script>
-          </body>
-          </html>
-          HTML
-          cat > fixtures/other.html <<'HTML'
-          <!doctype html>
-          <html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Other page</title></head>
-          <body style="font-family:-apple-system,Helvetica,sans-serif;padding:24px"><h1>Other page</h1>
-          <p>This page exists so the password test can leave the login origin and come back.</p></body></html>
-          HTML
-          cat > fixtures/dialog.html <<'HTML'
-          <!doctype html>
-          <html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dialogs</title>
-          <style>
-          body{font-family:-apple-system,Helvetica,sans-serif;padding:24px;color:#1b1f27}
-          button{display:block;width:100%;font-size:16px;padding:12px 18px;margin:10px 0;border-radius:10px;border:0;background:#1b1f27;color:#fff}
-          p{font-size:15px;color:#333;margin:4px 0 16px}
-          </style></head>
-          <body>
-          <h1>Dialogs</h1>
-          <button id="alert">Alert</button>
-          <button id="confirm">Confirm</button>
-          <button id="prompt">Prompt</button>
-          <p id="alert-result"></p>
-          <p id="confirm-result"></p>
-          <p id="prompt-result"></p>
-          <script>
-          document.getElementById('alert').onclick=function(){alert('Saved to the shelf.');document.getElementById('alert-result').textContent='alerted';};
-          document.getElementById('confirm').onclick=function(){document.getElementById('confirm-result').textContent=confirm('Remove this bookmark?')?'confirmed':'cancelled';};
-          document.getElementById('prompt').onclick=function(){var v=prompt('Name this workspace','Work');document.getElementById('prompt-result').textContent=(v===null)?'null':'hello '+v;};
-          </script>
-          </body></html>
-          HTML
-          cat > fixtures/links.html <<'HTML'
-          <!doctype html>
-          <html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Links</title>
-          <style>
-          body{font-family:-apple-system,Helvetica,sans-serif;padding:24px;color:#1b1f27}
-          a{display:block;font-size:17px;padding:12px 0}
-          button{display:block;width:100%;font-size:16px;padding:12px 18px;margin:10px 0;border-radius:10px;border:0;background:#1b1f27;color:#fff}
-          </style></head>
-          <body>
-          <h1>Links</h1>
-          <!-- The scheme links stay at the top of the page: the page runs
-               full-bleed under the bottom rail, so a link at the end of the
-               document scrolls underneath it and a tap there lands on the
-               rail's back button instead (run 44652824094: tapping
-               "Unsupported" went back to the start page). -->
-          <a href="mailto:someone@example.com">Mail</a>
-          <a href="tel:+15551234567">Call</a>
-          <a href="brows-nothing:whatever">Unsupported</a>
-          <button id="named-first" onclick="window.browsNamedWindow = window.open('/article.html','browsNamed'); document.getElementById('named-result').textContent = window.browsNamedWindow ? 'first-open' : 'first-null'">Open named window</button>
-          <button id="named-again" onclick="window.browsNamedWindow = window.open('/article.html','browsNamed'); setTimeout(function(){ var w = window.open('/other.html','browsNamed'); document.getElementById('named-result').textContent = w === window.browsNamedWindow ? 'same-window' : (w ? 'different-window' : 'null-again'); }, 1800)">Open named window again</button>
-          <p id="named-result">none</p>
-          <button id="named-fresh" onclick="var w = window.open('/other.html','browsNamed'); document.getElementById('fresh-result').textContent = w ? 'fresh-open' : 'fresh-null'">Open the closed name again</button>
-          <p id="fresh-result">none</p>
-          <a href="/other.html" target="_blank">Open blank</a>
-          <button onclick="window.open('/article.html','_blank')">Open popup</button>
-          <button id="features" onclick="var w = window.open('/article.html','oauth','width=420,height=640,menubar=no'); document.getElementById('popup-result').textContent = w ? 'opened' : 'blocked'">Open popup with features</button>
-          <button id="refuse" onclick="window.open('brows-nothing:popup','x','width=300,height=200')">Open refused popup</button>
-          <p id="popup-result">none</p>
-          </body></html>
-          HTML
-          { echo '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>The shape of a browser</title>'; echo '<style>body{margin:0;background:#f4f2ee;color:#23262b;font-family:Georgia,serif}article{max-width:680px;margin:0 auto;padding:28px 22px 180px}h1{font-size:30px;line-height:1.15}p{font-size:17px;line-height:1.62;margin:0 0 16px}</style></head><body><article>'; echo '<h1>The shape of a browser</h1>'; echo '<p>A browser is a rectangle of page with a thin band of controls around it. Almost everything that makes one feel right lives in that band: how much of the page shows through it, how far a thumb has to travel, and whether the controls agree with each other about where the edges are.</p>'; echo '<p>On a phone the band moves to the bottom, because the top of the screen belongs to the page and to the notch. The address field stops being a place you type and becomes a place you glance at, so its text has to survive a background that changes with every site you visit. That is why it is glass: not decoration, but a way of staying legible over a photograph, a spreadsheet, or a wall of text like this one.</p>'; echo '<p>Glass, done properly, is a stack of very thin decisions. A pane of almost-white at less than half opacity. A ramp that is brighter at the edge where light would fall. A hairline, one pixel, that gives the pane an edge without drawing a box. A sheen in one corner so the surface reads as a surface rather than a fill. Remove any one of those and the result collapses into a grey slab, which is exactly what a flat alpha value looks like.</p>'; echo '<p>Typography carries the rest. Long lines are tiring, so the column is narrow. Line height is generous. The measure is set by the reading experience, not by the window. When a reader mode strips a page down, it should keep the images and the paragraphs and lose the navigation, the cookie banners, and the three separate requests to subscribe.</p>'; echo '<p>Tabs are a gallery now. A row of shrinking trapezoids made sense on a desktop with a mouse; on a phone the useful question is not which tab is third from the left but which of these pages was I reading. So the gallery ranks by recency, shows the workspace each tab belongs to, and offers the ones you closed by mistake.</p>'; echo '<p>Downloads, history, passwords and site settings belong to the browser, not to the page. They should be one gesture away, in the same place every time, and they should tell the truth about what they are doing. A download that has not started is not a download. A password that was not written is not saved. A progress bar that never completes is a lie with a rounded corner.</p>'; echo '<p>That is the whole test. Not whether the controls exist, but whether they behave the same way twice, on a page nobody designed for them, with the network doing what networks do.</p>'; echo '</article></body></html>'; } > fixtures/article.html
-          # `python3 -m http.server` is single-threaded: one lingering connection
-          # (a cancelled download, a keep-alive socket) blocks every later request,
-          # which is how the article page hung after the download test. Serve the
-          # fixtures from a threaded server instead, and poll every endpoint the
-          # tests use before running them.
-          cat > fixtures/serve.py <<'PY'
-          import base64
-          import http.server
-          import socketserver
+        run: bash .github/ci/fixtures.sh
 
-          ACCOUNTS = {'browsuser': 'browssecret', 'otheraccount': 'othersecret'}
-
-          class Handler(http.server.SimpleHTTPRequestHandler):
-              def __init__(self, *args, **kwargs):
-                  super().__init__(*args, directory='fixtures', **kwargs)
-
-              def do_GET(self):
-                  path = self.path.split('?', 1)[0]
-                  if path in ('/auth.html', '/auth2.html'):
-                      second = path == '/auth2.html'
-                      realm = 'Brows Fixture 2' if second else 'Brows Fixture'
-                      # Each protection space demands its own account. WebKit reuses
-                      # a .forSession credential for the host across realms, so a
-                      # page that accepted either account would never challenge
-                      # and the second-account offer could not be reached.
-                      allowed = 'otheraccount' if second else 'browsuser'
-                      user = ''
-                      header = self.headers.get('Authorization', '')
-                      if header.startswith('Basic '):
-                          try:
-                              raw = base64.b64decode(header[6:]).decode('utf-8')
-                              name, password = raw.split(':', 1)
-                              if name == allowed and ACCOUNTS.get(name) == password:
-                                  user = name
-                          except Exception:
-                              user = ''
-                      if not user:
-                          body = b'Authentication required'
-                          self.send_response(401)
-                          self.send_header('WWW-Authenticate', 'Basic realm="%s"' % realm)
-                          self.send_header('Content-Type', 'text/plain')
-                          self.send_header('Content-Length', str(len(body)))
-                          self.end_headers()
-                          self.wfile.write(body)
-                          return
-                      body = ('<!doctype html><html><head><meta name="viewport" '
-                              'content="width=device-width,initial-scale=1"><title>Protected</title>'
-                              '</head><body style="font-family:-apple-system,Helvetica,sans-serif;'
-                              'padding:24px"><h1>Protected area</h1><p>Signed in as %s</p>'
-                              '</body></html>' % user).encode('utf-8')
-                      self.send_response(200)
-                      self.send_header('Content-Type', 'text/html; charset=utf-8')
-                      self.send_header('Content-Length', str(len(body)))
-                      self.end_headers()
-                      self.wfile.write(body)
-                      return
-                  super().do_GET()
-
-          class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
-              daemon_threads = True
-              allow_reuse_address = True
-
-          Server(('', 8000), Handler).serve_forever()
-          PY
-          nohup python3 fixtures/serve.py > fixtures/server.log 2>&1 &
-          ready=0
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:8000/sample.bin > /dev/null \
-              && curl -sf http://localhost:8000/login.html > /dev/null \
-              && curl -sf http://localhost:8000/article.html > /dev/null \
-              && curl -sf http://localhost:8000/dialog.html > /dev/null \
-              && curl -sf http://localhost:8000/links.html > /dev/null \
-              && [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/auth.html)" = "401" ]; then
-              ready=1
-              break
-            fi
-            sleep 1
-          done
-          if [ "$ready" != "1" ]; then
-            echo "fixture server did not serve all endpoints on :8000"
-            cat fixtures/server.log || true
-            exit 1
-          fi
-          # The server step above changed into fixtures/; the screenshot belongs at
-          # the workspace root so upload-artifact picks it up.
-          cd "$GITHUB_WORKSPACE"
-          # Iterating on one test does not need the capture pass: skip_captures
-          # turns a thirty-minute loop into a build plus one test.
-          if [ "${{ github.event.inputs.skip_captures }}" != "true" ]; then
-          xcrun simctl terminate "$DEVICE" dev.brows.ios || true
-          xcrun simctl launch "$DEVICE" dev.brows.ios -BrowsOpenURL http://localhost:8000/article.html > /dev/null
-          sleep 8
-          xcrun simctl io "$DEVICE" screenshot brows-article.png
-
-          # Every text-bearing sheet, in both appearances, plus the pill's selected
-          # state. These are launch-only hooks (`-BrowsSheet`, `-BrowsAppearance`,
-          # `-BrowsFocusPill`) and never reachable from a page.
-          mkdir -p captures
-          for mode in light dark; do
-            for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs auth authsave dialog notice linknotice suggest pill; do
-              xcrun simctl terminate "$DEVICE" dev.brows.ios > /dev/null 2>&1 || true
-              args=(-BrowsUITestReset -BrowsCaptureSeed -BrowsAppearance "$mode" -BrowsOpenURL http://localhost:8000/article.html)
-              if [ "$sheet" = "pill" ]; then
-                args+=(-BrowsFocusPill)
-              else
-                args+=(-BrowsSheet "$sheet")
-              fi
-              seen=$(grep -c "GET /article.html" fixtures/server.log 2>/dev/null || true)
-              xcrun simctl launch "$DEVICE" dev.brows.ios "${args[@]}" > /dev/null
-              # The page loads in the same launch as the sheet hook. A flat four
-              # seconds once shot suggest-dark with an unpainted black page and a
-              # live progress bar (run 44656125222), so wait until the fixture
-              # server has this launch's request, then let the page paint.
-              for _ in $(seq 1 32); do
-                now=$(grep -c "GET /article.html" fixtures/server.log 2>/dev/null || true)
-                if [ "${now:-0}" -gt "${seen:-0}" ]; then break; fi
-                sleep 0.25
-              done
-              sleep 3
-              xcrun simctl io "$DEVICE" screenshot "captures/${sheet}-${mode}.png"
-            done
-          done
-          fi
-
-      - name: Run UI tests
-        working-directory: ios/Brows
+      - name: Capture every sheet and appearance
         env:
-          ONLY_TEST: ${{ github.event.inputs.only_test }}
-        run: |
-          # -only-testing takes Target/Class/Method; empty runs the whole suite.
-          FILTER=""
-          if [ -n "$ONLY_TEST" ]; then
-            FILTER="-only-testing:BrowsUITests/BrowsUITests/$ONLY_TEST"
-            echo "only: $FILTER"
-          fi
-          xcodebuild test \
-            -project Brows.xcodeproj \
-            -scheme Brows \
-            -destination "id=$DEVICE" \
-            -derivedDataPath build-test \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="-" \
-            $FILTER
-          echo "---- launch console ----"
-          cat launch.txt || true
-          echo "---- crash reports ----"
-          find ~/Library/Logs/DiagnosticReports -name "Brows*" -mmin -10 2>/dev/null | head -5 | while read -r f; do echo "### $f"; head -80 "$f"; done
-          xcrun simctl spawn "$DEVICE" log show --last 2m --predicate 'process == "Brows"' > brows-sim.log || true
-          tail -60 brows-sim.log
+          SKIP_CAPTURES: ${{ github.event.inputs.skip_captures }}
+        run: bash .github/ci/capture.sh
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -365,5 +164,105 @@ jobs:
             brows-article.png
             captures/*.png
             fixtures/server.log
-            brows-sim.log
             launch.txt
+
+  ui-test:
+    needs: build
+    if: ${{ !github.event.inputs.only_test }}
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: UI tests shard ${{ matrix.shard }}/4
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          ls /Applications | grep -i "^Xcode" || true
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Brows-testbuild
+          path: ios/Brows/build-test/Build/Products
+
+      - name: Serve fixtures
+        run: bash .github/ci/fixtures.sh
+
+      - name: Run shard ${{ matrix.shard }}
+        working-directory: ios/Brows
+        run: |
+          set -euo pipefail
+          XCTESTRUN=$(ls build-test/Build/Products/*.xctestrun | head -1)
+          echo "xctestrun: $XCTESTRUN"
+          ONLY=$(python3 -c "import json;d=json.load(open('$GITHUB_WORKSPACE/.github/ci/shards.json'));print(' '.join('-only-testing:BrowsUITests/BrowsUITests/'+t for t in d['${{ matrix.shard }}']))")
+          echo "shard ${{ matrix.shard }} methods:"
+          printf '%s\n' $ONLY
+          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,re,sys;d=json.load(sys.stdin)['devices'];v=lambda k:tuple(map(int,re.search(r'iOS-(\d+)-(\d+)',k).groups())) if re.search(r'iOS-(\d+)-(\d+)',k) else (0,0);print(next(x['udid'] for k in sorted(d,key=v,reverse=True) for x in d[k] if 'iPhone' in x['name']))")
+          echo "device: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          RC=0
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN" \
+            -destination "id=$DEVICE" \
+            -resultBundlePath "shard-${{ matrix.shard }}.xcresult" \
+            $ONLY || RC=$?
+          echo "---- crash reports ----"
+          find ~/Library/Logs/DiagnosticReports -name "Brows*" -mmin -10 2>/dev/null | head -5 | while read -r f; do echo "### $f"; head -80 "$f"; done
+          xcrun simctl spawn "$DEVICE" log show --last 3m --predicate 'process == "Brows"' > shard-sim.log || true
+          tail -60 shard-sim.log
+          exit $RC
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-shard-${{ matrix.shard }}
+          path: |
+            fixtures/server.log
+            ios/Brows/shard-sim.log
+            ios/Brows/shard-${{ matrix.shard }}.xcresult
+          if-no-files-found: ignore
+
+  # The focused-rerun path the suite already had: one method, no shards.
+  ui-test-single:
+    needs: build
+    if: ${{ github.event.inputs.only_test }}
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          ls /Applications | grep -i "^Xcode" || true
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Brows-testbuild
+          path: ios/Brows/build-test/Build/Products
+
+      - name: Serve fixtures
+        run: bash .github/ci/fixtures.sh
+
+      - name: Run one test
+        working-directory: ios/Brows
+        env:
+          ONLY_TEST: ${{ github.event.inputs.only_test }}
+        run: |
+          set -euo pipefail
+          XCTESTRUN=$(ls build-test/Build/Products/*.xctestrun | head -1)
+          echo "xctestrun: $XCTESTRUN"
+          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,re,sys;d=json.load(sys.stdin)['devices'];v=lambda k:tuple(map(int,re.search(r'iOS-(\d+)-(\d+)',k).groups())) if re.search(r'iOS-(\d+)-(\d+)',k) else (0,0);print(next(x['udid'] for k in sorted(d,key=v,reverse=True) for x in d[k] if 'iPhone' in x['name']))")
+          echo "device: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          echo "only: $ONLY_TEST"
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN" \
+            -destination "id=$DEVICE" \
+            -only-testing:"BrowsUITests/BrowsUITests/$ONLY_TEST"
