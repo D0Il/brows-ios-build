@@ -6,7 +6,13 @@ struct DownloadsSheet: View {
     @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Downloads") {
+                Button("Clear", role: .destructive) { model.clearDownloads() }
+                    .disabled(model.downloads.isEmpty)
+            } trailing: {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -25,19 +31,7 @@ struct DownloadsSheet: View {
                     }
                 }
             }
-            .navigationTitle("Downloads")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Clear", role: .destructive) { model.clearDownloads() }
-                        .disabled(model.downloads.isEmpty)
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 
     private func row(_ item: DownloadItem) -> some View {

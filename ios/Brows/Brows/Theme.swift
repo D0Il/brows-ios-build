@@ -253,6 +253,37 @@ struct BackdropBlur: UIViewRepresentable {
     }
 }
 
+/// A panel's own top bar. SwiftUI's NavigationView paints its hosting background,
+/// which is opaque, so a panel built on it can never be glass: the page behind it
+/// disappears. This carries the same title and controls on the panel's own surface.
+struct PanelBar<Leading: View, Trailing: View>: View {
+    let title: String
+    @ViewBuilder var leading: Leading
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        ZStack {
+            Text(title)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(Theme.panelInk)
+                .accessibilityIdentifier("panel.title")
+            HStack(spacing: 8) {
+                leading
+                Spacer(minLength: 0)
+                trailing
+            }
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 52)
+    }
+}
+
+extension PanelBar where Leading == EmptyView {
+    init(title: String, @ViewBuilder trailing: () -> Trailing) {
+        self.init(title: title, leading: { EmptyView() }, trailing: trailing)
+    }
+}
+
 /// toolbar_button.css: every rail control is a glass bubble with an 8px radius, a
 /// 1px `rgba(255,255,255,.30)` hairline, the `.18 → .035` lit gradient over
 /// `rgba(247,250,253,.025)`, plus the two insets and two soft drops. The desktop

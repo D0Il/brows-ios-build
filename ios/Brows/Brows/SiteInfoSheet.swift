@@ -7,7 +7,10 @@ struct SiteInfoSheet: View {
     @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Site information") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -72,16 +75,8 @@ struct SiteInfoSheet: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("Site information")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
             .onAppear { model.loadSiteInfo() }
         }
-        .navigationViewStyle(.stack)
     }
 
     private func header(_ info: SiteInfo) -> some View {

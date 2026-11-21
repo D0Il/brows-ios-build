@@ -14,6 +14,7 @@ struct BrowserView: View {
         content
             .environmentObject(model)
             .environment(\.panelDismiss, close)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea())
             .transition(.opacity)
             .zIndex(2)

@@ -16,7 +16,10 @@ struct PasswordsSheet: View {
     @State private var status: String?
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Passwords") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -34,18 +37,10 @@ struct PasswordsSheet: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("Passwords")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
             .sheet(isPresented: $showingImport) {
                 importSheet
             }
         }
-        .navigationViewStyle(.stack)
     }
 
     private var addForm: some View {

@@ -9,7 +9,10 @@ struct WorkspacesSheet: View {
     @State private var newName = ""
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Workspaces") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -46,15 +49,7 @@ struct WorkspacesSheet: View {
                 }
                 .padding(16)
             }
-            .navigationTitle("Workspaces")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 
     private func workspaceRow(_ workspace: Workspace) -> some View {
@@ -142,7 +137,10 @@ struct HistorySheet: View {
     }
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "History") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -190,20 +188,7 @@ struct HistorySheet: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .navigationTitle("History")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Clear", role: .destructive) { model.clearHistory() }
-                        .accessibilityIdentifier("history.clear")
-                        .disabled(model.history.isEmpty)
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 
     private func row(_ entry: HistoryEntry) -> some View {

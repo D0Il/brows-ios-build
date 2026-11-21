@@ -8,7 +8,10 @@ struct SettingsSheet: View {
     @State private var cleared = false
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Settings") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -82,15 +85,7 @@ struct SettingsSheet: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 
     /// `.settings-group` in `brows_surface.css`: a card of `rgba(plate,.59)`, a `.74` rim, radius 14,

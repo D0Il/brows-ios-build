@@ -46,27 +46,27 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10), "menu did not open")
 
         app.staticTexts["Site information"].tap()
-        XCTAssertTrue(app.navigationBars["Site information"].waitForExistence(timeout: 10), "site information panel missing")
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10), "site information panel missing")
         app.buttons["Done"].tap()
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "menu did not reopen")
         app.staticTexts["Downloads"].tap()
-        XCTAssertTrue(app.navigationBars["Downloads"].waitForExistence(timeout: 10), "downloads panel missing")
+        XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "downloads panel missing")
         app.buttons["Done"].tap()
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10), "menu did not reopen")
         app.staticTexts["Passwords"].tap()
-        XCTAssertTrue(app.navigationBars["Passwords"].waitForExistence(timeout: 10), "passwords panel missing")
+        XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10), "passwords panel missing")
         app.buttons["Done"].tap()
 
         app.buttons["rail.tabs"].tap()
-        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10), "tab gallery missing")
+        XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10), "tab gallery missing")
         app.buttons["Done"].tap()
 
         app.buttons["rail.workspace"].tap()
-        XCTAssertTrue(app.navigationBars["Workspaces"].waitForExistence(timeout: 10), "workspaces panel missing")
+        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10), "workspaces panel missing")
         app.buttons["Done"].tap()
 
         XCTAssertTrue(address.waitForExistence(timeout: 5), "rail did not come back")
@@ -111,7 +111,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
 
         app.buttons["rail.tabs"].tap()
-        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10))
         // With no private tab there is no leading toolbar control at all; an
         // opacity-0 button still painted an empty glass pill here on iOS 26.
         XCTAssertFalse(app.buttons["Close private"].exists, "empty leading toolbar control")
@@ -607,7 +607,7 @@ final class BrowsUITests: XCTestCase {
         )
 
         app.buttons["rail.siteInfo"].tap()
-        XCTAssertTrue(app.navigationBars["Site information"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
 
         let off = app.buttons["Turn off blocking on this site"]
         XCTAssertTrue(off.waitForExistence(timeout: 10), "no per-site blocking toggle")
@@ -626,10 +626,11 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
 
         app.buttons["rail.tabs"].tap()
-        XCTAssertTrue(app.navigationBars["Tabs"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10))
         app.buttons["tab.add"].tap()
 
-        app.buttons["rail.tabs"].tap()
+        // The gallery stays open on the tab it just added, so the count updates in
+        // place; reopening it is not part of this assertion any more.
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10))
         let closes = app.buttons.matching(identifier: "tab.close")
         XCTAssertTrue(closes.firstMatch.waitForExistence(timeout: 10))
@@ -644,7 +645,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
 
         app.buttons["rail.workspace"].tap()
-        XCTAssertTrue(app.navigationBars["Workspaces"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -1199,7 +1200,7 @@ final class BrowsUITests: XCTestCase {
     func testWorkspaceDelete() {
         let app = makeApp()
         app.buttons["rail.workspace"].tap()
-        XCTAssertTrue(app.navigationBars["Workspaces"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -1227,7 +1228,7 @@ final class BrowsUITests: XCTestCase {
         let settingsRow = app.staticTexts["Settings"]
         XCTAssertTrue(settingsRow.waitForExistence(timeout: 10), "Settings row missing")
         settingsRow.tap()
-        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Settings"].waitForExistence(timeout: 10))
 
         let toggle = app.switches["settings.addressBarBottom"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 10), "bar-position switch missing")

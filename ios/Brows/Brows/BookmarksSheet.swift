@@ -5,7 +5,10 @@ struct BookmarksSheet: View {
     @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Bookmarks") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -46,14 +49,6 @@ struct BookmarksSheet: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle("Bookmarks")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 }

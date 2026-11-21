@@ -8,7 +8,10 @@ struct ExtensionsSheet: View {
     @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Extensions") {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -52,14 +55,6 @@ struct ExtensionsSheet: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("Extensions")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 }

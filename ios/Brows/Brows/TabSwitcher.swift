@@ -13,7 +13,14 @@ struct TabSwitcher: View {
     private var results: [Tab] { model.rankedTabs(query) }
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            PanelBar(title: "Tabs") {
+                if model.tabs.contains(where: { $0.isPrivate }) {
+                    Button("Close private") { model.closeAllPrivate() }
+                }
+            } trailing: {
+                Button("Done") { dismiss() }
+            }
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
@@ -90,23 +97,7 @@ struct TabSwitcher: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .navigationTitle("Tabs")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarLeading) {
-                    // Add nothing when there is no private tab: an opacity-0 button
-                    // still paints its glass capsule on iOS 26, which showed as an
-                    // empty pill at the top-left of this sheet.
-                    if model.tabs.contains(where: { $0.isPrivate }) {
-                        Button("Close private") { model.closeAllPrivate() }
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
-        .navigationViewStyle(.stack)
     }
 
     private func tabCard(_ tab: Tab) -> some View {
@@ -200,8 +191,9 @@ struct TabSwitcher: View {
 
     private var addCard: some View {
         Button {
+            // The gallery stays open on the new tab, as the desktop's tab surface
+            // does: you are choosing among tabs, and the new one is now one of them.
             model.newTab()
-            dismiss()
         } label: {
             VStack(spacing: 6) {
                 Image(systemName: "plus")
