@@ -19,13 +19,11 @@ struct BrowserView: View {
             .environmentObject(model)
             .environment(\.panelDismiss, close)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            // A full-screen Liquid Glass layer is far too heavy for a panel and
-            // delayed the popup and notice flows (shards 2 and 3, run 44947410477);
-            // the panel keeps the app's own pane, the dock and pill keep Apple's.
-            .background(
-                GlassPane(cornerRadius: 0, plate: true, backdrop: model.panelBackdrop)
-                    .ignoresSafeArea()
-            )
+            // Apple's guidance: the effect is drawn behind the view's content, and
+            // glass never samples glass — so the panel is one glass surface with
+            // tinted rows on it, not a pane stacked under other glass.
+            .browsGlass(cornerRadius: 0)
+            .ignoresSafeArea()
             // The app has no iOS-blue accent: Done and every other control in a
             // panel uses the desktop's ink, never the system tint.
             .tint(Theme.panelInk)
@@ -339,7 +337,12 @@ struct BottomRail: View {
             // Glass, not a white plate: nothing in this rail may paint a white
             // slab over the page. The pane is a background layer, so it never sees
             // the field's taps; focusing the field only brightens the rim.
-            .background(GlassPane(cornerRadius: Theme.pillRadius))
+            // No glass of its own: the pill is a tint and hairline on the dock's
+            // glass. A second glass layer here would have to sample the first.
+            .background(
+                RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
+                    .fill(model.isEditingAddress ? Theme.pillFocusWash : Theme.pillWash)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                     .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
@@ -408,13 +411,10 @@ struct BottomRail: View {
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
-        // The app's pane, not `glassEffect`: every run with the system glass under
-        // these controls lost their taps (typing focus, a menu that never opened —
-        // runs 44928536766, 44940653563, 44949151192). The pane is the proven layer.
-        .background(
-            GlassPane(cornerRadius: 28)
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        )
+        // One Liquid Glass surface for the whole dock. The effect sits behind the
+        // row's content, which is the documented placement, and no other glass is
+        // nested inside it (glass cannot sample glass).
+        .browsGlass(cornerRadius: 28)
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
