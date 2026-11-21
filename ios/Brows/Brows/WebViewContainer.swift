@@ -93,6 +93,7 @@ struct WebViewContainer: UIViewRepresentable {
             model?.didFinishHTTPAuth(url: webView.url, tabId: tabId)
             model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
             samplePageBackground(webView)
+            model?.pageDidRender()
         }
 
         /// Basic and Digest challenges belong to the browser: the model answers from

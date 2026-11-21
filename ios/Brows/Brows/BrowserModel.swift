@@ -433,7 +433,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     private func presentLaunchSheet(_ name: String) {
         // Present after the first layout so the sheet is not dropped by the
         // presentation system during launch.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
             guard let self else { return }
             switch name {
             case "menu": self.showingMenu = true
@@ -523,6 +523,29 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         PanelBackdrop.capture(webViews[tab.id]) { [weak self] image in
             guard let self, let image else { return }
             self.panelBackdrop = image
+        }
+    }
+
+    /// True while any popup is on screen. A page that finishes after its panel
+    /// opened must re-snapshot: the panel's `.onAppear` capture happens before the
+    /// first paint, so a launch-hook sheet photographed the New Tab wallpaper and
+    /// kept that gradient behind its glass for the rest of the session.
+    var hasOpenPanel: Bool {
+        showingTabSwitcher || showingBookmarks || showingHistory || showingMenu
+            || showingWorkspaces || showingSiteInfo || showingDownloads
+            || showingPasswords || showingExtensions || showingSettings
+            || isEditingAddress || pendingScriptDialog != nil
+            || pendingLinkNotice != nil || pendingHTTPAuth != nil
+            || pendingCredential != nil || pageNotice != nil
+    }
+
+    /// Called when a page has finished loading. The snapshot is retaken only with a
+    /// panel up, and a beat later so WebKit has painted the frame it will hand back.
+    func pageDidRender() {
+        guard hasOpenPanel else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+            guard let self, self.hasOpenPanel else { return }
+            self.refreshPanelBackdrop()
         }
     }
     var addressBarBottom: Bool { settings.addressBarBottom }
