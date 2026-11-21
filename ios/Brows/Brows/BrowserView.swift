@@ -420,10 +420,13 @@ struct BottomRail: View {
         // the page keeps running underneath it and into the home-indicator inset.
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        // Glass as a sibling layer, not on the container: `.glassEffect` under a
-        // control takes that control's tap, and here it swallowed the pill field
-        // ("neither element nor any descendant has keyboard focus", run 44928536766).
-        .background(GlassLayer(cornerRadius: 28))
+        // GlassPane, not `.glassEffect`: the system glass layer under these controls
+        // swallowed the pill's focus (no keyboard, run 44930532421), which is the
+        // same failure the menu buttons hit — glass never sits on or under a control.
+        .background(
+            GlassPane(cornerRadius: 28)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        )
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
