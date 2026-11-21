@@ -67,7 +67,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10), "menu did not reopen")
-        app.staticTexts["Workspaces"].firstMatch.tap()
+        app.buttons["menu.workspaces"].tap()
         XCTAssertTrue(app.staticTexts["CURRENT"].waitForExistence(timeout: 10), "workspaces panel missing")
         app.buttons["Done"].tap()
 
@@ -647,8 +647,8 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
 
         app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
-        app.staticTexts["Workspaces"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["menu.workspaces"].waitForExistence(timeout: 10), "menu did not open")
+        app.buttons["menu.workspaces"].tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -663,8 +663,8 @@ final class BrowsUITests: XCTestCase {
         // No workspace button in the dock any more: the switch is shown where
         // workspaces live, by the row that now reads CURRENT.
         app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
-        app.staticTexts["Workspaces"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["menu.workspaces"].waitForExistence(timeout: 10), "menu did not open")
+        app.buttons["menu.workspaces"].tap()
 
         let workRow = app.buttons.matching(identifier: "workspace.row.WO").firstMatch
         XCTAssertTrue(workRow.waitForExistence(timeout: 10), "workspace row missing")
@@ -1231,8 +1231,8 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/login.html", in: app)
 
         app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Bookmarks"].waitForExistence(timeout: 10), "menu did not open")
-        app.staticTexts["Bookmarks"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["menu.bookmarks"].waitForExistence(timeout: 10), "menu did not open")
+        app.buttons["menu.bookmarks"].tap()
         let row = app.buttons.matching(identifier: "bookmark.row").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 10), "bookmark row missing from the sheet")
         row.tap()
@@ -1247,8 +1247,8 @@ final class BrowsUITests: XCTestCase {
     func testWorkspaceDelete() {
         let app = makeApp()
         app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
-        app.staticTexts["Workspaces"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["menu.workspaces"].waitForExistence(timeout: 10), "menu did not open")
+        app.buttons["menu.workspaces"].tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))

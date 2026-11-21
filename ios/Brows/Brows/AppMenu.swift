@@ -83,21 +83,24 @@ struct AppMenu: View {
     }
 
     private func row(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol)
-                .font(.system(size: 15))
-                .foregroundColor(Theme.panelMuted)
-                .frame(width: 22)
-            Text(title)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundColor(Theme.panelInk)
-            Spacer(minLength: 0)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
+        Button {
             action()
             dismiss()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: symbol)
+                    .font(.system(size: 15))
+                    .foregroundColor(Theme.panelMuted)
+                    .frame(width: 22)
+                Text(title)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Theme.panelInk)
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("menu." + title.lowercased().replacingOccurrences(of: " ", with: "-"))
         .listRowBackground(Color.clear)
     }
 }

@@ -19,9 +19,13 @@ struct BrowserView: View {
             .environmentObject(model)
             .environment(\.panelDismiss, close)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            // The platform's own glass, full-bleed: the sheet surface is the
-            // same Liquid Glass the dock uses, not a material slab.
-            .background(Color.clear.browsGlass(cornerRadius: 0).allowsHitTesting(false).ignoresSafeArea())
+            // A full-screen Liquid Glass layer is far too heavy for a panel and
+            // delayed the popup and notice flows (shards 2 and 3, run 44947410477);
+            // the panel keeps the app's own pane, the dock and pill keep Apple's.
+            .background(
+                GlassPane(cornerRadius: 0, plate: true, backdrop: model.panelBackdrop)
+                    .ignoresSafeArea()
+            )
             // The app has no iOS-blue accent: Done and every other control in a
             // panel uses the desktop's ink, never the system tint.
             .tint(Theme.panelInk)
@@ -400,11 +404,6 @@ struct BottomRail: View {
         .animation(.snappy(duration: 0.22), value: canBack)
         .animation(.snappy(duration: 0.22), value: model.tabs.count)
         .animation(.snappy(duration: 0.18), value: model.isEditingAddress)
-        // The glass can only show the page if it has a picture of it: refresh the
-        // snapshot when the dock appears and whenever the page under it changes.
-        .onAppear { model.refreshPanelBackdrop() }
-        .onChange(of: model.activeTabId) { _ in model.refreshPanelBackdrop() }
-        .onChange(of: model.activeTab?.isLoading) { _ in model.refreshPanelBackdrop() }
         // One floating capsule over the page: the page keeps running underneath it
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
