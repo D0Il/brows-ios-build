@@ -455,9 +455,12 @@ struct BottomRail: View {
 
     @ViewBuilder private var completions: some View {
         if model.isEditingAddress && !model.suggestions.isEmpty {
-            AddressSuggestionsPanel()
-                .environmentObject(model)
-                .frame(height: CGFloat(model.suggestions.count) * 52 + 8)
+            let shift = CGFloat(model.suggestions.count) * 52 + 16
+            AddressSuggestionsPanel(
+                backdropOffset: CGSize(width: 0, height: model.settings.addressBarBottom ? -shift : shift)
+            )
+            .environmentObject(model)
+            .frame(height: CGFloat(model.suggestions.count) * 52 + 8)
         }
     }
 

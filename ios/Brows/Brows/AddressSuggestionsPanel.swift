@@ -5,12 +5,14 @@ import SwiftUI
 /// per page, the title in ink and the host muted underneath.
 struct AddressSuggestionsPanel: View {
     @EnvironmentObject var model: BrowserModel
+    /// The rail's offset for this panel; see `GlassPane.backdropOffset`.
+    var backdropOffset: CGSize = .zero
 
     var body: some View {
         ZStack {
             // The desktop's row popup is a glass plate over the page, like every
             // other popup: the page behind it is blurred, never legible.
-            GlassPane(cornerRadius: 16, plate: true, backdrop: model.panelBackdrop)
+            GlassPane(cornerRadius: 16, plate: true, backdrop: model.panelBackdrop, backdropOffset: backdropOffset)
             VStack(spacing: 0) {
             ForEach(Array(model.suggestions.enumerated()), id: \.element.id) { index, suggestion in
                 Button {

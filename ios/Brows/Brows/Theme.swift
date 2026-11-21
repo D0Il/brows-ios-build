@@ -194,6 +194,10 @@ struct GlassPane: View {
     /// must be given this: `BackdropBlur` cannot sample a WKWebView, so with no
     /// snapshot the pane falls back to a flat material and reads as a slab again.
     var backdrop: UIImage? = nil
+    /// A pane placed by an overlay's `offset` reports the frame it had before that
+    /// offset, so the glass would crop the page from where the pane is not. The
+    /// owner passes the same offset here and it is added to the crop's origin.
+    var backdropOffset: CGSize = .zero
 
     private var tint: Color { plate ? Theme.plateBase : Theme.railBase }
     private var tintAlpha: Double { plate ? 0.62 : Theme.railBaseAlpha }
@@ -249,7 +253,8 @@ struct GlassPane: View {
             // by an overlay offset — the page ended up squeezed into the card, and
             // every line averaged into one flat wash (captures suggest-dark and
             // pill-dark, run 44896216566). A crop cannot be re-laid-out by a parent.
-            if let cropped = PanelBackdrop.crop(backdrop, to: geo.frame(in: .global)) {
+            let frame = geo.frame(in: .global).offsetBy(dx: backdropOffset.width, dy: backdropOffset.height)
+            if let cropped = PanelBackdrop.crop(backdrop, to: frame) {
                 Image(uiImage: cropped)
                     .resizable()
                     .frame(width: geo.size.width, height: geo.size.height)
