@@ -245,26 +245,13 @@ jobs:
           echo "shard ${{ matrix.shard }} methods:"
           printf '%s\n' $ONLY
           echo "device: $DEVICE"
-          T0=$(date -u +%s)
           xcrun simctl bootstatus "$DEVICE" -b
-          echo "boot ready after $(( $(date -u +%s) - T0 ))s"
-          # xcodebuild installs the app and the XCTest runner into the simulator
-          # during prepare, and that window is minutes on a cold runner. Install
-          # the same bundles first so prepare has nothing left to copy.
-          PROD=build-test/Build/Products/Debug-iphonesimulator
-          for BUNDLE in Brows.app BrowsUITests-Runner.app; do
-            S=$(date -u +%s)
-            xcrun simctl install "$DEVICE" "$PROD/$BUNDLE" || echo "preinstall $BUNDLE rc=$?"
-            echo "preinstalled $BUNDLE in $(( $(date -u +%s) - S ))s"
-          done
           RC=0
-          echo "xcodebuild start $(date -u +%H:%M:%S)"
           xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN" \
             -destination "id=$DEVICE" \
             -resultBundlePath "shard-${{ matrix.shard }}.xcresult" \
             $ONLY || RC=$?
-          echo "xcodebuild end $(date -u +%H:%M:%S) rc=$RC"
           echo "---- crash reports ----"
           find ~/Library/Logs/DiagnosticReports -name "Brows*" -mmin -10 2>/dev/null | head -5 | while read -r f; do echo "### $f"; head -80 "$f"; done
           xcrun simctl spawn "$DEVICE" log show --last 3m --predicate 'process == "Brows"' > shard-sim.log || true
