@@ -67,7 +67,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10), "menu did not reopen")
-        app.staticTexts["Workspaces"].tap()
+        app.staticTexts["Workspaces"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["CURRENT"].waitForExistence(timeout: 10), "workspaces panel missing")
         app.buttons["Done"].tap()
 
@@ -648,7 +648,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
-        app.staticTexts["Workspaces"].tap()
+        app.staticTexts["Workspaces"].firstMatch.tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -664,7 +664,7 @@ final class BrowsUITests: XCTestCase {
         // workspaces live, by the row that now reads CURRENT.
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
-        app.staticTexts["Workspaces"].tap()
+        app.staticTexts["Workspaces"].firstMatch.tap()
 
         let workRow = app.buttons["workspace.row.WO"]
         XCTAssertTrue(workRow.waitForExistence(timeout: 10), "workspace row missing")
@@ -1232,7 +1232,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Bookmarks"].waitForExistence(timeout: 10), "menu did not open")
-        app.staticTexts["Bookmarks"].tap()
+        app.staticTexts["Bookmarks"].firstMatch.tap()
         let row = app.buttons.matching(identifier: "bookmark.row").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 10), "bookmark row missing from the sheet")
         row.tap()
@@ -1248,7 +1248,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
-        app.staticTexts["Workspaces"].tap()
+        app.staticTexts["Workspaces"].firstMatch.tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
