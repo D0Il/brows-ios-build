@@ -339,7 +339,7 @@ struct BottomRail: View {
             // Glass, not a white plate: nothing in this rail may paint a white
             // slab over the page. The pane is a background layer, so it never sees
             // the field's taps; focusing the field only brightens the rim.
-            .background(Color.clear.browsGlass(cornerRadius: Theme.pillRadius).allowsHitTesting(false))
+            .background(GlassPane(cornerRadius: Theme.pillRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                     .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
@@ -408,10 +408,13 @@ struct BottomRail: View {
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
-        // Apple's own Liquid Glass. The dock is the floating element `glassEffect`
-        // exists for, so the system draws it; the earlier focus failures were the
-        // row's width budget squeezing the field, not the glass.
-        .background(Color.clear.browsGlass(cornerRadius: 28).allowsHitTesting(false))
+        // The app's pane, not `glassEffect`: every run with the system glass under
+        // these controls lost their taps (typing focus, a menu that never opened —
+        // runs 44928536766, 44940653563, 44949151192). The pane is the proven layer.
+        .background(
+            GlassPane(cornerRadius: 28)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        )
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
