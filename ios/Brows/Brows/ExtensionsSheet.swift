@@ -1,15 +1,16 @@
 import SwiftUI
 
-/// Extensions. iOS is WebKit-only (App Store 2.5.6), so Chromium extensions cannot
-/// run here; the phone's equivalent is WebKit content blockers. The panel says
-/// exactly that instead of pretending an extension store exists.
+/// Content blockers. iOS is WebKit-only (App Store 2.5.6), so Chromium extensions
+/// cannot run here; the phone's equivalent is WebKit content blockers. The panel is
+/// named for the blocker and says exactly that, instead of pretending an extension
+/// store exists.
 struct ExtensionsSheet: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
-            PanelBar(title: "Extensions") {
+            PanelBar(title: "Content blockers") {
                 Button("Done") { dismiss() }
             }
             ZStack {

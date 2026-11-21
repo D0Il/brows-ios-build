@@ -22,7 +22,10 @@ struct AppMenu: View {
                         row("History", "clock") { model.pendingPanel = .history }
                         row("Downloads", "arrow.down.circle") { model.pendingPanel = .downloads }
                         row("Passwords", "key") { model.pendingPanel = .passwords }
-                        row("Extensions", "puzzlepiece") { model.pendingPanel = .extensions }
+                        // No puzzle piece and no "Extensions" row: iOS is WebKit-only (App Store
+                        // 2.5.6), so a row that implies installable extensions would be fake chrome.
+                        // The row names what the phone actually has.
+                        row("Content blockers", "shield.lefthalf.filled") { model.pendingPanel = .extensions }
                         row("Workspaces", "square.grid.2x2") { model.pendingPanel = .workspaces }
                         row("Settings", "gear") { model.pendingPanel = .settings }
                     }
