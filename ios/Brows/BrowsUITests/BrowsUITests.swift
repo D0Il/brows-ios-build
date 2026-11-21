@@ -712,7 +712,21 @@ final class BrowsUITests: XCTestCase {
             XCTAssertGreaterThanOrEqual(control.frame.width, 44, "dock target under 44 pt")
         }
 
-        // And it is live: reloading keeps the same page.
+        // The star hides while the address is being typed, so the keyboard gets
+        // the whole pill, and comes back when editing ends.
+        let star = app.buttons["rail.star"]
+        XCTAssertTrue(star.waitForExistence(timeout: 10), "star missing from the pill")
+        field.tap()
+        let typing = Date().addingTimeInterval(6)
+        var hidden = false
+        while Date() < typing {
+            hidden = !app.buttons["rail.star"].exists
+            if hidden { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertTrue(hidden, "star still sits in the pill while typing")
+
+        // And reload is live: reloading keeps the same page.
         reload.tap()
         XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20), "reload left the page")
     }

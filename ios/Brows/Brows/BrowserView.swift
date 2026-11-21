@@ -5,7 +5,7 @@ struct BrowserView: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.scenePhase) private var scenePhase
 
-    private var compactRail: Bool { UIScreen.main.bounds.width < 430 }
+
 
     /// A desktop-style popup: the panel itself, over the page, with the close
     /// action its Done button and rows call.
@@ -40,11 +40,11 @@ struct BrowserView: View {
             VStack(spacing: 0) {
                 TopStrip()
                 if !model.settings.addressBarBottom {
-                    BottomRail(compact: compactRail)
+                    BottomRail()
                 }
                 Spacer(minLength: 0)
                 if model.settings.addressBarBottom {
-                    BottomRail(compact: compactRail)
+                    BottomRail()
                 }
             }
 
@@ -248,8 +248,6 @@ struct TopStrip: View {
 /// breathe, and the page runs under the capsule into the home-indicator inset.
 struct BottomRail: View {
     @EnvironmentObject var model: BrowserModel
-    var compact: Bool = false
-
     private var canBack: Bool { model.activeTab?.canGoBack == true }
     private var canForward: Bool { model.activeTab?.canGoForward == true }
 
@@ -307,16 +305,24 @@ struct BottomRail: View {
                 .accessibilityLabel(model.activeTab?.isLoading == true ? "Stop" : "Reload")
                 .accessibilityIdentifier("rail.reload")
 
-                Button {
-                    model.toggleBookmark()
-                } label: {
-                    Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.plateInk)
+                // The star yields the pill to the keyboard: while the address is being
+                // typed the field takes the star's width, and the star comes back when
+                // editing ends. Nothing else in the dock hides.
+                if !model.isEditingAddress {
+                    Button {
+                        model.toggleBookmark()
+                    } label: {
+                        Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Theme.plateInk)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 34, height: 40)
+                    .contentShape(Rectangle())
+                    .accessibilityIdentifier("rail.star")
+                    .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
+                    .transition(.opacity)
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("rail.star")
-                .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
             }
             .padding(.horizontal, 12)
             .frame(height: 40)
@@ -409,6 +415,7 @@ struct BottomRail: View {
         // instead of popping, the way a system bar does.
         .animation(.snappy(duration: 0.22), value: canBack)
         .animation(.snappy(duration: 0.22), value: model.tabs.count)
+        .animation(.snappy(duration: 0.18), value: model.isEditingAddress)
         // One floating capsule over the page: the page keeps running underneath it
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
