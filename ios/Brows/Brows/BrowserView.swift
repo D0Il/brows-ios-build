@@ -415,29 +415,14 @@ struct BottomRail: View {
             .buttonStyle(GlassCircleButtonStyle())
             .accessibilityIdentifier("rail.menu")
         }
-        .padding(.horizontal, 8)
-        .padding(.top, 8)
-        .padding(.bottom, 4)
-        .background(GlassPane().ignoresSafeArea(edges: model.settings.addressBarBottom ? .bottom : .top))
-        // app.css: the band's own `border-top: 1px rgba(72,84,102,.07)` and
-        // `inset 0 -1px 0 rgba(67,78,96,.14)` edge the glass without filling it.
-        // Only the edge that faces the page is drawn. The plate runs on through the
-        // home-indicator inset, and a bottom hairline at the content's lower edge
-        // cut that inset off into what read as an empty strip under the dock.
-        .overlay(alignment: .top) {
-            if model.settings.addressBarBottom {
-                Rectangle()
-                    .fill(Color(red: 72 / 255, green: 84 / 255, blue: 102 / 255).opacity(0.07))
-                    .frame(height: 1)
-            }
-        }
-        .overlay(alignment: .bottom) {
-            if !model.settings.addressBarBottom {
-                Rectangle()
-                    .fill(Color(red: 67 / 255, green: 78 / 255, blue: 96 / 255).opacity(0.14))
-                    .frame(height: 1)
-            }
-        }
+        // The dock is a floating glass pill over the page, not a full-width band:
+        // the controls keep the desktop order inside one continuous capsule, and
+        // the page keeps running underneath it and into the home-indicator inset.
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .browsGlass(cornerRadius: 28)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
         // their own height. An overlay is drawn on top and is not squeezed by the
         // page's stack, which is what had put the last row under the glass.
