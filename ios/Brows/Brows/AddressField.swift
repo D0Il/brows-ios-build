@@ -1,10 +1,17 @@
 import SwiftUI
 import UIKit
 
-/// The address pill's editor. SwiftUI's TextField cannot select all on focus and
-/// places the caret wherever the tap landed, so a second edit concatenated the new
-/// URL onto the old one. UITextField gives us that control: every tap selects the
-/// whole current URL, so the next keystroke replaces it.
+/// The address pill's editor. SwiftUI's TextField cannot replace the whole value on
+/// focus and places the caret wherever the tap landed, so a second edit concatenated
+/// the new URL onto the old one. UITextField gives us that control: every tap arms
+/// the whole current URL for replacement, so the next keystroke replaces it.
+///
+/// The pill does not hold a visible select-all, unlike a bare selectAll(nil): UIKit
+/// draws drag handles above and below the selection, and on a 40 pt pill those
+/// handles hang outside the plate, while the end-of-selection scroll hides the host
+/// at the left edge. The desktop omnibox puts its caret at the start of the URL on
+/// focus; this does the same, keeps the host legible inside the pill, and shows only
+/// a caret — the whole value still goes on the first keystroke.
 struct AddressField: UIViewRepresentable {
     @Binding var text: String
     var onSubmit: (String) -> Void
@@ -73,6 +80,9 @@ struct AddressField: UIViewRepresentable {
     final class Coordinator: NSObject, UITextFieldDelegate {
         var parent: AddressField
         weak var field: UITextField?
+        /// The next keystroke replaces the URL, the effect the desktop omnibox gets
+        /// from its select-all, without iOS's out-of-pill selection handles.
+        private var replacesWholeValue = false
 
         init(_ parent: AddressField) {
             self.parent = parent
@@ -86,7 +96,29 @@ struct AddressField: UIViewRepresentable {
             if !field.isFirstResponder {
                 field.becomeFirstResponder()
             }
-            field.selectAll(nil)
+            armReplacement(in: field)
+        }
+
+        /// Caret at the head of the URL, whole value armed for the next keystroke.
+        /// No selected range, so UIKit draws a caret and no drag handles.
+        private func armReplacement(in field: UITextField) {
+            let start = field.beginningOfDocument
+            field.selectedTextRange = field.textRange(from: start, to: start)
+            replacesWholeValue = true
+        }
+
+        func textField(_ textField: UITextField,
+                       shouldChangeCharactersIn range: NSRange,
+                       replacementString string: String) -> Bool {
+            guard replacesWholeValue else { return true }
+            replacesWholeValue = false
+            // Backspace on an armed field clears it, as a selected-all field would.
+            let replacement = string
+            textField.text = replacement
+            parent.text = replacement
+            let end = textField.endOfDocument
+            textField.selectedTextRange = textField.textRange(from: end, to: end)
+            return false
         }
 
         @objc func editingChanged(_ field: UITextField) {
@@ -96,11 +128,12 @@ struct AddressField: UIViewRepresentable {
         func textFieldDidBeginEditing(_ textField: UITextField) {
             parent.onFocus()
             DispatchQueue.main.async {
-                textField.selectAll(nil)
+                self.armReplacement(in: textField)
             }
         }
 
         func textFieldDidEndEditing(_ textField: UITextField) {
+            replacesWholeValue = false
             parent.onBlur()
         }
 
