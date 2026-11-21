@@ -265,10 +265,21 @@ struct GlassPane: View {
 /// 44866110895, a dark popup was a uniform 82 across the whole screen — the
 /// article behind it, the white pill and the rail all left no trace — which is
 /// the flat slab the desktop's backdrop-filter never produces. So the same
-/// operation is done here on a snapshot: `--glass-blur: 28px` with
+/// operation is done here on a snapshot: the blur and the
 /// `saturate(165%) brightness(1.055)` from `webui.css:804`.
 enum PanelBackdrop {
     private static let context = CIContext(options: [.useSoftwareRenderer: false])
+
+    /// `webui.css:804` is `--glass-blur: 28px` on the desktop. Taken literally on a
+    /// 402 pt phone it is 7% of the viewport instead of the desktop's 2.2% of a
+    /// 1280 px window, and it wipes the page to a flat wash: run 44873932003's
+    /// downloads-dark measured 114 with a standard deviation of 1.5 across the whole
+    /// pane, so the headline and paragraphs behind it vanished and the glass read as
+    /// the slab the user rejected. The desktop's share of the viewport is what makes
+    /// a pane look see-through, so the radius keeps that share: 28 × 402/1280 ≈ 9 pt.
+    /// At 9 pt the article's heading and paragraph blocks read through the plate
+    /// while its text stays unreadable, which is what the desktop recipe does.
+    private static let blurPoints: Double = 9
 
     /// Snapshot the page and hand back its blurred image on the main queue.
     static func capture(_ webView: WKWebView?, completion: @escaping (UIImage?) -> Void) {
@@ -290,7 +301,7 @@ enum PanelBackdrop {
         let scale = Double(cg.width) / Double(max(image.size.width, 1))
         guard let blurred = CIFilter(name: "CIGaussianBlur", parameters: [
             kCIInputImageKey: source.clampedToExtent(),
-            kCIInputRadiusKey: 28 * scale
+            kCIInputRadiusKey: blurPoints * scale
         ])?.outputImage else { return nil }
         let adjusted = blurred
             .applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 1.65])
