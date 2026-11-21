@@ -420,7 +420,10 @@ struct BottomRail: View {
         // the page keeps running underneath it and into the home-indicator inset.
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .browsGlass(cornerRadius: 28)
+        // Glass as a sibling layer, not on the container: `.glassEffect` under a
+        // control takes that control's tap, and here it swallowed the pill field
+        // ("neither element nor any descendant has keyboard focus", run 44928536766).
+        .background(GlassLayer(cornerRadius: 28))
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
