@@ -275,11 +275,14 @@ enum PanelBackdrop {
     /// 1280 px window, and it wipes the page to a flat wash: run 44873932003's
     /// downloads-dark measured 114 with a standard deviation of 1.5 across the whole
     /// pane, so the headline and paragraphs behind it vanished and the glass read as
-    /// the slab the user rejected. The desktop's share of the viewport is what makes
-    /// a pane look see-through, so the radius keeps that share: 28 × 402/1280 ≈ 9 pt.
-    /// At 9 pt the article's heading and paragraph blocks read through the plate
-    /// while its text stays unreadable, which is what the desktop recipe does.
-    private static let blurPoints: Double = 9
+    /// the slab the user rejected. Keeping only the desktop's share of the viewport
+    /// (28 × 402/1280 ≈ 9 pt) still left a 1.8 standard deviation on run 44881986234:
+    /// the page's blocks were gone and the pane was a slab with a little transparency
+    /// again. What matters on a phone is the page still being visible under the
+    /// plate, so the radius is the largest one that leaves the article's structure
+    /// readable through the glass: 6 pt. At 4 pt the body text itself becomes
+    /// legible through the plate, which is a window, not glass.
+    private static let blurPoints: Double = 6
 
     /// Snapshot the page and hand back its blurred image on the main queue.
     static func capture(_ webView: WKWebView?, completion: @escaping (UIImage?) -> Void) {
