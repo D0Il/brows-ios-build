@@ -305,6 +305,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var showingExtensions = false
     @Published var showingSettings = false
     @Published var showingFind = false
+    /// The page as the popups' glass sees it. `UIVisualEffectView` cannot sample a
+    /// WKWebView, so a pane over the page gets this blurred snapshot instead.
+    @Published var panelBackdrop: UIImage?
 
     private var webViews: [UUID: WKWebView] = [:]
     private var cancelHandlers: [UUID: () -> Void] = [:]
@@ -450,6 +453,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
                 )
             case "suggest":
                 self.isEditingAddress = true
+                self.refreshPanelBackdrop()
                 self.addressText = "shape"
                 self.suggestions = [
                     AddressSuggestion(
@@ -510,6 +514,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func existingWebView(for id: UUID) -> WKWebView? { webViews[id] }
+
+    /// Refresh the blurred page behind the popups. Called as a panel opens, so the
+    /// snapshot is the page as the user left it. The snapshot is asynchronous; the
+    /// pane redraws when it lands and keeps the material until then.
+    func refreshPanelBackdrop() {
+        guard let tab = activeTab else { return }
+        PanelBackdrop.capture(webViews[tab.id]) { [weak self] image in
+            guard let self, let image else { return }
+            self.panelBackdrop = image
+        }
+    }
     var addressBarBottom: Bool { settings.addressBarBottom }
     var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1"

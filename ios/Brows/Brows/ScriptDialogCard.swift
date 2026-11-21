@@ -20,6 +20,7 @@ struct ScriptDialogCard: View {
             Color.black.opacity(0.16).ignoresSafeArea()
             card.offset(y: -48)
         }
+        .onAppear { model.refreshPanelBackdrop() }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("dialog.card")
@@ -31,7 +32,7 @@ struct ScriptDialogCard: View {
             // page behind it is still the backdrop. A plain fill reads as a slab and
             // an empty glassEffect renders nothing, letting the article's lines
             // through unblurred (captures notice-light, dialog-light, linknotice-light).
-            GlassPane(cornerRadius: 18, plate: true)
+            GlassPane(cornerRadius: 18, plate: true, backdrop: model.panelBackdrop)
         VStack(alignment: .leading, spacing: 14) {
             // The page's host, in the same muted line the credential card uses, so
             // a dialog is always attributable to the site that raised it.

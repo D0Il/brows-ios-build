@@ -19,9 +19,13 @@ struct BrowserView: View {
             .environmentObject(model)
             .environment(\.panelDismiss, close)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea())
+            .background(
+                GlassPane(cornerRadius: 0, plate: true, backdrop: model.panelBackdrop)
+                    .ignoresSafeArea()
+            )
             .transition(.opacity)
             .zIndex(2)
+            .onAppear { model.refreshPanelBackdrop() }
     }
 
     var body: some View {
@@ -290,7 +294,10 @@ struct BottomRail: View {
                         model.isEditingAddress = false
                         model.navigate(to: input)
                     },
-                    onFocus: { model.isEditingAddress = true },
+                    onFocus: {
+                        model.isEditingAddress = true
+                        model.refreshPanelBackdrop()
+                    },
                     onBlur: { model.isEditingAddress = false },
                     autoFocus: model.focusPillOnLaunch
                 )

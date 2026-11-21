@@ -12,6 +12,7 @@ struct CredentialSaveOverlay: View {
             Color.black.opacity(0.16).ignoresSafeArea()
             card
         }
+        .onAppear { model.refreshPanelBackdrop() }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("credential.save")
     }
@@ -20,7 +21,7 @@ struct CredentialSaveOverlay: View {
         ZStack {
             // The desktop's auth prompt is a solid plate; the glass card let the page's
             // own text sit behind the fields and the Sign in label.
-            GlassPane(cornerRadius: 18, plate: true)
+            GlassPane(cornerRadius: 18, plate: true, backdrop: model.panelBackdrop)
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Save password?")
@@ -121,6 +122,7 @@ struct HTTPAuthCard: View {
             Color.black.opacity(0.16).ignoresSafeArea()
             card.offset(y: -48)
         }
+        .onAppear { model.refreshPanelBackdrop() }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("auth.card")
@@ -130,7 +132,7 @@ struct HTTPAuthCard: View {
         ZStack {
             // The desktop's auth prompt is a solid plate; the glass card let the page's
             // own text sit behind the fields and the Sign in label.
-            GlassPane(cornerRadius: 18, plate: true)
+            GlassPane(cornerRadius: 18, plate: true, backdrop: model.panelBackdrop)
             VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(auth.host)

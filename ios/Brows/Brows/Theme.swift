@@ -1,5 +1,7 @@
 import SwiftUI
 import UIKit
+import WebKit
+import CoreImage
 
 // Brows palette and the glass recipe, taken from the fork's own paint code:
 //   chrome/browser/ui/views/frame/brows_glass.h  (rail pane, rail bubbles)
@@ -188,6 +190,10 @@ struct GlassPane: View {
     /// `34,38,45`. The rail band stays the desktop's light tint in both
     /// appearances; a sheet must not, or dark mode gets a near-white slab.
     var plate: Bool = false
+    /// The page as a blurred image (see `PanelBackdrop`). A popup over web content
+    /// must be given this: `BackdropBlur` cannot sample a WKWebView, so with no
+    /// snapshot the pane falls back to a flat material and reads as a slab again.
+    var backdrop: UIImage? = nil
 
     private var tint: Color { plate ? Theme.plateBase : Theme.railBase }
     private var tintAlpha: Double { plate ? 0.62 : Theme.railBaseAlpha }
@@ -198,7 +204,7 @@ struct GlassPane: View {
                 // The desktop pane is `backdrop-filter: blur(var(--glass-blur))`
                 // under its tint. Paint alone is a slab with a little transparency,
                 // not glass: the page behind it must be blurred through the pane.
-                BackdropBlur()
+                backdropLayer(geo)
 
                 tint.opacity(tintAlpha)
 
@@ -231,10 +237,76 @@ struct GlassPane: View {
             }
         }
     }
+
+    /// The blurred page, cropped to exactly where this pane sits, so a card shows
+    /// the part of the page it covers and a full-screen panel shows all of it.
+    @ViewBuilder
+    private func backdropLayer(_ geo: GeometryProxy) -> some View {
+        if let backdrop {
+            let screen = UIScreen.main.bounds.size
+            let origin = geo.frame(in: .global).origin
+            Image(uiImage: backdrop)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: screen.width, height: screen.height)
+                .offset(x: -origin.x, y: -origin.y)
+                .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
+                .clipped()
+        } else {
+            BackdropBlur()
+        }
+    }
 }
 
-/// The backdrop of a glass pane: a real blur of whatever is behind it. The desktop
-/// gets this from `backdrop-filter`; UIKit's effect view is the same operation.
+/// The page as a pane sees it.
+///
+/// `UIVisualEffectView` cannot sample a WKWebView: the web content is composited
+/// out of process, so the effect view paints its material alone. Measured on run
+/// 44866110895, a dark popup was a uniform 82 across the whole screen — the
+/// article behind it, the white pill and the rail all left no trace — which is
+/// the flat slab the desktop's backdrop-filter never produces. So the same
+/// operation is done here on a snapshot: `--glass-blur: 28px` with
+/// `saturate(165%) brightness(1.055)` from `webui.css:804`.
+enum PanelBackdrop {
+    private static let context = CIContext(options: [.useSoftwareRenderer: false])
+
+    /// Snapshot the page and hand back its blurred image on the main queue.
+    static func capture(_ webView: WKWebView?, completion: @escaping (UIImage?) -> Void) {
+        guard let webView, webView.bounds.width > 0, webView.bounds.height > 0 else {
+            DispatchQueue.main.async { completion(nil) }
+            return
+        }
+        let configuration = WKSnapshotConfiguration()
+        configuration.rect = webView.bounds
+        webView.takeSnapshot(with: configuration) { image, _ in
+            let blurred = image.flatMap(blur)
+            DispatchQueue.main.async { completion(blurred) }
+        }
+    }
+
+    static func blur(_ image: UIImage) -> UIImage? {
+        guard let cg = image.cgImage else { return nil }
+        let source = CIImage(cgImage: cg)
+        let scale = Double(cg.width) / Double(max(image.size.width, 1))
+        guard let blurred = CIFilter(name: "CIGaussianBlur", parameters: [
+            kCIInputImageKey: source.clampedToExtent(),
+            kCIInputRadiusKey: 28 * scale
+        ])?.outputImage else { return nil }
+        let adjusted = blurred
+            .applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 1.65])
+            .applyingFilter("CIColorMatrix", parameters: [
+                "inputRVector": CIVector(x: 1.055, y: 0, z: 0, w: 0),
+                "inputGVector": CIVector(x: 0, y: 1.055, z: 0, w: 0),
+                "inputBVector": CIVector(x: 0, y: 0, z: 1.055, w: 0)
+            ])
+        guard let result = context.createCGImage(adjusted, from: source.extent) else { return nil }
+        return UIImage(cgImage: result, scale: image.scale, orientation: image.imageOrientation)
+    }
+}
+
+/// The backdrop of a glass pane: a real blur of whatever is behind it, for panes
+/// over native content (the rail, the strips). It cannot see a WKWebView — see
+/// `PanelBackdrop` — so panes over a page must be handed a snapshot instead.
 struct BackdropBlur: UIViewRepresentable {
     @Environment(\.colorScheme) private var colorScheme
 
