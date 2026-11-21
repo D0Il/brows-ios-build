@@ -294,10 +294,7 @@ struct BottomRail: View {
                         model.isEditingAddress = false
                         model.navigate(to: input)
                     },
-                    onFocus: {
-                        model.isEditingAddress = true
-                        model.refreshPanelBackdrop()
-                    },
+                    onFocus: { model.isEditingAddress = true },
                     onBlur: { model.isEditingAddress = false },
                     autoFocus: model.focusPillOnLaunch
                 )

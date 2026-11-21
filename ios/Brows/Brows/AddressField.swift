@@ -91,11 +91,16 @@ struct AddressField: UIViewRepresentable {
         /// Called for every tap, including a tap while the field is already first
         /// responder, because that is the case where the caret used to sit mid-URL.
         @objc func selectAllText() {
-            parent.onFocus()
             guard let field else { return }
+            // Focus before the model tells anything to snapshot or redraw: a
+            // snapshot of a loading page can hold the main runloop for seconds, and
+            // the keyboard never came up when that publish happened on this tap
+            // (run 44878550611 failed six tests on "rail.address" never taking
+            // keyboard focus).
             if !field.isFirstResponder {
                 field.becomeFirstResponder()
             }
+            parent.onFocus()
             armReplacement(in: field)
         }
 

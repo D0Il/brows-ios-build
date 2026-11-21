@@ -63,5 +63,9 @@ struct AddressSuggestionsPanel: View {
         .zIndex(1)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("suggest.panel")
+        // The page is photographed when the completions are already up, never on
+        // the tap that focuses the pill: that tap has to become first responder
+        // before anything can wait on a snapshot.
+        .onAppear { model.refreshPanelBackdrop() }
     }
 }

@@ -542,7 +542,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Called when a page has finished loading. The snapshot is retaken only with a
     /// panel up, and a beat later so WebKit has painted the frame it will hand back.
     func pageDidRender() {
-        guard hasOpenPanel else { return }
+        guard hasOpenPanel, !isEditingAddress else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self, self.hasOpenPanel else { return }
             self.refreshPanelBackdrop()
