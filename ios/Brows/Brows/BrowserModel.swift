@@ -397,8 +397,13 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
         if arguments.contains("-BrowsFocusPill") {
             focusPillOnLaunch = true
-            isEditingAddress = true
-            if addressText.isEmpty { addressText = "brows.dev" }
+            // Wait for the page: the completions panel photographs its backdrop on
+            // appearance, and opening it during launch photographed the start page.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                guard let self else { return }
+                if self.addressText.isEmpty { self.addressText = "brows.dev" }
+                self.isEditingAddress = true
+            }
         }
 
         if let index = arguments.firstIndex(of: "-BrowsSheet"),

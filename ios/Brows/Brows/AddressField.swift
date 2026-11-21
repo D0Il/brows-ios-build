@@ -43,7 +43,11 @@ struct AddressField: UIViewRepresentable {
             ]
         )
         if autoFocus {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak field] in
+            // The capture hook focuses only after the page it sits over has painted:
+            // focusing at launch opened the completions panel against the start
+            // page, and its glass kept that wallpaper for the whole capture
+            // (pill-dark, run 44896216566).
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) { [weak field] in
                 field?.becomeFirstResponder()
             }
         }

@@ -243,15 +243,19 @@ struct GlassPane: View {
     @ViewBuilder
     private func backdropLayer(_ geo: GeometryProxy) -> some View {
         if let backdrop {
-            let screen = UIScreen.main.bounds.size
-            let origin = geo.frame(in: .global).origin
-            Image(uiImage: backdrop)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: screen.width, height: screen.height)
-                .offset(x: -origin.x, y: -origin.y)
-                .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
-                .clipped()
+            // Crop the snapshot to this pane's own rect, then draw that crop. The
+            // frame-and-offset pair this replaces laid a screen-sized image inside
+            // a smaller pane's frame; for the address completions — a card placed
+            // by an overlay offset — the page ended up squeezed into the card, and
+            // every line averaged into one flat wash (captures suggest-dark and
+            // pill-dark, run 44896216566). A crop cannot be re-laid-out by a parent.
+            if let cropped = PanelBackdrop.crop(backdrop, to: geo.frame(in: .global)) {
+                Image(uiImage: cropped)
+                    .resizable()
+                    .frame(width: geo.size.width, height: geo.size.height)
+            } else {
+                BackdropBlur()
+            }
         } else {
             BackdropBlur()
         }
@@ -296,6 +300,26 @@ enum PanelBackdrop {
             let blurred = image.flatMap(blur)
             DispatchQueue.main.async { completion(blurred) }
         }
+    }
+
+    /// The part of the page a pane covers, in the image's own pixels. The pane's
+    /// rect is in screen points and the snapshot is the screen at the device's
+    /// scale, so scaling the rect by the image's scale gives the crop. A pane that
+    /// covers the whole screen returns the snapshot itself, uncopied.
+    static func crop(_ image: UIImage, to rect: CGRect) -> UIImage? {
+        guard let cg = image.cgImage, image.size.width > 0, image.size.height > 0 else { return nil }
+        let sx = CGFloat(cg.width) / image.size.width
+        let sy = CGFloat(cg.height) / image.size.height
+        let bounds = CGRect(x: 0, y: 0, width: cg.width, height: cg.height)
+        let pixels = CGRect(
+            x: rect.minX * sx, y: rect.minY * sy,
+            width: rect.width * sx, height: rect.height * sy
+        ).integral
+        let clipped = pixels.intersection(bounds)
+        guard clipped.width >= 1, clipped.height >= 1 else { return nil }
+        if clipped == bounds { return image }
+        guard let cropped = cg.cropping(to: clipped) else { return nil }
+        return UIImage(cgImage: cropped, scale: image.scale, orientation: image.imageOrientation)
     }
 
     static func blur(_ image: UIImage) -> UIImage? {
