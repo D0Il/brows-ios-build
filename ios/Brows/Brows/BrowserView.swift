@@ -259,11 +259,23 @@ struct BottomRail: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if canBack {
-                railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
-            }
-            if canForward {
-                railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
+            // The slots are always there, even when there is nowhere to go. A
+            // workspace switch changes canGoBack/canGoForward, and with the old
+            // conditional buttons the whole row re-flowed under a thumb that was
+            // already on its way down: the tap landed in the slot the menu button
+            // had occupied a frame earlier and did nothing (trace, shard 2,
+            // run 44956470184: tap synthesized, app idle, no panel).
+            Group {
+                if canBack {
+                    railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
+                } else {
+                    Color.clear.frame(minWidth: 44, minHeight: 44)
+                }
+                if canForward {
+                    railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
+                } else {
+                    Color.clear.frame(minWidth: 44, minHeight: 44)
+                }
             }
 
             HStack(spacing: 6) {

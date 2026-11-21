@@ -50,6 +50,33 @@ enum PageTools {
     /// Watches form submissions and reports the credentials the user typed, so the
     /// app can offer to save them — the password manager half that iOS WebKit does
     /// not give a shell for free.
+    /// `window.open` with a scheme the web view cannot render never reaches the
+    /// app: WebKit does not deliver a custom-scheme popup to `createWebViewWith`,
+    /// so the refusal was swallowed and no card was drawn (trace and accessibility
+    /// snapshot, shard 3, run 44956470184). This guard hands that URL to the app
+    /// through the same message handler as the start page, and leaves every
+    /// renderable popup on WebKit's own path untouched.
+    static let popupGuardScript = """
+    (function () {
+      if (window.__browsPopupGuard) { return; }
+      window.__browsPopupGuard = true;
+      var renderable = /^(https?|about|file|data|blob|javascript)$/i;
+      var original = window.open;
+      window.open = function (url) {
+        try {
+          if (url) {
+            var protocol = new URL(url, document.baseURI).protocol.replace(':', '');
+            if (!renderable.test(protocol)) {
+              window.webkit.messageHandlers.browsPopup.postMessage(String(url));
+              return null;
+            }
+          }
+        } catch (error) {}
+        return original.apply(window, arguments);
+      };
+    })();
+    """
+
     static let credentialScript = """
     (function(){
       if (window.__browsCredentialHooked) { return; }
