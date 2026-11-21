@@ -330,28 +330,10 @@ struct BottomRail: View {
             // margins, and at 126 the row overflowed and squeezed the field's tap
             // target (runs 44928536766, 44930532421, 44931912138).
             .frame(minWidth: 96)
-            .background(
-                ZStack {
-                    // The desktop rail's omnibox is a solid white pill; the glass
-                    // gradient rides on that plate. On the phone the rail floats
-                    // over the page, so without the plate the address and the
-                    // selection handles sat directly on article text.
-                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(model.isEditingAddress ? Color.white : Color.white.opacity(0.95))
-                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(model.isEditingAddress ? Theme.pillFocusWash : Theme.pillWash)
-                    RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: model.isEditingAddress
-                                    ? [Theme.pillFocusTop, Theme.pillFocusBottom]
-                                    : [Theme.pillTop, Theme.pillBottom],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                }
-            )
+            // Glass, not a white plate: nothing in this rail may paint a white
+            // slab over the page. The pane is a background layer, so it never sees
+            // the field's taps; focusing the field only brightens the rim.
+            .background(GlassPane(cornerRadius: Theme.pillRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                     .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
