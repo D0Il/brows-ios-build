@@ -19,11 +19,9 @@ struct BrowserView: View {
             .environmentObject(model)
             .environment(\.panelDismiss, close)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            // Apple's guidance: the effect is drawn behind the view's content, and
-            // glass never samples glass — so the panel is one glass surface with
-            // tinted rows on it, not a pane stacked under other glass.
-            .browsGlass(cornerRadius: 0)
-            .ignoresSafeArea()
+            // The panel is one Liquid Glass surface with tinted rows on it; the
+            // glass is the system's own effect view, not a stack of SwiftUI panes.
+            .background(GlassBackground(cornerRadius: 0).ignoresSafeArea())
             // The app has no iOS-blue accent: Done and every other control in a
             // panel uses the desktop's ink, never the system tint.
             .tint(Theme.panelInk)
@@ -411,10 +409,11 @@ struct BottomRail: View {
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
-        // One Liquid Glass surface for the whole dock. The effect sits behind the
-        // row's content, which is the documented placement, and no other glass is
-        // nested inside it (glass cannot sample glass).
-        .browsGlass(cornerRadius: 28)
+        // One Liquid Glass surface for the whole dock, drawn by the system's
+        // UIGlassEffect view. The row's controls sit on top of it, and no other
+        // glass is nested inside it (glass cannot sample glass).
+        .background(GlassBackground(cornerRadius: 28))
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by

@@ -484,6 +484,32 @@ extension View {
 }
 
 
+/// Apple's Liquid Glass as a UIKit background view. This is the documented hybrid
+/// path: `UIGlassEffect` in a `UIVisualEffectView`. SwiftUI's `glassEffect` around
+/// the app's hosted `UITextField` hits a known iOS 26 mixed SwiftUI/UIKit bug
+/// (FB20969772) where tapping the field to raise the keyboard stalls or loses
+/// focus, and an empty `.glassEffect` layer renders nothing at all.
+struct GlassBackground: UIViewRepresentable {
+    var cornerRadius: CGFloat = 0
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        let view = UIVisualEffectView()
+        if #available(iOS 26.0, *) {
+            view.effect = UIGlassEffect()
+        } else {
+            view.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+        }
+        view.isUserInteractionEnabled = false
+        view.clipsToBounds = true
+        return view
+    }
+
+    func updateUIView(_ view: UIVisualEffectView, context: Context) {
+        view.layer.cornerRadius = cornerRadius
+        view.layer.cornerCurve = .continuous
+    }
+}
+
 /// iOS 26's own Liquid Glass. Apple's current material is the design target, so
 /// every Brows pane asks the system for it; the app's rail pane is only the
 /// fallback for a pre-26 runtime. The flat surface fill is gone: a sheet is the
