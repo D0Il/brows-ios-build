@@ -316,7 +316,10 @@ struct BottomRail: View {
             }
             .padding(.horizontal, 12)
             .frame(height: 40)
-            .frame(minWidth: 126)
+            // 96, not 126: a floating capsule spends ~32 pt of row width on its own
+            // margins, and at 126 the row overflowed and squeezed the field's tap
+            // target (runs 44928536766, 44930532421, 44931912138).
+            .frame(minWidth: 96)
             .background(
                 ZStack {
                     // The desktop rail's omnibox is a solid white pill; the glass
@@ -418,7 +421,7 @@ struct BottomRail: View {
         // The dock is a floating glass pill over the page, not a full-width band:
         // the controls keep the desktop order inside one continuous capsule, and
         // the page keeps running underneath it and into the home-indicator inset.
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 8)
         .padding(.vertical, 8)
         // GlassPane, not `.glassEffect`: the system glass layer under these controls
         // swallowed the pill's focus (no keyboard, run 44930532421), which is the
@@ -427,7 +430,7 @@ struct BottomRail: View {
             GlassPane(cornerRadius: 28)
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         )
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 8)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
         // their own height. An overlay is drawn on top and is not squeezed by the
