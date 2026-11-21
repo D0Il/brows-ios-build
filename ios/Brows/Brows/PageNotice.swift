@@ -30,7 +30,6 @@ struct PageNoticeCard: View {
             // page behind it is still the backdrop. A plain fill reads as a slab and
             // an empty glassEffect renders nothing, letting the article's lines
             // through unblurred (captures notice-light, dialog-light, linknotice-light).
-            Color.clear.browsGlass(cornerRadius: 18).allowsHitTesting(false)
             VStack(alignment: .leading, spacing: 14) {
             Text(notice.title)
                 .font(.system(size: 12, weight: .semibold))
@@ -56,6 +55,7 @@ struct PageNoticeCard: View {
             .accessibilityIdentifier("notice.ok")
             }
             .padding(20)
+            .browsGlass(cornerRadius: 18)
         }
         .frame(maxWidth: 340)
         // Hug the content: the scrim beside it fills the screen, and the glass took

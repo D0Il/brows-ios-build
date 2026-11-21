@@ -32,7 +32,6 @@ struct ScriptDialogCard: View {
             // page behind it is still the backdrop. A plain fill reads as a slab and
             // an empty glassEffect renders nothing, letting the article's lines
             // through unblurred (captures notice-light, dialog-light, linknotice-light).
-            Color.clear.browsGlass(cornerRadius: 18).allowsHitTesting(false)
         VStack(alignment: .leading, spacing: 14) {
             // The page's host, in the same muted line the credential card uses, so
             // a dialog is always attributable to the site that raised it.
@@ -82,6 +81,7 @@ struct ScriptDialogCard: View {
             }
         }
         .padding(20)
+            .browsGlass(cornerRadius: 18)
         }
         .frame(maxWidth: 340)
         // Hug the content: the full-screen scrim in the same ZStack otherwise hands
