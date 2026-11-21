@@ -57,12 +57,12 @@ enum Theme {
         light: UIColor(white: 1, alpha: 1),
         dark: UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 1)
     )
-    /// `.95` is the rail's plate alpha (`rgba(var(--plate-rgb),.95)`).
-    static let plate = plateBase.opacity(0.95)
-    /// The rail's own bubbles stay the desktop light plate in both appearances:
-    /// `toolbar_button.css` describes white circular controls, and the desktop rail is
-    /// native views, so nothing in `port/site` pairs it — do not flip it without one.
-    static let railPlate = Color.white.opacity(0.95)
+    /// A plate inside a sheet is `rgba(var(--plate-rgb),.62)` (`brows_surface.css`):
+    /// at .95 it read as a white slab on top of the sheet's own glass.
+    static let plate = plateBase.opacity(0.62)
+    /// The wash a control's glass takes. Only a tint, never a fill: the phone's
+    /// controls sit on the page and the page must read through them.
+    static let railPlate = Color.white.opacity(0.22)
 
     /// Ink for text and glyphs on a plate. The plate is adaptive now (`plate`), so the
     /// ink follows it: `--ink` is #20242b in light and #f2f4f8 in the dark block, and
@@ -420,12 +420,13 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .frame(width: 36, height: 36)
             .background(
                 ZStack {
-                    // Rail styling: white circular controls. The bubble gradient
-                    // and its hairline ride on top; the plate keeps the glyph
-                    // legible over a page. Glass on a control takes its tap, so
-                    // the material lives on the rail and the panes, not here.
+                    // Glass, never a white plate: the desktop's circular controls
+                    // are the desktop's, but a phone control sits on the page and
+                    // the page reads through it. The pane is a background layer, so
+                    // it does not take the button's tap; `plate` is only a wash.
+                    GlassPane(cornerRadius: bubbleRadius)
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(plate)
+                        .fill(plate.opacity(configuration.isPressed ? 0.42 : 0.18))
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
                         .fill(Theme.bubbleWash)
                     RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)

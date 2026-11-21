@@ -148,7 +148,7 @@ struct FindBar: View {
             }
             .padding(.horizontal, 9)
             .frame(height: 36)
-            .background(Capsule().fill(Color.white))
+            .background(Capsule().fill(Theme.rowFill))
             .layoutPriority(1)
 
             Button { model.runFind(backwards: true) } label: { Image(systemName: "chevron.up") }

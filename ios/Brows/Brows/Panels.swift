@@ -64,7 +64,7 @@ struct WorkspacesSheet: View {
                     .tracking(1)
                     .foregroundColor(Theme.panelMuted)
                     .frame(width: 34, height: 34)
-                    .background(Circle().fill(Theme.plateBase.opacity(0.9)))
+                    .background(Circle().fill(Theme.plateBase.opacity(0.62)))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workspace.name)
