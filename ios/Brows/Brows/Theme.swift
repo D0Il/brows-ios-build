@@ -520,7 +520,7 @@ final class BackdropGlassView: UIView {
         // size and slide it by this view's own origin so the glass samples the page
         // actually underneath it, not the middle of the screenshot.
         if let window {
-            let origin = convert(.zero, to: window)
+            let origin = convert(CGPoint.zero, to: window)
             imageView.frame = CGRect(
                 x: -origin.x + backdropOffset.width,
                 y: -origin.y + backdropOffset.height,
