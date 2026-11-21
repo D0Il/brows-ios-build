@@ -5,7 +5,7 @@ import SwiftUI
 /// recently closed tabs underneath.
 struct TabSwitcher: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
     @State private var query = ""
 
     private let columns = [GridItem(.adaptive(minimum: 150), spacing: 12)]

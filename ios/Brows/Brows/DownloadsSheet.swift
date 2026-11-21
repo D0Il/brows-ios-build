@@ -3,7 +3,7 @@ import SwiftUI
 /// Downloads: live progress, cancel, open/share, remove, clear.
 struct DownloadsSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
         NavigationView {

@@ -7,6 +7,18 @@ struct BrowserView: View {
 
     private var compactRail: Bool { UIScreen.main.bounds.width < 430 }
 
+    /// A desktop-style popup: the panel itself, over the page, with the close
+    /// action its Done button and rows call.
+    @ViewBuilder
+    private func panel<V: View>(_ content: V, close: @escaping () -> Void) -> some View {
+        content
+            .environmentObject(model)
+            .environment(\.panelDismiss, close)
+            .background(GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea())
+            .transition(.opacity)
+            .zIndex(2)
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Theme.backdrop.ignoresSafeArea()
@@ -27,6 +39,41 @@ struct BrowserView: View {
                 }
             }
 
+            // The desktop's popups are panels over the page, never presentations in
+            // their own window: a sheet's backdrop is opaque, so its glass has
+            // nothing to be see-through to. These are the same panels, in the
+            // browser's own hierarchy, over the page they belong to.
+            if model.showingTabSwitcher {
+                panel(TabSwitcher()) { model.showingTabSwitcher = false }
+            }
+            if model.showingBookmarks {
+                panel(BookmarksSheet()) { model.showingBookmarks = false }
+            }
+            if model.showingHistory {
+                panel(HistorySheet()) { model.showingHistory = false }
+            }
+            if model.showingMenu {
+                panel(AppMenu()) { model.showingMenu = false }
+            }
+            if model.showingWorkspaces {
+                panel(WorkspacesSheet()) { model.showingWorkspaces = false }
+            }
+            if model.showingSiteInfo {
+                panel(SiteInfoSheet()) { model.showingSiteInfo = false }
+            }
+            if model.showingDownloads {
+                panel(DownloadsSheet()) { model.showingDownloads = false }
+            }
+            if model.showingPasswords {
+                panel(PasswordsSheet()) { model.showingPasswords = false }
+            }
+            if model.showingExtensions {
+                panel(ExtensionsSheet()) { model.showingExtensions = false }
+            }
+            if model.showingSettings {
+                panel(SettingsSheet()) { model.showingSettings = false }
+            }
+
             if model.showingFind {
                 VStack {
                     Spacer()
@@ -35,46 +82,6 @@ struct BrowserView: View {
                 }
                 .transition(.opacity)
             }
-        }
-        .sheet(isPresented: $model.showingTabSwitcher) {
-            TabSwitcher().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingBookmarks) {
-            BookmarksSheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingHistory) {
-            HistorySheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingMenu) {
-            AppMenu().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingWorkspaces) {
-            WorkspacesSheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingSiteInfo) {
-            SiteInfoSheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingDownloads) {
-            DownloadsSheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingPasswords) {
-            PasswordsSheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingExtensions) {
-            ExtensionsSheet().environmentObject(model)
-                .browsSheetBackground()
-        }
-        .sheet(isPresented: $model.showingSettings) {
-            SettingsSheet().environmentObject(model)
-                .browsSheetBackground()
         }
         .sheet(item: $model.readerContent) { content in
             ReaderSheet(content: content).environmentObject(model)

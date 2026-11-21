@@ -2,7 +2,7 @@ import SwiftUI
 
 struct BookmarksSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
         NavigationView {

@@ -5,7 +5,7 @@ import SwiftUI
 /// Keychain; export is an explicit action the user starts.
 struct PasswordsSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     @State private var host = ""
     @State private var username = ""

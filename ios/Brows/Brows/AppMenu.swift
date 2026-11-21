@@ -4,7 +4,7 @@ import SwiftUI
 /// Website panels first, then page tools, then tab commands and the zoom cluster.
 struct AppMenu: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
         NavigationView {

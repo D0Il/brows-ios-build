@@ -4,7 +4,7 @@ import SwiftUI
 /// storage, what the page loaded, blocked requests, and per-site data clearing.
 struct SiteInfoSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
         NavigationView {

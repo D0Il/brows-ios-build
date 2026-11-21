@@ -298,6 +298,20 @@ struct GlassCircleButtonStyle: ButtonStyle {
     }
 }
 
+/// Overlay panels are not presentations, so `@Environment(\.dismiss)` cannot close
+/// them. They read their close action from here instead; the name `dismiss` is kept
+/// in each panel so its call sites do not change.
+private struct PanelDismissKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
+extension EnvironmentValues {
+    var panelDismiss: () -> Void {
+        get { self[PanelDismissKey.self] }
+        set { self[PanelDismissKey.self] = newValue }
+    }
+}
+
 extension View {
     /// The desktop's plate for a button: the plate fill plus the hairline rim that
     /// keeps it visible on a sheet that is also white. Without the rim the OK /

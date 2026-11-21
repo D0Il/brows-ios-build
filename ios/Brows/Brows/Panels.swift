@@ -5,7 +5,7 @@ import SwiftUI
 /// exactly as the desktop rail does.
 struct WorkspacesSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
     @State private var newName = ""
 
     var body: some View {
@@ -114,7 +114,7 @@ struct WorkspacesSheet: View {
 /// per-row delete and a clear-all.
 struct HistorySheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
     @State private var query = ""
 
     private var entries: [HistoryEntry] {

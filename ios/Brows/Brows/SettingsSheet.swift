@@ -3,7 +3,7 @@ import SwiftUI
 /// Settings, in the desktop's groups: appearance, search, privacy, data, about.
 struct SettingsSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     @State private var cleared = false
 

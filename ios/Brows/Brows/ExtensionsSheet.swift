@@ -5,7 +5,7 @@ import SwiftUI
 /// exactly that instead of pretending an extension store exists.
 struct ExtensionsSheet: View {
     @EnvironmentObject var model: BrowserModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.panelDismiss) private var dismiss
 
     var body: some View {
         NavigationView {
