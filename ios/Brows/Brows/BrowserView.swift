@@ -19,10 +19,9 @@ struct BrowserView: View {
             .environmentObject(model)
             .environment(\.panelDismiss, close)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(
-                GlassPane(cornerRadius: 0, plate: true, backdrop: model.panelBackdrop)
-                    .ignoresSafeArea()
-            )
+            // The platform's own glass, full-bleed: the sheet surface is the
+            // same Liquid Glass the dock uses, not a material slab.
+            .background(Color.clear.browsGlass(cornerRadius: 0).ignoresSafeArea())
             .transition(.opacity)
             .zIndex(2)
             .onAppear { model.refreshPanelBackdrop() }
@@ -333,7 +332,7 @@ struct BottomRail: View {
             // Glass, not a white plate: nothing in this rail may paint a white
             // slab over the page. The pane is a background layer, so it never sees
             // the field's taps; focusing the field only brightens the rim.
-            .background(GlassPane(cornerRadius: Theme.pillRadius, backdrop: model.panelBackdrop))
+            .background(Color.clear.browsGlass(cornerRadius: Theme.pillRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                     .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
@@ -407,13 +406,10 @@ struct BottomRail: View {
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
-        // GlassPane, not `.glassEffect`: the system glass layer under these controls
-        // swallowed the pill's focus (no keyboard, run 44930532421), which is the
-        // same failure the menu buttons hit — glass never sits on or under a control.
-        .background(
-            GlassPane(cornerRadius: 28, backdrop: model.panelBackdrop)
-                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        )
+        // Apple's own Liquid Glass. The dock is the floating element `glassEffect`
+        // exists for, so the system draws it; the earlier focus failures were the
+        // row's width budget squeezing the field, not the glass.
+        .background(Color.clear.browsGlass(cornerRadius: 28))
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by

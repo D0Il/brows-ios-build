@@ -430,29 +430,11 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .font(.system(size: 16, weight: .semibold))
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
+            // No plate: the control is a glyph on the glass it sits on, the way
+            // system bars draw their symbols. Only a press wash, no fill.
             .background(
-                ZStack {
-                    // Glass, never a white plate: the desktop's circular controls
-                    // are the desktop's, but a phone control sits on the page and
-                    // the page reads through it. The pane is a background layer, so
-                    // it does not take the button's tap; `plate` is only a wash.
-                    GlassPane(cornerRadius: bubbleRadius)
-                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(plate.opacity(configuration.isPressed ? 0.42 : 0.18))
-                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(Theme.bubbleWash)
-                    RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(configuration.isPressed ? 0.10 : 0.18),
-                                    Color.white.opacity(configuration.isPressed ? 0.02 : 0.035)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                }
+                RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.20 : 0.001))
             )
     }
 }
