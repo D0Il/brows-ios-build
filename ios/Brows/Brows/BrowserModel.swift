@@ -37,6 +37,9 @@ struct BrowserSettings: Codable, Equatable {
     var searchEngine: SearchEngine = .google
     var restoreSession = true
     var defaultZoom = 1.0
+    /// Folder a new bookmark is filed in. Optional so settings written before
+    /// folders existed still decode; absent means the bookmarks bar.
+    var bookmarkFolder: String?
 }
 
 // MARK: - Records
@@ -93,6 +96,30 @@ struct Bookmark: Identifiable, Codable, Equatable {
     var id = UUID()
     var title: String
     var url: String
+    /// The folder the bookmark is filed in, as the desktop's edit dialog does
+    /// (`port/site/popups/bookmark.html:51-58`, options "Bookmarks bar" and
+    /// "Other bookmarks"). Decoded with a default so bookmarks written before
+    /// folders existed still load.
+    var folder: String = Bookmark.defaultFolder
+
+    static let defaultFolder = "Bookmarks bar"
+
+    private enum CodingKeys: String, CodingKey { case id, title, url, folder }
+
+    init(id: UUID = UUID(), title: String, url: String, folder: String = Bookmark.defaultFolder) {
+        self.id = id
+        self.title = title
+        self.url = url
+        self.folder = folder
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        title = try container.decode(String.self, forKey: .title)
+        url = try container.decode(String.self, forKey: .url)
+        folder = try container.decodeIfPresent(String.self, forKey: .folder) ?? Bookmark.defaultFolder
+    }
 }
 
 struct ClosedTab: Identifiable, Equatable {
@@ -940,6 +967,18 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         return webViews[tab.id]?.url ?? tab.url
     }
 
+    /// Where the next star writes, and the folder the list offers first.
+    var newBookmarkFolder: String { settings.bookmarkFolder ?? Bookmark.defaultFolder }
+
+    /// Every folder the sheet shows: the desktop's two, then any already in use.
+    var bookmarkFolders: [String] {
+        var names = [Bookmark.defaultFolder, "Other bookmarks"]
+        for bookmark in bookmarks where !names.contains(bookmark.folder) {
+            names.append(bookmark.folder)
+        }
+        return names
+    }
+
     func isBookmarked(_ url: URL?) -> Bool {
         guard let value = url?.absoluteString else { return false }
         return bookmarks.contains { $0.url == value }
@@ -952,7 +991,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             bookmarks.remove(at: index)
         } else {
             let title = activeTab?.title ?? (url.host ?? value)
-            bookmarks.append(Bookmark(title: title, url: value))
+            bookmarks.append(Bookmark(title: title, url: value, folder: newBookmarkFolder))
         }
         save()
     }

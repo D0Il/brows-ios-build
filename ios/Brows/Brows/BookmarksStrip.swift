@@ -9,7 +9,7 @@ struct BookmarksStrip: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
-                ForEach(model.bookmarks) { bookmark in
+                ForEach(model.bookmarks.filter { $0.folder == Bookmark.defaultFolder }) { bookmark in
                     Button {
                         model.navigate(to: bookmark.url)
                     } label: {
