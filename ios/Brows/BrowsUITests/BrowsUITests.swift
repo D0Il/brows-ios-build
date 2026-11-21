@@ -666,7 +666,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
         app.staticTexts["Workspaces"].firstMatch.tap()
 
-        let workRow = app.buttons["workspace.row.WO"]
+        let workRow = app.buttons.matching(identifier: "workspace.row.WO").firstMatch
         XCTAssertTrue(workRow.waitForExistence(timeout: 10), "workspace row missing")
         let deadline = Date().addingTimeInterval(8)
         var marked = false

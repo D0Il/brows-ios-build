@@ -12,6 +12,7 @@ struct AddressSuggestionsPanel: View {
         ZStack {
             // The desktop's row popup is a glass plate over the page, like every
             // other popup: the page behind it is blurred, never legible.
+            GlassPane(cornerRadius: 16, plate: true, backdrop: model.panelBackdrop, backdropOffset: backdropOffset)
             VStack(spacing: 0) {
             ForEach(Array(model.suggestions.enumerated()), id: \.element.id) { index, suggestion in
                 Button {
@@ -55,7 +56,6 @@ struct AddressSuggestionsPanel: View {
         // rows drew outside its frame, under the rail, and a row's tap landed on
         // the rail's reload control instead.
         .fixedSize(horizontal: false, vertical: true)
-        .browsGlass(cornerRadius: 16)
         }
         
         .shadow(color: Color.black.opacity(0.16), radius: 18, y: 8)
