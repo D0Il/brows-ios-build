@@ -24,7 +24,7 @@ struct LinkNoticeCard: View {
             // page behind it is still the backdrop. A plain fill reads as a slab and
             // an empty glassEffect renders nothing, letting the article's lines
             // through unblurred (captures notice-light, dialog-light, linknotice-light).
-            GlassBackground(cornerRadius: 18)
+            GlassBackground(cornerRadius: 18, backdrop: model.panelBackdrop)
             VStack(alignment: .leading, spacing: 14) {
             Text(notice.scheme)
                 .font(.system(size: 12, weight: .semibold))

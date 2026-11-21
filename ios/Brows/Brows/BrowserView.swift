@@ -21,7 +21,7 @@ struct BrowserView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             // The panel is one Liquid Glass surface with tinted rows on it; the
             // glass is the system's own effect view, not a stack of SwiftUI panes.
-            .background(GlassBackground(cornerRadius: 0).ignoresSafeArea())
+            .background(GlassBackground(cornerRadius: 0, backdrop: model.panelBackdrop).ignoresSafeArea())
             // The app has no iOS-blue accent: Done and every other control in a
             // panel uses the desktop's ink, never the system tint.
             .tint(Theme.panelInk)
@@ -412,7 +412,7 @@ struct BottomRail: View {
         // One Liquid Glass surface for the whole dock, drawn by the system's
         // UIGlassEffect view. The row's controls sit on top of it, and no other
         // glass is nested inside it (glass cannot sample glass).
-        .background(GlassBackground(cornerRadius: 28))
+        .background(GlassBackground(cornerRadius: 28, backdrop: model.panelBackdrop))
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .padding(.horizontal, 8)
         .padding(.vertical, 6)

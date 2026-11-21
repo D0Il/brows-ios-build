@@ -176,7 +176,7 @@ struct PasswordsSheet: View {
     private var importSheet: some View {
         NavigationView {
             ZStack {
-                GlassBackground(cornerRadius: 0).ignoresSafeArea()
+                GlassBackground(cornerRadius: 0, backdrop: model.panelBackdrop).ignoresSafeArea()
                 VStack(spacing: 10) {
                     Text("Paste the JSON exported from Brows' Passwords panel.")
                         .font(.system(size: 12))

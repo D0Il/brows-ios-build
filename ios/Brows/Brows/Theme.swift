@@ -489,24 +489,70 @@ extension View {
 /// the app's hosted `UITextField` hits a known iOS 26 mixed SwiftUI/UIKit bug
 /// (FB20969772) where tapping the field to raise the keyboard stalls or loses
 /// focus, and an empty `.glassEffect` layer renders nothing at all.
-struct GlassBackground: UIViewRepresentable {
-    var cornerRadius: CGFloat = 0
+final class BackdropGlassView: UIView {
+    let imageView = UIImageView()
+    let effectView = UIVisualEffectView()
+    var backdropOffset: CGSize = .zero
 
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        let view = UIVisualEffectView()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isUserInteractionEnabled = false
+        clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        addSubview(imageView)
         if #available(iOS 26.0, *) {
-            view.effect = UIGlassEffect()
+            effectView.effect = UIGlassEffect()
         } else {
-            view.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+            effectView.effect = UIBlurEffect(style: .systemUltraThinMaterial)
         }
-        view.isUserInteractionEnabled = false
-        view.clipsToBounds = true
-        return view
+        effectView.isUserInteractionEnabled = false
+        addSubview(effectView)
     }
 
-    func updateUIView(_ view: UIVisualEffectView, context: Context) {
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        effectView.frame = bounds
+        // The snapshot is the page as it sits behind the window; draw it at window
+        // size and slide it by this view's own origin so the glass samples the page
+        // actually underneath it, not the middle of the screenshot.
+        if let window {
+            let origin = convert(.zero, to: window)
+            imageView.frame = CGRect(
+                x: -origin.x + backdropOffset.width,
+                y: -origin.y + backdropOffset.height,
+                width: window.bounds.width,
+                height: window.bounds.height
+            )
+        } else {
+            imageView.frame = bounds
+        }
+    }
+}
+
+struct GlassBackground: UIViewRepresentable {
+    var cornerRadius: CGFloat = 0
+    /// The page under the surface. A WKWebView renders out of process and the
+    /// system material cannot sample it, so glass over a bare web view draws as a
+    /// flat plate (captures, run 44952121294). Handing the material the page's own
+    /// snapshot puts the page back under the glass: it is still the system's
+    /// Liquid Glass, now with something real to refract.
+    var backdrop: UIImage? = nil
+    var backdropOffset: CGSize = .zero
+
+    func makeUIView(context: Context) -> BackdropGlassView {
+        BackdropGlassView()
+    }
+
+    func updateUIView(_ view: BackdropGlassView, context: Context) {
         view.layer.cornerRadius = cornerRadius
         view.layer.cornerCurve = .continuous
+        view.imageView.image = backdrop
+        view.backdropOffset = backdropOffset
+        view.setNeedsLayout()
     }
 }
 
