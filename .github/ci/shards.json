@@ -16,7 +16,7 @@
     "testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice",
     "testNamedWindowReopensAfterItsPopupIsClosed",
     "testNewWindowLinksOpenAndSelectANewTab",
-    "testPageControlsSitBeforeThePill",
+    "testDockKeepsTabsAndMenuAfterThePill",
     "testTabGallerySearch",
     "testWindowOpenReusesTheNamedWindow",
     "testWindowOpenWithFeaturesOpensOneSelectedTab",
@@ -25,7 +25,7 @@
   "3": [
     "testAddressPillExplainsAnAddressItCannotOpen",
     "testAppearanceTokensPassContrastAudit",
-    "testBookmarkChipNavigates",
+    "testBookmarkFromMenuNavigates",
     "testClosingPrivateTabsDeletesTheirDownloadFiles",
     "testExternalSchemesHandOffWithoutLeavingThePage",
     "testPrivateDownloadFileIsSweptOnNextLaunch",

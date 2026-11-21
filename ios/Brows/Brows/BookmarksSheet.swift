@@ -73,6 +73,7 @@ struct BookmarksSheet: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                     .buttonStyle(.plain)
+                                    .accessibilityIdentifier("bookmark.row")
                                     .listRowBackground(Theme.rowFill)
                                 }
                                 .onDelete { indexSet in

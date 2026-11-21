@@ -65,8 +65,10 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10), "tab gallery missing")
         app.buttons["Done"].tap()
 
-        app.buttons["rail.workspace"].tap()
-        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10), "workspaces panel missing")
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10), "menu did not reopen")
+        app.staticTexts["Workspaces"].tap()
+        XCTAssertTrue(app.staticTexts["CURRENT"].waitForExistence(timeout: 10), "workspaces panel missing")
         app.buttons["Done"].tap()
 
         XCTAssertTrue(address.waitForExistence(timeout: 5), "rail did not come back")
@@ -644,8 +646,9 @@ final class BrowsUITests: XCTestCase {
     func testWorkspaceSwitch() {
         let app = makeApp()
 
-        app.buttons["rail.workspace"].tap()
+        app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
+        app.staticTexts["Workspaces"].tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -657,34 +660,61 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 10), "workspace was not created")
         row.tap()
 
-        XCTAssertTrue(app.buttons["rail.workspace"].waitForExistence(timeout: 10))
+        // No workspace button in the dock any more: the switch is shown where
+        // workspaces live, by the row that now reads CURRENT.
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
+        app.staticTexts["Workspaces"].tap()
+
+        let workRow = app.buttons["workspace.row.WO"]
+        XCTAssertTrue(workRow.waitForExistence(timeout: 10), "workspace row missing")
         let deadline = Date().addingTimeInterval(8)
-        var name = ""
+        var marked = false
         while Date() < deadline {
-            name = (app.buttons["rail.workspace"].value as? String) ?? ""
-            if name == "Work" { break }
+            marked = workRow.label.contains("CURRENT")
+            if marked { break }
             RunLoop.current.run(until: Date().addingTimeInterval(0.25))
         }
-        XCTAssertEqual(name, "Work", "rail did not switch workspace")
+        XCTAssertTrue(marked, "workspace did not switch")
+        app.buttons["Done"].tap()
     }
 
-    /// The desktop rail's order, kept on the phone: the page controls (back,
-    /// forward, reload) sit together before the pill, not after the favourites.
-    func testPageControlsSitBeforeThePill() {
+    /// The dock is the phone's own row, not the desktop rail's: back leads, the
+    /// pill is the centre, and tabs and the menu — the two a thumb reaches for —
+    /// close the row at the trailing edge. Reload is not dock width; it is a menu
+    /// row. Every dock control is a 44 pt target.
+    func testDockKeepsTabsAndMenuAfterThePill() {
         let app = makeApp()
         open("http://localhost:8000/other.html", in: app, expect: "Other page")
 
         let back = app.buttons["rail.back"]
-        let reload = app.buttons["rail.reload"]
         let field = app.textFields["rail.address"]
+        let tabs = app.buttons["rail.tabs"]
+        let menu = app.buttons["rail.menu"]
         XCTAssertTrue(back.waitForExistence(timeout: 10), "back control missing after navigating")
-        XCTAssertTrue(reload.waitForExistence(timeout: 10), "reload control missing")
         XCTAssertTrue(field.waitForExistence(timeout: 10), "address pill missing")
-        XCTAssertLessThan(back.frame.maxX, reload.frame.minX, "back must sit left of reload")
-        XCTAssertLessThan(
-            reload.frame.maxX, field.frame.minX,
-            "reload belongs with the page controls, left of the pill"
-        )
+        XCTAssertTrue(tabs.waitForExistence(timeout: 10), "tabs destination missing")
+        XCTAssertTrue(menu.waitForExistence(timeout: 10), "menu destination missing")
+
+        // Reload is a primary control inside the address bar, as in every iOS
+        // browser: always visible, never behind the menu.
+        let reload = app.buttons["rail.reload"]
+        XCTAssertTrue(reload.waitForExistence(timeout: 10), "reload missing from the dock")
+
+        XCTAssertLessThan(back.frame.maxX, field.frame.minX, "back must sit left of the pill")
+        XCTAssertGreaterThan(reload.frame.minX, field.frame.maxX, "reload belongs inside the pill, after the URL")
+        XCTAssertLessThan(field.frame.maxX, tabs.frame.minX, "tabs belong after the pill, at the trailing edge")
+        XCTAssertLessThan(tabs.frame.maxX, menu.frame.minX, "the menu is the outermost destination")
+        XCTAssertFalse(app.buttons["rail.workspace"].exists, "workspaces belong in the menu, not the dock")
+
+        for control in [back, tabs, menu] {
+            XCTAssertGreaterThanOrEqual(control.frame.height, 44, "dock target under 44 pt")
+            XCTAssertGreaterThanOrEqual(control.frame.width, 44, "dock target under 44 pt")
+        }
+
+        // And it is live: reloading keeps the same page.
+        reload.tap()
+        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20), "reload left the page")
     }
 
     /// Reader takes a real article apart and shows it as text. The article is the
@@ -1172,7 +1202,7 @@ final class BrowsUITests: XCTestCase {
     }
 
     /// A favourite chip is a real link, not a label.
-    func testBookmarkChipNavigates() {
+    func testBookmarkFromMenuNavigates() {
         let app = makeApp()
         // With an expected line the helper re-submits when the simulator drops the
         // synthetic Return, which is how this test once failed with a WebView that
@@ -1186,21 +1216,25 @@ final class BrowsUITests: XCTestCase {
 
         open("http://localhost:8000/login.html", in: app)
 
-        let chip = app.buttons.matching(identifier: "bookmark.chip").firstMatch
-        XCTAssertTrue(chip.waitForExistence(timeout: 10), "bookmark chip missing from the rail")
-        chip.tap()
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Bookmarks"].waitForExistence(timeout: 10), "menu did not open")
+        app.staticTexts["Bookmarks"].tap()
+        let row = app.buttons.matching(identifier: "bookmark.row").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "bookmark row missing from the sheet")
+        row.tap()
 
         XCTAssertTrue(
             app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20),
-            "bookmark chip did not navigate"
+            "bookmark row did not navigate"
         )
     }
 
     /// Deleting a workspace from the sheet's context menu removes it.
     func testWorkspaceDelete() {
         let app = makeApp()
-        app.buttons["rail.workspace"].tap()
+        app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10))
+        app.staticTexts["Workspaces"].tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))

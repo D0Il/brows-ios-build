@@ -239,12 +239,13 @@ struct TopStrip: View {
     }
 }
 
-/// The toolbar rail, in the desktop order: page controls → white address pill
-/// (glass site badge, SEARCH field, star) → favourite chips in the same row →
-/// browser actions → workspace button → menu. Back/forward exist only when there
-/// is somewhere to go, and there is no home button. On a narrow phone the zoom
-/// cluster and reload fold away exactly as the desktop strip folds them; they stay
-/// reachable from the menu.
+/// The phone dock, not the desktop rail's row. The address pill is the centre;
+/// back (and forward, when there is somewhere to go) sits at the leading edge;
+/// the two places a thumb actually reaches for — tabs and the menu — sit at the
+/// trailing edge, under the hand. Reload, zoom, workspaces and the favourite
+/// chips are not pressed often enough to spend dock width on and live in the
+/// menu and the sheets instead. Every control is a 44 pt target with room to
+/// breathe, and the page runs under the capsule into the home-indicator inset.
 struct BottomRail: View {
     @EnvironmentObject var model: BrowserModel
     var compact: Bool = false
@@ -252,30 +253,13 @@ struct BottomRail: View {
     private var canBack: Bool { model.activeTab?.canGoBack == true }
     private var canForward: Bool { model.activeTab?.canGoForward == true }
 
-    private var chipWidth: CGFloat {
-        if canBack || canForward { return 46 }
-        return compact ? 92 : 150
-    }
-
-    /// On a narrow phone the zoom cluster folds into the menu (the desktop strip
-    /// folds it too). Reload stays in the row, because it is the control you reach
-    /// for constantly and the pill needs its width more than the cluster does.
-    private var showZoom: Bool { !compact }
-
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             if canBack {
-                railButton("chevron.left", id: "rail.back") { model.goBack() }
+                railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
             }
             if canForward {
-                railButton("chevron.right", id: "rail.forward") { model.goForward() }
-            }
-
-            // Desktop order, 45-mobile-research: the page controls (back, forward,
-            // reload/stop) stay together at the rail's leading edge, before the
-            // pill. Reload is a page control, not a trailing browser action.
-            railButton(model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise", id: "rail.reload") {
-                model.reloadOrStop()
+                railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
             }
 
             HStack(spacing: 6) {
@@ -302,6 +286,26 @@ struct BottomRail: View {
                 // The pill is 40 pt; a 24 pt field put the selection handles on the
                 // rail outside the plate. The field takes the pill's inner height.
                 .frame(height: 34)
+
+                // Reload/stop is a primary bar control in every mobile browser, not a
+                // menu row. Chromium's own toolbar spec lists Reload beside Back/Forward
+                // and its toolbar manager owns stopOrReloadCurrentTab; Chrome's Android
+                // bar keeps it one tap away, Vivaldi puts Reload on the address bar, and
+                // Safari's bottom address bar carries the reload button inside it.
+                Button {
+                    model.reloadOrStop()
+                } label: {
+                    Image(systemName: model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Theme.plateInk)
+                }
+                .buttonStyle(.plain)
+                // The glyph is small like an in-field control; the target is the pill's
+                // full height and a thumb's width, so reload is not a lucky tap.
+                .frame(width: 34, height: 40)
+                .contentShape(Rectangle())
+                .accessibilityLabel(model.activeTab?.isLoading == true ? "Stop" : "Reload")
+                .accessibilityIdentifier("rail.reload")
 
                 Button {
                     model.toggleBookmark()
@@ -373,32 +377,6 @@ struct BottomRail: View {
             .shadow(color: Theme.pillDrop, radius: 5, x: 0, y: 1)
             .layoutPriority(2)
 
-            if !model.bookmarks.isEmpty && !model.isEditingAddress {
-                // Typing owns the row: the favourites fold away so the full address
-                // is visible, and return on blur. They are never on a second row.
-                // The strip is a real tap target, not a squeezed label: give it a
-                // floor width and priority above the trailing controls, otherwise
-                // the pill's minWidth pushes it into a clipped, unhittable sliver.
-                BookmarksStrip()
-                    .frame(minWidth: 56, maxWidth: chipWidth)
-                    .layoutPriority(1)
-            }
-
-            if showZoom {
-                zoomCluster
-            }
-
-            Button {
-                model.showingWorkspaces = true
-            } label: {
-                Text(model.activeWorkspace?.initials ?? "M")
-                    .font(.system(size: 11, weight: .bold))
-                    .tracking(0.5)
-            }
-            .buttonStyle(GlassCircleButtonStyle())
-            .accessibilityIdentifier("rail.workspace")
-            .accessibilityValue(model.activeWorkspace?.name ?? "")
-
             Button {
                 model.showingTabSwitcher = true
             } label: {
@@ -408,6 +386,12 @@ struct BottomRail: View {
                 }
             }
             .buttonStyle(GlassCircleButtonStyle())
+            // Tabs and the menu are the two destinations a thumb reaches without
+            // moving the hand, so they sit last, nearest the trailing edge.
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+            .accessibilityLabel("Tabs")
+            .accessibilityValue("\(model.tabs.count) open")
             .accessibilityIdentifier("rail.tabs")
 
             Button {
@@ -416,11 +400,17 @@ struct BottomRail: View {
                 Image(systemName: "line.3.horizontal")
             }
             .buttonStyle(GlassCircleButtonStyle())
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+            .accessibilityLabel("Menu")
             .accessibilityIdentifier("rail.menu")
         }
-        // The dock is a floating glass pill over the page, not a full-width band:
-        // the controls keep the desktop order inside one continuous capsule, and
-        // the page keeps running underneath it and into the home-indicator inset.
+        // A destination appearing or the tab count changing settles into place
+        // instead of popping, the way a system bar does.
+        .animation(.snappy(duration: 0.22), value: canBack)
+        .animation(.snappy(duration: 0.22), value: model.tabs.count)
+        // One floating capsule over the page: the page keeps running underneath it
+        // and into the home-indicator inset.
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
         // GlassPane, not `.glassEffect`: the system glass layer under these controls
@@ -458,43 +448,16 @@ struct BottomRail: View {
         }
     }
 
-    /// Zoom cluster, same fold as the desktop strip: −, the % is the reset, +.
-    private var zoomCluster: some View {
-        HStack(spacing: 3) {
-            Button { model.adjustZoom(by: -0.1) } label: {
-                Image(systemName: "minus").font(.system(size: 11, weight: .bold))
-            }
-            Button { model.resetZoom() } label: {
-                Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
-                    .font(.system(size: 9, weight: .semibold))
-                    .lineLimit(1)
-                    .fixedSize()
-            }
-            Button { model.adjustZoom(by: 0.1) } label: {
-                Image(systemName: "plus").font(.system(size: 11, weight: .bold))
-            }
-        }
-        .buttonStyle(CompactControlStyle())
-        .foregroundColor(Theme.panelMuted)
-    }
-
-    private func railButton(_ symbol: String, id: String, action: @escaping () -> Void) -> some View {
+    private func railButton(_ symbol: String, id: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
         }
         .buttonStyle(GlassCircleButtonStyle())
+        // The plate stays 36 pt; the target is 44, so the capsule's breathing room
+        // is part of the button rather than dead glass.
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
+        .accessibilityLabel(label)
         .accessibilityIdentifier(id)
-    }
-}
-
-/// Small square glass control for the folded cluster.
-struct CompactControlStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .frame(width: 30, height: 28)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(Color.white.opacity(configuration.isPressed ? 0.7 : 0.9))
-            )
     }
 }
