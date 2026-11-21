@@ -12,7 +12,7 @@ struct AddressSuggestionsPanel: View {
         ZStack {
             // The desktop's row popup is a glass plate over the page, like every
             // other popup: the page behind it is blurred, never legible.
-            GlassBackground(cornerRadius: 16, backdrop: model.panelBackdrop, backdropOffset: backdropOffset)
+            GlassPane(cornerRadius: 16, plate: true, backdrop: model.panelBackdrop, backdropOffset: backdropOffset)
             VStack(spacing: 0) {
             ForEach(Array(model.suggestions.enumerated()), id: \.element.id) { index, suggestion in
                 Button {

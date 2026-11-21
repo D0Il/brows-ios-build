@@ -574,11 +574,9 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Called when a page has finished loading. The snapshot is retaken only with a
     /// panel up, and a beat later so WebKit has painted the frame it will hand back.
     func pageDidRender() {
-        guard !isEditingAddress else { return }
-        // The dock is always on screen, so the page snapshot under its glass has to
-        // follow the page, not only a panel opening.
+        guard hasOpenPanel, !isEditingAddress else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
-            guard let self, !self.isEditingAddress else { return }
+            guard let self, self.hasOpenPanel else { return }
             self.refreshPanelBackdrop()
         }
     }
