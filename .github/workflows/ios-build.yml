@@ -17,13 +17,13 @@ on:
         type: boolean
         default: false
 
-# The suite is 37 methods in one XCTestCase class. Xcode parallel testing
-# distributes by class, so it cannot fan this suite out — the shards below do it
-# by method instead: one build, then four runners running disjoint -only-testing
-# subsets in parallel. The plan lives in .github/ci/shards.json and is checked
-# against the class before any shard starts.
+# The suite is 37 methods in one XCTestCase class, and Xcode's parallel testing
+# distributes by class, so the shards below split it by method instead: one
+# build-for-testing artifact, then four runners running disjoint -only-testing
+# subsets. The plan lives in .github/ci/shards.json and is checked against the
+# class before any shard starts.
 jobs:
-  build:
+  build-app:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -83,14 +83,32 @@ jobs:
           name: Brows-ipa
           path: ios/Brows/Brows.ipa
 
+  # Everything the tests need, on its own runner so the shards are not held
+  # behind the device ipa build. Measured: both builds take ~0.7 min, so running
+  # them side by side starts the shards about a minute earlier.
+  build-tests:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          ls /Applications | grep -i "^Xcode" || true
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        working-directory: ios/Brows
+        run: xcodegen generate
+
       # A dropped or duplicated method is the one failure mode sharding adds, and
       # it would look like a green run. Refuse to start a shard on a bad plan.
       - name: Verify the shard plan covers every test method
         run: python3 .github/ci/check-shards.py
 
-      # Build once for every test job: build-for-testing writes the .xctestrun and
-      # the ad-hoc-signed simulator app. The shards and the capture pass download
-      # this artifact and run test-without-building, so no job compiles twice.
       - name: Build for testing
         working-directory: ios/Brows
         run: |
@@ -114,7 +132,7 @@ jobs:
   # Screenshots are not tests, but they need the same app the shards install.
   # Runs beside the shards instead of in front of them.
   captures:
-    needs: build
+    needs: build-tests
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -134,7 +152,9 @@ jobs:
         run: |
           set -e
           xcrun simctl list runtimes
-          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,re,sys;d=json.load(sys.stdin)['devices'];v=lambda k:tuple(map(int,re.search(r'iOS-(\d+)-(\d+)',k).groups())) if re.search(r'iOS-(\d+)-(\d+)',k) else (0,0);print(next(x['udid'] for k in sorted(d,key=v,reverse=True) for x in d[k] if 'iPhone' in x['name']))")
+          # The JSON form of simctl list takes 20-45 s on a cold runner; the text
+          # table is instant and lists the newest runtime first.
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
           echo "device: $DEVICE"
           xcrun simctl list devices | grep "$DEVICE" || true
           xcrun simctl boot "$DEVICE" || true
@@ -167,7 +187,7 @@ jobs:
             launch.txt
 
   ui-test:
-    needs: build
+    needs: build-tests
     if: ${{ !github.event.inputs.only_test }}
     runs-on: macos-15
     strategy:
@@ -201,7 +221,7 @@ jobs:
           ONLY=$(python3 -c "import json;d=json.load(open('$GITHUB_WORKSPACE/.github/ci/shards.json'));print(' '.join('-only-testing:BrowsUITests/BrowsUITests/'+t for t in d['${{ matrix.shard }}']))")
           echo "shard ${{ matrix.shard }} methods:"
           printf '%s\n' $ONLY
-          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,re,sys;d=json.load(sys.stdin)['devices'];v=lambda k:tuple(map(int,re.search(r'iOS-(\d+)-(\d+)',k).groups())) if re.search(r'iOS-(\d+)-(\d+)',k) else (0,0);print(next(x['udid'] for k in sorted(d,key=v,reverse=True) for x in d[k] if 'iPhone' in x['name']))")
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
           echo "device: $DEVICE"
           xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b
@@ -229,7 +249,7 @@ jobs:
 
   # The focused-rerun path the suite already had: one method, no shards.
   ui-test-single:
-    needs: build
+    needs: build-tests
     if: ${{ github.event.inputs.only_test }}
     runs-on: macos-15
     steps:
@@ -257,7 +277,7 @@ jobs:
           set -euo pipefail
           XCTESTRUN=$(ls build-test/Build/Products/*.xctestrun | head -1)
           echo "xctestrun: $XCTESTRUN"
-          DEVICE=$(xcrun simctl list devices available --json | python3 -c "import json,re,sys;d=json.load(sys.stdin)['devices'];v=lambda k:tuple(map(int,re.search(r'iOS-(\d+)-(\d+)',k).groups())) if re.search(r'iOS-(\d+)-(\d+)',k) else (0,0);print(next(x['udid'] for k in sorted(d,key=v,reverse=True) for x in d[k] if 'iPhone' in x['name']))")
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
           echo "device: $DEVICE"
           xcrun simctl boot "$DEVICE" || true
           xcrun simctl bootstatus "$DEVICE" -b

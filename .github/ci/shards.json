@@ -1,47 +1,47 @@
 {
   "1": [
-    "testExternalSchemesHandOffWithoutLeavingThePage",
-    "testFindInPage",
-    "testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice",
-    "testNewWindowLinksOpenAndSelectANewTab",
-    "testPageControlsSitBeforeThePill",
-    "testPrivateDownloadIsNotPersisted",
-    "testReaderFailureUsesTheAppsOwnCard",
-    "testStartPageSearchNavigates",
-    "testWorkspaceSwitch"
-  ],
-  "2": [
     "testAddressPillCompletesFromHistory",
-    "testAddressPillExplainsAnAddressItCannotOpen",
-    "testBookmarkStar",
-    "testPrivateTabBadge",
-    "testRefusedPopupUsesTheAppsCard",
-    "testTypedExternalSchemeRoutesInsteadOfBecomingAPage",
-    "testWindowOpenReusesTheNamedWindow",
-    "testWindowOpenWithFeaturesOpensOneSelectedTab",
-    "testWorkspaceDelete"
-  ],
-  "3": [
-    "testAppearanceTokensPassContrastAudit",
-    "testBookmarkChipNavigates",
-    "testBothAppearancesOpenTheMenu",
-    "testClosingPrivateTabsDeletesTheirDownloadFiles",
-    "testHTTPAuthPromptCompletesAndSaves",
-    "testNavigationFromAddressPill",
-    "testPrivateDownloadFileIsSweptOnNextLaunch",
-    "testRailAndMenuPanels",
-    "testReaderMode",
-    "testStartPageSearchField"
-  ],
-  "4": [
-    "testAddressBarTopSetting",
     "testCloseTab",
     "testDownloadStarts",
     "testJavaScriptDialogsAnswerThePage",
     "testNamedPopupFromAPrivateTabStaysPrivate",
+    "testNavigationFromAddressPill",
+    "testPrivateTabBadge",
+    "testStartPageSearchField",
+    "testTypedExternalSchemeRoutesInsteadOfBecomingAPage",
+    "testWorkspaceDelete"
+  ],
+  "2": [
+    "testAddressBarTopSetting",
+    "testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice",
     "testNamedWindowReopensAfterItsPopupIsClosed",
+    "testNewWindowLinksOpenAndSelectANewTab",
+    "testPageControlsSitBeforeThePill",
+    "testTabGallerySearch",
+    "testWindowOpenReusesTheNamedWindow",
+    "testWindowOpenWithFeaturesOpensOneSelectedTab",
+    "testWorkspaceSwitch"
+  ],
+  "3": [
+    "testAddressPillExplainsAnAddressItCannotOpen",
+    "testAppearanceTokensPassContrastAudit",
+    "testBookmarkChipNavigates",
+    "testClosingPrivateTabsDeletesTheirDownloadFiles",
+    "testExternalSchemesHandOffWithoutLeavingThePage",
+    "testPrivateDownloadFileIsSweptOnNextLaunch",
+    "testPrivateDownloadIsNotPersisted",
+    "testRefusedPopupUsesTheAppsCard",
+    "testStartPageSearchNavigates"
+  ],
+  "4": [
+    "testBookmarkStar",
+    "testBothAppearancesOpenTheMenu",
+    "testFindInPage",
+    "testHTTPAuthPromptCompletesAndSaves",
     "testPasswordSaveAndAutofill",
-    "testSiteBlockingToggle",
-    "testTabGallerySearch"
+    "testRailAndMenuPanels",
+    "testReaderFailureUsesTheAppsOwnCard",
+    "testReaderMode",
+    "testSiteBlockingToggle"
   ]
 }
