@@ -10,8 +10,6 @@ struct BookmarksSheet: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 List {
                     if model.bookmarks.isEmpty {
                         Text("No bookmarks yet. Tap the star in the address pill to save a page.")

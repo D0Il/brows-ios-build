@@ -14,8 +14,6 @@ struct DownloadsSheet: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 if model.downloads.isEmpty {
                     Text("Nothing downloaded yet.")
                         .font(.system(size: 13))

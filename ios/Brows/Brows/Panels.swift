@@ -14,8 +14,6 @@ struct WorkspacesSheet: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 VStack(spacing: 12) {
                     ScrollView {
                         VStack(spacing: 10) {
@@ -142,8 +140,6 @@ struct HistorySheet: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundColor(Theme.panelMuted)

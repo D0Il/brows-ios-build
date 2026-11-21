@@ -13,8 +13,6 @@ struct SettingsSheet: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
                         section("Appearance") {

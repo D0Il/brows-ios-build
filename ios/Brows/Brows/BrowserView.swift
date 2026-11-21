@@ -9,6 +9,10 @@ struct BrowserView: View {
 
     /// A desktop-style popup: the panel itself, over the page, with the close
     /// action its Done button and rows call.
+    ///
+    /// This background is the panel's one and only plate. A panel must not paint
+    /// a second `GlassPane` of its own: two 0.62 plates stack and a dark pane over
+    /// a white page lands near 66 instead of the desktop's 118 — a fat slab again.
     @ViewBuilder
     private func panel<V: View>(_ content: V, close: @escaping () -> Void) -> some View {
         content

@@ -12,8 +12,6 @@ struct AppMenu: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 List {
                     Section {
                         row("Site information", "lock.shield") {

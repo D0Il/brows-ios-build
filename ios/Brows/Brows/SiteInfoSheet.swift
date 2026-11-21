@@ -12,8 +12,6 @@ struct SiteInfoSheet: View {
                 Button("Done") { dismiss() }
             }
             ZStack {
-                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
-
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
                         if let info = model.siteInfo {
