@@ -151,7 +151,10 @@ jobs:
       # overlaps the download and the fixture server instead of following them.
       - name: Start the simulator booting
         run: |
-          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
+          # simctl lists devices oldest runtime first and this image ships iOS 18.5
+          # and 18.6 beside 26.x, so take the first iPhone in the newest iOS block.
+          # The JSON form of this query costs 20-45 s on a cold runner.
+          DEVICE=$(xcrun simctl list devices available | awk '/^-- /{ split($3,p,"."); cur=p[1]*100+p[2]; next } /iPhone/ && cur>best { if (match($0,/[0-9A-F-]{36}/)) { best=cur; u=substr($0,RSTART,RLENGTH) } } END{ print u }')
           echo "device: $DEVICE"
           xcrun simctl boot "$DEVICE" || true
           echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
@@ -216,7 +219,10 @@ jobs:
       # overlaps the download and the fixture server instead of following them.
       - name: Start the simulator booting
         run: |
-          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
+          # simctl lists devices oldest runtime first and this image ships iOS 18.5
+          # and 18.6 beside 26.x, so take the first iPhone in the newest iOS block.
+          # The JSON form of this query costs 20-45 s on a cold runner.
+          DEVICE=$(xcrun simctl list devices available | awk '/^-- /{ split($3,p,"."); cur=p[1]*100+p[2]; next } /iPhone/ && cur>best { if (match($0,/[0-9A-F-]{36}/)) { best=cur; u=substr($0,RSTART,RLENGTH) } } END{ print u }')
           echo "device: $DEVICE"
           xcrun simctl boot "$DEVICE" || true
           echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
@@ -278,7 +284,10 @@ jobs:
 
       - name: Start the simulator booting
         run: |
-          DEVICE=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone.*\([0-9A-F-]{36}\)' | grep -oE '[0-9A-F-]{36}')
+          # simctl lists devices oldest runtime first and this image ships iOS 18.5
+          # and 18.6 beside 26.x, so take the first iPhone in the newest iOS block.
+          # The JSON form of this query costs 20-45 s on a cold runner.
+          DEVICE=$(xcrun simctl list devices available | awk '/^-- /{ split($3,p,"."); cur=p[1]*100+p[2]; next } /iPhone/ && cur>best { if (match($0,/[0-9A-F-]{36}/)) { best=cur; u=substr($0,RSTART,RLENGTH) } } END{ print u }')
           echo "device: $DEVICE"
           xcrun simctl boot "$DEVICE" || true
           echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
