@@ -92,7 +92,7 @@ struct CredentialSaveOverlay: View {
                 .foregroundColor(Theme.panelInk)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase))
+                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(id)
@@ -163,11 +163,11 @@ struct HTTPAuthCard: View {
             AuthField(placeholder: "Username", text: $username, keyboard: .emailAddress)
                 .frame(height: 40)
                 .padding(.horizontal, 10)
-                .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
+                .background(RoundedRectangle(cornerRadius: 10).fill(Theme.rowFill))
             AuthField(placeholder: "Password", text: $password, secure: true)
                 .frame(height: 40)
                 .padding(.horizontal, 10)
-                .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
+                .background(RoundedRectangle(cornerRadius: 10).fill(Theme.rowFill))
 
             if auth.isPrivate {
                 Text("Private tab: these credentials are used for this session and are not saved.")
@@ -190,7 +190,7 @@ struct HTTPAuthCard: View {
             // The plate sits outside the label: `.disabled` dims the label, and a
             // plate inside it turned into a grey slab on the dark card (seen in the
             // auth-dark capture). The desktop's white plate stays white.
-            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase))
+            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
             .accessibilityIdentifier("auth.signIn")
             .disabled(incomplete)
         }

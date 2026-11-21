@@ -51,7 +51,7 @@ struct AppMenu: View {
                     }
                 }
                 .scrollContentBackground(.hidden)
-                .listStyle(.insetGrouped)
+                .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
         }
@@ -78,7 +78,7 @@ struct AppMenu: View {
             Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
         }
-        .listRowBackground(Theme.rowFill)
+        .listRowBackground(Color.clear)
     }
 
     private func row(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
@@ -97,6 +97,6 @@ struct AppMenu: View {
             action()
             dismiss()
         }
-        .listRowBackground(Theme.rowFill)
+        .listRowBackground(Color.clear)
     }
 }

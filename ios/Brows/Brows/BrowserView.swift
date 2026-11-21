@@ -333,7 +333,7 @@ struct BottomRail: View {
             // Glass, not a white plate: nothing in this rail may paint a white
             // slab over the page. The pane is a background layer, so it never sees
             // the field's taps; focusing the field only brightens the rim.
-            .background(GlassPane(cornerRadius: Theme.pillRadius))
+            .background(GlassPane(cornerRadius: Theme.pillRadius, backdrop: model.panelBackdrop))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                     .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
@@ -398,6 +398,11 @@ struct BottomRail: View {
         .animation(.snappy(duration: 0.22), value: canBack)
         .animation(.snappy(duration: 0.22), value: model.tabs.count)
         .animation(.snappy(duration: 0.18), value: model.isEditingAddress)
+        // The glass can only show the page if it has a picture of it: refresh the
+        // snapshot when the dock appears and whenever the page under it changes.
+        .onAppear { model.refreshPanelBackdrop() }
+        .onChange(of: model.activeTabId) { _ in model.refreshPanelBackdrop() }
+        .onChange(of: model.activeTab?.isLoading) { _ in model.refreshPanelBackdrop() }
         // One floating capsule over the page: the page keeps running underneath it
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
@@ -406,7 +411,7 @@ struct BottomRail: View {
         // swallowed the pill's focus (no keyboard, run 44930532421), which is the
         // same failure the menu buttons hit — glass never sits on or under a control.
         .background(
-            GlassPane(cornerRadius: 28)
+            GlassPane(cornerRadius: 28, backdrop: model.panelBackdrop)
                 .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         )
         .padding(.horizontal, 8)

@@ -226,7 +226,7 @@ struct PasswordsSheet: View {
             .foregroundColor(Theme.panelInk)
             .padding(.horizontal, 10)
             .frame(height: 38)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
+            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.rowFill))
     }
 
     private func secureField(_ label: String, text: Binding<String>) -> some View {
@@ -236,6 +236,6 @@ struct PasswordsSheet: View {
             .foregroundColor(Theme.panelInk)
             .padding(.horizontal, 10)
             .frame(height: 38)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
+            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.rowFill))
     }
 }

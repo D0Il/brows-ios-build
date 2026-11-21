@@ -34,7 +34,7 @@ struct TabSwitcher: View {
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 40)
-                    .background(Capsule().fill(Theme.plateBase))
+                    .background(Capsule().fill(Theme.rowFill))
 
                     HStack {
                         Text(query.isEmpty ? "\(model.tabs.count) open" : "\(results.count) of \(model.tabs.count) tabs")

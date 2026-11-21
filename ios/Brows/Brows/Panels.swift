@@ -32,7 +32,7 @@ struct WorkspacesSheet: View {
                             .foregroundColor(Theme.panelInk)
                             .padding(.horizontal, 12)
                             .frame(height: 40)
-                            .background(Capsule().fill(Theme.plateBase))
+                            .background(Capsule().fill(Theme.rowFill))
 
                         Button {
                             model.addWorkspace(named: newName)
@@ -152,7 +152,7 @@ struct HistorySheet: View {
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 40)
-                    .background(Capsule().fill(Theme.plateBase))
+                    .background(Capsule().fill(Theme.rowFill))
 
                     if entries.isEmpty {
                         Text(model.history.isEmpty ? "Nothing in history yet." : "No matches.")

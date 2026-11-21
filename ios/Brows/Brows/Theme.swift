@@ -60,6 +60,11 @@ enum Theme {
     /// A plate inside a sheet is `rgba(var(--plate-rgb),.62)` (`brows_surface.css`):
     /// at .95 it read as a white slab on top of the sheet's own glass.
     static let plate = plateBase.opacity(0.62)
+    /// The pane's own tint. Light glass must stay see-through over a page;
+    /// the dark block keeps the desktop's heavier plate.
+    static let plateAlpha = 0.30
+    /// What actually makes glass glass: the page behind is blurred, not just tinted.
+    static let glassBlur: CGFloat = 22
     /// The wash a control's glass takes. Only a tint, never a fill: the phone's
     /// controls sit on the page and the page must read through them.
     static let railPlate = Color.white.opacity(0.22)
@@ -148,7 +153,9 @@ enum Theme {
     /// bar. The pane is the same colour and the ramp/sheen are unchanged; only the
     /// backing is raised to the desktop's opaque-chrome result.
     static let railBase = Color(red: 240 / 255, green: 245 / 255, blue: 250 / 255)
-    static let railBaseAlpha = 0.90
+    /// A tint, not a coat of paint: at .90 the rail was a white slab and the page
+    /// below it was invisible. Glass has to show what is behind it.
+    static let railBaseAlpha = 0.30
 
     /// brows_glass.h: kRailRampTopAlpha 0x4F (0.31) → kRailRampBottomAlpha 0x21
     /// (0.13) of rgb(228, 236, 244).
@@ -200,7 +207,7 @@ struct GlassPane: View {
     var backdropOffset: CGSize = .zero
 
     private var tint: Color { plate ? Theme.plateBase : Theme.railBase }
-    private var tintAlpha: Double { plate ? 0.62 : Theme.railBaseAlpha }
+    private var tintAlpha: Double { plate ? Theme.plateAlpha : Theme.railBaseAlpha }
 
     var body: some View {
         GeometryReader { geo in
@@ -255,9 +262,14 @@ struct GlassPane: View {
             // pill-dark, run 44896216566). A crop cannot be re-laid-out by a parent.
             let frame = geo.frame(in: .global).offsetBy(dx: backdropOffset.width, dy: backdropOffset.height)
             if let cropped = PanelBackdrop.crop(backdrop, to: frame) {
+                // Blur the page, then tint it. Without this the crop was drawn sharp
+                // under a white wash — milk, not glass (the light captures showed a
+                // white slab over a grey page).
                 Image(uiImage: cropped)
                     .resizable()
                     .frame(width: geo.size.width, height: geo.size.height)
+                    .blur(radius: Theme.glassBlur)
+                    .clipped()
             } else {
                 BackdropBlur()
             }

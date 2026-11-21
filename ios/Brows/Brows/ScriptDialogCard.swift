@@ -52,7 +52,7 @@ struct ScriptDialogCard: View {
                     .foregroundColor(Theme.plateInk)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
-                    .background(RoundedRectangle(cornerRadius: 10).fill(Theme.plateBase))
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Theme.rowFill))
                     .accessibilityLabel("dialog.field")
                     .accessibilityIdentifier("dialog.field")
             }
@@ -67,7 +67,7 @@ struct ScriptDialogCard: View {
                     .padding(.vertical, 12)
             }
             .buttonStyle(.plain)
-            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.plateBase))
+            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
             .accessibilityIdentifier("dialog.ok")
 
             // An alert has nothing to cancel: dismissing it is its only answer.

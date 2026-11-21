@@ -40,7 +40,7 @@ struct BookmarksSheet: View {
                             .accessibilityIdentifier("bookmarks.folder")
                             .accessibilityValue(model.newBookmarkFolder)
                         }
-                        .listRowBackground(Theme.rowFill)
+                        .listRowBackground(Color.clear)
                     } footer: {
                         Text("New bookmarks are filed here.")
                     }
@@ -74,7 +74,7 @@ struct BookmarksSheet: View {
                                     }
                                     .buttonStyle(.plain)
                                     .accessibilityIdentifier("bookmark.row")
-                                    .listRowBackground(Theme.rowFill)
+                                    .listRowBackground(Color.clear)
                                 }
                                 .onDelete { indexSet in
                                     // Indices are per section, so delete by identity.
