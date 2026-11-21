@@ -23,19 +23,45 @@ struct SettingsSheet: View {
                         }
 
                         section("Search") {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Picker("Search engine", selection: Binding(
-                                    get: { model.settings.searchEngine },
-                                    set: { model.settings.searchEngine = $0; model.saveSettings() }
-                                )) {
+                            // `.settings-select` (`brows_surface.css:636-650`): the label and its
+                            // note stack above a 34 px field with a `.66` plate fill, a
+                            // `rgba(72,83,97,.17)` rim and radius 9. The desktop draws a select,
+                            // not a segmented control.
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("Search engine")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(Theme.panelInk)
+                                Text("Used by the pill when you type words")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(Theme.panelMuted)
+                                Menu {
                                     ForEach(SearchEngine.allCases) { engine in
-                                        Text(engine.name).tag(engine)
+                                        Button(engine.name) {
+                                            model.settings.searchEngine = engine
+                                            model.saveSettings()
+                                        }
                                     }
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Text(model.settings.searchEngine.name)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Theme.panelInk)
+                                        Spacer(minLength: 0)
+                                        Image(systemName: "chevron.down")
+                                            .font(.system(size: 9, weight: .semibold))
+                                            .foregroundColor(Theme.panelMuted)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .frame(height: 34)
+                                    .background(RoundedRectangle(cornerRadius: 9).fill(Theme.plateBase.opacity(0.66)))
+                                    .overlay(RoundedRectangle(cornerRadius: 9).stroke(
+                                        Color(red: 72 / 255, green: 83 / 255, blue: 97 / 255).opacity(0.17),
+                                        lineWidth: 1
+                                    ))
                                 }
-                                .pickerStyle(.segmented)
+                                .accessibilityIdentifier("settings.searchEngine")
                             }
-                            .padding(12)
-                            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
 
                         section("Privacy") {
