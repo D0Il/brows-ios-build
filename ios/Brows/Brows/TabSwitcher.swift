@@ -15,7 +15,7 @@ struct TabSwitcher: View {
     var body: some View {
         NavigationView {
             ZStack {
-                GlassPane(cornerRadius: 0).ignoresSafeArea()
+                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {

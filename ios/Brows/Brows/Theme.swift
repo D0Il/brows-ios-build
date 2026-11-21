@@ -183,6 +183,14 @@ enum Theme {
 /// clarity alpha, white ramp, then the top-left sheen.
 struct GlassPane: View {
     var cornerRadius: CGFloat = 0
+    /// A popup plate, not the rail band: `brows_surface.css` paints plates with
+    /// `rgba(var(--plate-rgb),.62)`, and the dark block's `--plate-rgb` is
+    /// `34,38,45`. The rail band stays the desktop's light tint in both
+    /// appearances; a sheet must not, or dark mode gets a near-white slab.
+    var plate: Bool = false
+
+    private var tint: Color { plate ? Theme.plateBase : Theme.railBase }
+    private var tintAlpha: Double { plate ? 0.62 : Theme.railBaseAlpha }
 
     var body: some View {
         GeometryReader { geo in
@@ -192,25 +200,29 @@ struct GlassPane: View {
                 // not glass: the page behind it must be blurred through the pane.
                 BackdropBlur()
 
-                Theme.railBase.opacity(Theme.railBaseAlpha)
+                tint.opacity(tintAlpha)
 
-                LinearGradient(
-                    colors: [Theme.railRampTop, Theme.railRampBottom],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                if !plate {
+                    LinearGradient(
+                        colors: [Theme.railRampTop, Theme.railRampBottom],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
 
                 // brows_glass.h: transparent at 52% of the gradient's reach,
                 // not at the end of it.
-                RadialGradient(
-                    stops: [
-                        Gradient.Stop(color: Theme.railSheen, location: 0),
-                        Gradient.Stop(color: .clear, location: 0.52)
-                    ],
-                    center: UnitPoint(x: 0.18, y: -0.20),
-                    startRadius: 0,
-                    endRadius: max(geo.size.width * 1.4, geo.size.height * 0.95)
-                )
+                if !plate {
+                    RadialGradient(
+                        stops: [
+                            Gradient.Stop(color: Theme.railSheen, location: 0),
+                            Gradient.Stop(color: .clear, location: 0.52)
+                        ],
+                        center: UnitPoint(x: 0.18, y: -0.20),
+                        startRadius: 0,
+                        endRadius: max(geo.size.width * 1.4, geo.size.height * 0.95)
+                    )
+                }
 
                 if cornerRadius > 0 {
                     RoundedRectangle(cornerRadius: cornerRadius)

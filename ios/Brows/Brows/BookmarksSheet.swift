@@ -7,7 +7,7 @@ struct BookmarksSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                GlassPane(cornerRadius: 0).ignoresSafeArea()
+                GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
 
                 List {
                     if model.bookmarks.isEmpty {
