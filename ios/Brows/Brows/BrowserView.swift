@@ -21,7 +21,7 @@ struct BrowserView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             // The platform's own glass, full-bleed: the sheet surface is the
             // same Liquid Glass the dock uses, not a material slab.
-            .background(Color.clear.browsGlass(cornerRadius: 0).ignoresSafeArea())
+            .background(Color.clear.browsGlass(cornerRadius: 0).allowsHitTesting(false).ignoresSafeArea())
             // The app has no iOS-blue accent: Done and every other control in a
             // panel uses the desktop's ink, never the system tint.
             .tint(Theme.panelInk)
@@ -335,7 +335,7 @@ struct BottomRail: View {
             // Glass, not a white plate: nothing in this rail may paint a white
             // slab over the page. The pane is a background layer, so it never sees
             // the field's taps; focusing the field only brightens the rim.
-            .background(Color.clear.browsGlass(cornerRadius: Theme.pillRadius))
+            .background(Color.clear.browsGlass(cornerRadius: Theme.pillRadius).allowsHitTesting(false))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous)
                     .stroke(model.isEditingAddress ? Theme.pillFocusBorder : Theme.pillBorder, lineWidth: 1)
@@ -412,7 +412,7 @@ struct BottomRail: View {
         // Apple's own Liquid Glass. The dock is the floating element `glassEffect`
         // exists for, so the system draws it; the earlier focus failures were the
         // row's width budget squeezing the field, not the glass.
-        .background(Color.clear.browsGlass(cornerRadius: 28))
+        .background(Color.clear.browsGlass(cornerRadius: 28).allowsHitTesting(false))
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         // The pill's completions ride on the rail and are pushed clear of it by
