@@ -1140,10 +1140,10 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
-        app.webViews.buttons["Open refused popup"].tap()
+        app.webViews.links["Open refused popup"].tap()
 
         XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 10),
-                      "a popup with an unrenderable scheme was swallowed (last route: \(app.staticTexts["debug.lastroute"].label))")
+                      "a popup with an unrenderable scheme was swallowed")
         XCTAssertEqual(app.alerts.count, 0, "the refusal borrowed system chrome")
         XCTAssertTrue(app.staticTexts["linknotice.message"].label.contains("brows-nothing"),
                       "the card did not name the scheme: \(app.staticTexts["linknotice.message"].label)")
