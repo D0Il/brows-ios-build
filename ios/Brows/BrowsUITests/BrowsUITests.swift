@@ -332,6 +332,28 @@ final class BrowsUITests: XCTestCase {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
 
+        // A page that is still loading belongs to WebKit's process pool, and on a
+        // cold runner that pool can take half a minute to start: run 45036456881
+        // measured 24.3 s for the networking process and 30.7 s for WebContent.
+        // Typing an address at 10% left the load queued behind that launch and
+        // wiped by the old page's late finish, so the 401 prompt's 15 s window
+        // opened with no request in flight. Wait for the current page to settle
+        // before driving the browser. This is a precondition, not a retry: every
+        // assertion about the submitted address stays exactly as it was.
+        let loading = app.descendants(matching: .any)["rail.progress"]
+        // Give the page surface a beat to report its load before believing it is
+        // idle: the start page begins loading with the first frame, and a probe
+        // that runs a moment too early would read "absent" and wave the input through.
+        _ = loading.waitForExistence(timeout: 2)
+        let settled = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: loading
+        )
+        if XCTWaiter().wait(for: [settled], timeout: 60) != .completed {
+            XCTFail("the page never finished loading: tabs=\(app.staticTexts["debug.tabs"].label)")
+            return
+        }
+
         func submit() {
             // Tapping the pill selects the whole URL, so typing must replace it. On
             // a loaded runner the tap can land before the selection settles and the

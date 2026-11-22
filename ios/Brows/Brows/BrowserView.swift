@@ -237,6 +237,14 @@ struct TopStrip: View {
                     .progressViewStyle(.linear)
                     .frame(width: 56)
                     .tint(Theme.panelInk)
+                    // The page's own loading state, named for assistive technology
+                    // and visible to the UI tests. A cold runner spent 24-31 s
+                    // launching WebKit's networking and content processes (run
+                    // 45036456881), so the tests must not type a new address until
+                    // this element is gone: the submission otherwise waits behind
+                    // the launch and the old page's late finish resets the pill.
+                    .accessibilityIdentifier("rail.progress")
+                    .accessibilityValue("\(Int(progress * 100))%")
             }
         }
         .padding(.horizontal, 10)
