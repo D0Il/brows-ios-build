@@ -1173,7 +1173,10 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
                       "site information did not open")
         XCTAssertTrue(app.staticTexts["Host"].waitForExistence(timeout: 10), "no host row")
-        XCTAssertTrue(app.staticTexts["localhost"].exists, "site information did not name the host")
+        // The row carries the host and its port, so match the host rather than a
+        // bare string the panel is not required to use.
+        let host = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] %@", "localhost")).firstMatch
+        XCTAssertTrue(host.exists, "site information did not name the host")
         XCTAssertTrue(app.staticTexts["Scheme"].exists, "no scheme row")
         app.buttons["Done"].tap()
     }
@@ -1188,17 +1191,17 @@ final class BrowsUITests: XCTestCase {
                       "menu did not open")
         let reset = app.buttons["menu.zoom.reset"]
         XCTAssertTrue(reset.waitForExistence(timeout: 10), "no zoom control in the menu")
-        XCTAssertEqual(reset.label, "100%", "zoom did not start at 100%")
+        XCTAssertEqual(reset.value as? String, "100%", "zoom did not start at 100%")
 
         app.buttons["menu.zoom.in"].tap()
         app.buttons["menu.zoom.in"].tap()
-        XCTAssertEqual(reset.label, "120%", "zoom in did not step the page")
+        XCTAssertEqual(reset.value as? String, "120%", "zoom in did not step the page")
 
         app.buttons["menu.zoom.out"].tap()
-        XCTAssertEqual(reset.label, "110%", "zoom out did not step the page")
+        XCTAssertEqual(reset.value as? String, "110%", "zoom out did not step the page")
 
         reset.tap()
-        XCTAssertEqual(reset.label, "100%", "the percentage did not reset the zoom")
+        XCTAssertEqual(reset.value as? String, "100%", "the percentage did not reset the zoom")
     }
 
     /// Save as PDF only presents sharing after the file is on disk; the sheet is

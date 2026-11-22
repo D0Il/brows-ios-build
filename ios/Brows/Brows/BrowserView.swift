@@ -422,10 +422,10 @@ struct BottomRail: View {
             .accessibilityLabel("Menu")
             .accessibilityIdentifier("rail.menu")
         }
-        // A destination appearing or the tab count changing settles into place
-        // instead of popping, the way a system bar does.
-        .animation(.snappy(duration: 0.22), value: canBack)
-        .animation(.snappy(duration: 0.22), value: model.tabs.count)
+        // No implicit animation on canBack or the tab count: both re-lay the dock
+        // out, and a tap that lands during that animation is delivered to a view
+        // that is being replaced (the "menu did not open" signature across runs
+        // 44928536766, 44956470184, 45026104953).
         // One floating capsule over the page: the page keeps running underneath it
         // and into the home-indicator inset.
         .padding(.horizontal, 8)

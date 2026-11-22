@@ -79,6 +79,7 @@ struct AppMenu: View {
             }
             .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
             .accessibilityLabel("Reset zoom")
+            .accessibilityValue("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
             .accessibilityIdentifier("menu.zoom.reset")
             Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
