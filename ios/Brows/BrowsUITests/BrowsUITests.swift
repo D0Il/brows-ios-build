@@ -659,6 +659,12 @@ final class BrowsUITests: XCTestCase {
         let row = app.buttons.matching(identifier: "workspace.row.WO").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 10), "workspace was not created")
         row.tap()
+        // The sheet dismisses and the switch rebuilds the dock's tab set; tapping
+        // the bar while that commit is in flight sends the touch into a view that
+        // is being replaced (trace, shard 2, run 45013202399: tap synthesised, app
+        // idle, no panel). Wait for the panel to be gone before using the dock.
+        XCTAssertTrue(app.staticTexts["Workspaces"].waitForNonExistence(timeout: 10),
+                      "the workspaces panel stayed up after a switch")
 
         // No workspace button in the dock any more: the switch is shown where
         // workspaces live, by the row that now reads CURRENT.
