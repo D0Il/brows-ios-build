@@ -314,8 +314,7 @@ final class BrowsUITests: XCTestCase {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         for _ in 0..<3 {
-            field.tap()
-            _ = app.keyboards.firstMatch.waitForExistence(timeout: 2)
+            guard focusAddressPill(field, in: app) else { return }
             field.typeText(text)
             if (field.value as? String) == text { break }
         }
@@ -359,8 +358,7 @@ final class BrowsUITests: XCTestCase {
             // a loaded runner the tap can land before the selection settles and the
             // URL grows into a half-typed mess; re-tapping is the real fix.
             for _ in 0..<3 {
-                field.tap()
-                _ = app.keyboards.firstMatch.waitForExistence(timeout: 2)
+                guard focusAddressPill(field, in: app) else { return }
                 field.typeText(url)
                 if (field.value as? String) == url { break }
             }
@@ -474,11 +472,28 @@ final class BrowsUITests: XCTestCase {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         for _ in 0..<3 {
-            field.tap()
+            guard focusAddressPill(field, in: app) else { return }
             field.typeText(text)
             if (field.value as? String) == text { return }
         }
         XCTFail("the pill would not replace its text with \(text): \(field.value ?? "nil") - the URL grew instead")
+    }
+
+    /// A synthetic tap on the pill can be swallowed while the simulator is still
+    /// settling: the app's focus state never flips and XCTest's typeText then
+    /// fails before a keyboard exists (run 45046850662: three type attempts with
+    /// `rail.address` still holding its placeholder). A tap is asynchronous, so
+    /// wait for the keyboard after it and tap again if the touch was lost. This
+    /// guards the precondition for typing, not an assertion; if focus never
+    /// arrives the test still fails.
+    @discardableResult
+    private func focusAddressPill(_ field: XCUIElement, in app: XCUIApplication) -> Bool {
+        for _ in 0..<3 {
+            field.tap()
+            if app.keyboards.firstMatch.waitForExistence(timeout: 8) { return true }
+        }
+        XCTFail("the address pill never took keyboard focus: pill=\(field.value ?? "nil")")
+        return false
     }
 
     private func waitUntilHittable(_ element: XCUIElement, timeout: TimeInterval = 10) {
