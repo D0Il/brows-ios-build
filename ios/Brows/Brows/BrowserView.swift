@@ -401,7 +401,7 @@ struct BottomRail: View {
             .accessibilityIdentifier("rail.tabs")
 
             Button {
-                model.showingMenu = true
+                model.openMenu()
             } label: {
                 Image(systemName: "line.3.horizontal")
             }

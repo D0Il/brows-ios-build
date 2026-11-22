@@ -60,21 +60,37 @@ enum PageTools {
     (function () {
       if (window.__browsPopupGuard) { return; }
       window.__browsPopupGuard = true;
-      try { window.webkit.messageHandlers.browsPopup.postMessage('guard-ready'); } catch (error) {}
       var renderable = /^(https?|about|file|data|blob|javascript)$/i;
       var original = window.open;
-      window.open = function (url) {
-        try {
-          if (url) {
-            var protocol = new URL(url, document.baseURI).protocol.replace(':', '');
-            if (!renderable.test(protocol)) {
-              window.webkit.messageHandlers.browsPopup.postMessage(String(url));
-              return null;
-            }
+      var wrapped = function (url) {
+        if (url) {
+          var protocol = '';
+          try {
+            protocol = new URL(url, document.baseURI).protocol.replace(':', '');
+          } catch (error) {
+            return original.apply(window, arguments);
           }
-        } catch (error) {}
+          if (!renderable.test(protocol)) {
+            window.webkit.messageHandlers.browsPopup.postMessage(String(url));
+            return null;
+          }
+        }
         return original.apply(window, arguments);
       };
+      var assigned = false;
+      try {
+        window.open = wrapped;
+        assigned = window.open === wrapped;
+      } catch (error) {}
+      if (!assigned) {
+        try {
+          Object.defineProperty(window, 'open', {
+            value: wrapped, configurable: true, writable: true
+          });
+          assigned = window.open === wrapped;
+        } catch (error) {}
+      }
+      window.webkit.messageHandlers.browsPopup.postMessage('guard:' + assigned);
     })();
     """
 

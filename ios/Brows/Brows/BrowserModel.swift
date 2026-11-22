@@ -1534,6 +1534,22 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
     }
 
+    /// The dock is the top-level navigator: opening the menu closes any panel
+    /// that is still on screen, so a tap can never be spent on a dismissing sheet.
+    func openMenu() {
+        pendingPanel = nil
+        showingTabSwitcher = false
+        showingBookmarks = false
+        showingHistory = false
+        showingWorkspaces = false
+        showingSiteInfo = false
+        showingDownloads = false
+        showingPasswords = false
+        showingExtensions = false
+        showingSettings = false
+        showingMenu = true
+    }
+
     func openPendingPanel() {
         guard let target = pendingPanel else { return }
         pendingPanel = nil
@@ -1617,8 +1633,8 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             return
         }
         if message.name == "browsPopup", let text = message.body as? String {
-            if text == "guard-ready" {
-                lastRoute = "popup guard ready"
+            if text.hasPrefix("guard:") {
+                lastRoute = "popup guard " + (text == "guard:true" ? "armed" : "failed")
                 return
             }
             if let url = URL(string: text) { _ = routeExternalLink(url) }
