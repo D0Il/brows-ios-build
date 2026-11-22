@@ -63,17 +63,14 @@ enum PageTools {
       var renderable = /^(https?|about|file|data|blob|javascript)$/i;
       var original = window.open;
       var wrapped = function (url) {
-        if (url) {
-          var protocol = '';
-          try {
-            protocol = new URL(url, document.baseURI).protocol.replace(':', '');
-          } catch (error) {
-            return original.apply(window, arguments);
-          }
-          if (!renderable.test(protocol)) {
-            window.webkit.messageHandlers.browsPopup.postMessage(String(url));
-            return null;
-          }
+        // A plain scheme match, with no URL parsing: WebKit's URL constructor is
+        // where the first version of this guard fell through, so the refusal still
+        // went to the native open and vanished (last route stayed "guard armed").
+        var text = url === undefined || url === null ? "" : String(url);
+        var match = text.match(/^([a-z][a-z0-9+.\-]*):/i);
+        if (match && !renderable.test(match[1])) {
+          window.webkit.messageHandlers.browsPopup.postMessage(text);
+          return null;
         }
         return original.apply(window, arguments);
       };
