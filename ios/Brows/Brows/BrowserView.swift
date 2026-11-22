@@ -331,22 +331,26 @@ struct BottomRail: View {
                 // same tap (the field was measured at 26 pt in the failure snapshot,
                 // shard 2, run 45013202399). The button itself only exists off-edit,
                 // so `rail.star` really is absent from the accessibility tree.
-                ZStack {
-                    if !model.isEditingAddress {
-                        Button {
-                            model.toggleBookmark()
-                        } label: {
-                            Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Theme.plateInk)
-                        }
-                        .buttonStyle(.plain)
-                        .frame(width: 34, height: 40)
-                        .contentShape(Rectangle())
-                        .accessibilityIdentifier("rail.star")
-                        .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
-                    }
+                // Nothing is inserted or removed here on focus: the slot holds
+                // the button for the pill's whole life, so the field's UIView and
+                // its first responder survive the state change that the focusing
+                // tap itself causes. While the address is being edited the star
+                // steps out of the accessibility tree and stops taking taps.
+                Button {
+                    model.toggleBookmark()
+                } label: {
+                    Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(Theme.plateInk)
                 }
+                .buttonStyle(.plain)
+                .frame(width: 34, height: 40)
+                .contentShape(Rectangle())
+                .opacity(model.isEditingAddress ? 0 : 1)
+                .allowsHitTesting(!model.isEditingAddress)
+                .accessibilityHidden(model.isEditingAddress)
+                .accessibilityIdentifier(model.isEditingAddress ? "rail.star.typing" : "rail.star")
+                .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
                 .frame(width: 34, height: 40)
             }
             .padding(.horizontal, 12)
@@ -422,7 +426,6 @@ struct BottomRail: View {
         // instead of popping, the way a system bar does.
         .animation(.snappy(duration: 0.22), value: canBack)
         .animation(.snappy(duration: 0.22), value: model.tabs.count)
-        .animation(.snappy(duration: 0.18), value: model.isEditingAddress)
         // One floating capsule over the page: the page keeps running underneath it
         // and into the home-indicator inset.
         .padding(.horizontal, 8)
