@@ -1,0 +1,42 @@
+name: inspect-run
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Existing ios-build run id whose artifact should be inspected"
+        required: true
+      artifact:
+        description: "Artifact name to download"
+        required: true
+        default: "tests-shard-3-ipad"
+
+jobs:
+  inspect:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact }}
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: bundle
+
+      - name: Export the result bundle
+        run: |
+          set -x
+          RESULT=$(find bundle -name "*.xcresult" -maxdepth 5 | head -1)
+          echo "result: $RESULT"
+          mkdir -p exported
+          xcrun xcresulttool export attachments --path "$RESULT" --output-path exported || true
+          xcrun xcresulttool get test-results tests --path "$RESULT" --format json > exported/tests.json || true
+          find exported -type f | sort | head -200
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inspected-${{ inputs.artifact }}
+          path: exported
+          if-no-files-found: warn
