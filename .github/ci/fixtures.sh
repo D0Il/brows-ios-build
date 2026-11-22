@@ -82,6 +82,7 @@ button{display:block;width:100%;font-size:16px;padding:12px 18px;margin:10px 0;b
 <a href="mailto:someone@example.com">Mail</a>
 <a href="tel:+15551234567">Call</a>
 <a href="brows-nothing:whatever">Unsupported</a>
+<a id="refuse" href="brows-nothing://popup">Open refused popup</a>
 <button id="named-first" onclick="window.browsNamedWindow = window.open('/article.html','browsNamed'); document.getElementById('named-result').textContent = window.browsNamedWindow ? 'first-open' : 'first-null'">Open named window</button>
 <button id="named-again" onclick="window.browsNamedWindow = window.open('/article.html','browsNamed'); setTimeout(function(){ var w = window.open('/other.html','browsNamed'); document.getElementById('named-result').textContent = w === window.browsNamedWindow ? 'same-window' : (w ? 'different-window' : 'null-again'); }, 1800)">Open named window again</button>
 <p id="named-result">none</p>
@@ -90,7 +91,6 @@ button{display:block;width:100%;font-size:16px;padding:12px 18px;margin:10px 0;b
 <a href="/other.html" target="_blank">Open blank</a>
 <button onclick="window.open('/article.html','_blank')">Open popup</button>
 <button id="features" onclick="var w = window.open('/article.html','oauth','width=420,height=640,menubar=no'); document.getElementById('popup-result').textContent = w ? 'opened' : 'blocked'">Open popup with features</button>
-<a id="refuse" href="brows-nothing://popup">Open refused popup</a>
 <p id="popup-result">none</p>
 </body></html>
 HTML
