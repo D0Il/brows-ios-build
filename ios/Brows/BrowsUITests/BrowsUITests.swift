@@ -1402,13 +1402,20 @@ final class BrowsUITests: XCTestCase {
         settingsRow.tap()
         XCTAssertTrue(app.staticTexts["Settings"].waitForExistence(timeout: 10))
 
+        // The setting persists, so the switch may already be off from an earlier
+        // test. Turn it off rather than toggling blind, then wait for the dock.
         let toggle = app.switches["settings.addressBarBottom"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 10), "bar-position switch missing")
-        toggle.tap()
+        if (toggle.value as? String) == "1" { toggle.tap() }
+        XCTAssertEqual(toggle.value as? String, "0", "the bottom-bar switch stayed on")
         app.buttons["Done"].tap()
 
         let pill = app.textFields["rail.address"]
         XCTAssertTrue(pill.waitForExistence(timeout: 10))
+        let deadline = Date().addingTimeInterval(8)
+        while Date() < deadline && pill.frame.minY >= app.frame.height / 2 {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
         XCTAssertLessThan(pill.frame.minY, app.frame.height / 2, "rail did not move to the top")
     }
 
