@@ -308,7 +308,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var pendingLinkNotice: PendingLinkNotice?
     /// The last routing decision, exposed to the UI tests: a link that vanishes
     /// and a link that was handed off look identical from inside the page.
-    @Published var lastRoute = ""
     /// Tabs whose web view WebKit built for a popup. The container adopts them
     /// instead of creating one from the tab's settings.
     private var suppliedWebViews: Set<UUID> = []
@@ -754,7 +753,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         isEditingAddress = false
         suggestions = []
         addressText = displayAddress(url)
-        lastRoute = "popup \(url.host ?? url.absoluteString)"
         save()
         return webView
     }
@@ -771,22 +769,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func routeExternalLink(_ url: URL) -> Bool {
         guard let scheme = url.scheme?.lowercased(),
               !AddressResolver.renderableSchemes.contains(scheme) else { return false }
-        lastRoute = "\(scheme) handed off"
         // A scheme nothing declares is refused synchronously. Waiting for the
         // open callback left the tap looking swallowed: the callback for an
         // unknown scheme can arrive late or never, and no notice was drawn.
         if !UIApplication.shared.canOpenURL(url) {
-            lastRoute = "\(scheme) refused"
             pendingLinkNotice = PendingLinkNotice(url: url.absoluteString, scheme: scheme)
             return true
         }
         UIApplication.shared.open(url, options: [:]) { [weak self] opened in
             DispatchQueue.main.async {
                 guard let self else { return }
-                if opened {
-                    self.lastRoute = "\(scheme) opened"
-                } else {
-                    self.lastRoute = "\(scheme) refused"
+                if !opened {
                     self.pendingLinkNotice = PendingLinkNotice(url: url.absoluteString, scheme: scheme)
                 }
             }
