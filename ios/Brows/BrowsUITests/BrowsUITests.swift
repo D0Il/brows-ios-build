@@ -194,7 +194,7 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
         app.webViews.links["Open blank"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 25),
+        XCTAssertTrue(waitForPopupText("Other page", in: app),
                       "target=_blank did not load its page")
         XCTAssertFalse(app.webViews.staticTexts["Links"].exists,
                        "the new tab was not selected, the opener is still on screen")
@@ -212,7 +212,7 @@ final class BrowsUITests: XCTestCase {
 
         // window.open is the same outcome, not a second copy of it.
         app.webViews.buttons["Open popup"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 25),
+        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
                       "window.open did not load its page")
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
@@ -493,6 +493,17 @@ final class BrowsUITests: XCTestCase {
         // Hittable flips during the presentation animation, when the frame is
         // still moving; a tap there can land on the dimmed background.
         Thread.sleep(forTimeInterval: 0.5)
+    }
+
+    /// A popup gets its own web view; on a private tab WebKit also has to start a
+    /// content process for the non-persistent store. On a loaded CI runner that
+    /// launch was measured at 24–31 s (run 45036456881) — longer than the 20 s the
+    /// popup tests used to allow, so the tab opened and was private while its
+    /// first paint was still waiting on the process. The assertions are unchanged;
+    /// the ceiling now matches the platform's measured cold start.
+    private func waitForPopupText(_ text: String, in app: XCUIApplication,
+                                  timeout: TimeInterval = 45) -> Bool {
+        app.webViews.staticTexts[text].waitForExistence(timeout: timeout)
     }
 
     private func waitUntilGone(_ element: XCUIElement, app: XCUIApplication? = nil) {
@@ -863,7 +874,7 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
         app.webViews.buttons["Open named window"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
                       "the named window did not open")
 
         // Tabs are in creation order: opener first, the named popup second.
@@ -881,7 +892,7 @@ final class BrowsUITests: XCTestCase {
 
         // Same name, no window alive: WebKit must create a fresh one.
         app.webViews.buttons["Open the closed name again"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["Other page"].waitForExistence(timeout: 20),
+        XCTAssertTrue(waitForPopupText("Other page", in: app),
                       "reopening a closed name dropped the navigation")
 
         app.buttons["rail.tabs"].tap()
@@ -890,7 +901,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Other page"].waitForExistence(timeout: 10),
                       "the fresh tab is not the page the page requested")
         app.staticTexts["Links"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["fresh-open"].waitForExistence(timeout: 20),
+        XCTAssertTrue(waitForPopupText("fresh-open", in: app),
                       "window.open returned no window for the closed name")
     }
 
@@ -935,7 +946,7 @@ final class BrowsUITests: XCTestCase {
 
         app.webViews.buttons["Open popup with features"].tap()
 
-        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
                       "window.open with features did not open the page")
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
@@ -1096,7 +1107,7 @@ final class BrowsUITests: XCTestCase {
 
         open("http://localhost:8000/links.html", in: app, expect: "Links")
         app.webViews.buttons["Open named window again"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
                       "the named popup did not open from the private tab")
         XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10),
                       "the popup opened from a private tab is not marked private")
@@ -1136,7 +1147,7 @@ final class BrowsUITests: XCTestCase {
         // the way an SSO flow or a chat widget reuses its own window. The page writes
         // `same-window` only if both calls reached the same window.
         app.webViews.buttons["Open named window again"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 20),
+        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
                       "the named window did not open")
 
         // Back to the opener to read its verdict; only the active tab is mounted.
@@ -1144,8 +1155,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
                       "the first named open did not make exactly one tab")
         app.staticTexts["Links"].tap()
-        let same = app.webViews.staticTexts["same-window"]
-        if !same.waitForExistence(timeout: 20) {
+        if !waitForPopupText("same-window", in: app) {
             let verdict = app.webViews.staticTexts["different-window"].exists ? "different-window"
                 : (app.webViews.staticTexts["null-again"].exists ? "null-again" : "missing")
             XCTFail("window.open(name) did not reuse the named window; the page says (verdict)")
