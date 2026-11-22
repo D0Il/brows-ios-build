@@ -24,6 +24,10 @@ struct AddressField: UIViewRepresentable {
         let field = UITextField()
         field.delegate = context.coordinator
         field.accessibilityIdentifier = "rail.address"
+        // The placeholder alone is not a name: VoiceOver read this field as
+        // "SEARCH" with no role description of what it edits. The rail's address
+        // and search box names itself the way the desktop omnibox is announced.
+        field.accessibilityLabel = "Address and search"
         field.font = .systemFont(ofSize: 15)
         // The desktop omnibox keeps the host legible while it is focused: the text
         // stays inside the pill. UIKit scrolls a text field to the *end* of a

@@ -294,6 +294,11 @@ struct BottomRail: View {
                     SiteBadge(host: model.activeHost)
                 }
                 .buttonStyle(.plain)
+                // The lock glyph was the button's whole name. Name the panel it
+                // opens; the host is the value, not the label, so VoiceOver does
+                // not read "Lock" for a control that shows site information.
+                .accessibilityLabel("Site information")
+                .accessibilityValue(model.activeHost)
                 .accessibilityIdentifier("rail.siteInfo")
 
                 AddressField(
