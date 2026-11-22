@@ -9,7 +9,9 @@
     "testPrivateTabBadge",
     "testStartPageSearchField",
     "testTypedExternalSchemeRoutesInsteadOfBecomingAPage",
-    "testWorkspaceDelete"
+    "testWorkspaceDelete",
+    "testHistoryListsVisitedPagesAndRemovesOne",
+    "testSiteInformationNamesTheHostAndScheme"
   ],
   "2": [
     "testAddressBarTopSetting",
@@ -20,7 +22,8 @@
     "testTabGallerySearch",
     "testWindowOpenReusesTheNamedWindow",
     "testWindowOpenWithFeaturesOpensOneSelectedTab",
-    "testWorkspaceSwitch"
+    "testWorkspaceSwitch",
+    "testKeyboardDoesNotCoverTheDock"
   ],
   "3": [
     "testAddressPillExplainsAnAddressItCannotOpen",
@@ -31,7 +34,8 @@
     "testPrivateDownloadFileIsSweptOnNextLaunch",
     "testPrivateDownloadIsNotPersisted",
     "testRefusedPopupUsesTheAppsCard",
-    "testStartPageSearchNavigates"
+    "testStartPageSearchNavigates",
+    "testZoomStepsAndResets"
   ],
   "4": [
     "testBookmarkStar",
@@ -42,6 +46,8 @@
     "testRailAndMenuPanels",
     "testReaderFailureUsesTheAppsOwnCard",
     "testReaderMode",
-    "testSiteBlockingToggle"
+    "testSiteBlockingToggle",
+    "testSaveAsPDFPresentsTheFile",
+    "testLandscapeKeepsTheDockOnScreen"
   ]
 }

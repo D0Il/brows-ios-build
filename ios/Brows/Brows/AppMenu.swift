@@ -71,13 +71,19 @@ struct AppMenu: View {
 
             Button { model.adjustZoom(by: -0.1) } label: { Image(systemName: "minus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
+                .accessibilityLabel("Zoom out")
+                .accessibilityIdentifier("menu.zoom.out")
             Button { model.resetZoom() } label: {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 12, weight: .semibold))
             }
             .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
+            .accessibilityLabel("Reset zoom")
+            .accessibilityIdentifier("menu.zoom.reset")
             Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
+                .accessibilityLabel("Zoom in")
+                .accessibilityIdentifier("menu.zoom.in")
         }
         .listRowBackground(Color.clear)
     }

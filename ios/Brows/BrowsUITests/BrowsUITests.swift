@@ -1140,6 +1140,121 @@ final class BrowsUITests: XCTestCase {
                       "the navigated named window did not show its page")
     }
 
+    /// The history panel is the browser's own record, so it has to list what this
+    /// app actually visited and let a page be removed from it.
+    func testHistoryListsVisitedPagesAndRemovesOne() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+        open("http://localhost:8000/other.html", in: app, expect: "Other page")
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                      "menu did not open")
+        app.buttons["menu.history"].tap()
+
+        let first = app.staticTexts["The shape of a browser"]
+        XCTAssertTrue(first.waitForExistence(timeout: 10), "history lost the first page")
+        XCTAssertTrue(app.staticTexts["Other page"].exists, "history lost the second page")
+
+        first.press(forDuration: 1.2)
+        let remove = app.buttons["Remove"]
+        XCTAssertTrue(remove.waitForExistence(timeout: 5), "a history row offered no way to remove it")
+        remove.tap()
+        XCTAssertTrue(first.waitForNonExistence(timeout: 10), "a removed page stayed in history")
+    }
+
+    /// Site information is the page's own truth: the host and the scheme it was
+    /// fetched with, not a decoration.
+    func testSiteInformationNamesTheHostAndScheme() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app)
+
+        app.buttons["rail.siteInfo"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                      "site information did not open")
+        XCTAssertTrue(app.staticTexts["Host"].waitForExistence(timeout: 10), "no host row")
+        XCTAssertTrue(app.staticTexts["localhost"].exists, "site information did not name the host")
+        XCTAssertTrue(app.staticTexts["Scheme"].exists, "no scheme row")
+        app.buttons["Done"].tap()
+    }
+
+    /// Zoom steps per tab and the percentage is the reset, like the desktop strip.
+    func testZoomStepsAndResets() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app)
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                      "menu did not open")
+        let reset = app.buttons["menu.zoom.reset"]
+        XCTAssertTrue(reset.waitForExistence(timeout: 10), "no zoom control in the menu")
+        XCTAssertEqual(reset.label, "100%", "zoom did not start at 100%")
+
+        app.buttons["menu.zoom.in"].tap()
+        app.buttons["menu.zoom.in"].tap()
+        XCTAssertEqual(reset.label, "120%", "zoom in did not step the page")
+
+        app.buttons["menu.zoom.out"].tap()
+        XCTAssertEqual(reset.label, "110%", "zoom out did not step the page")
+
+        reset.tap()
+        XCTAssertEqual(reset.label, "100%", "the percentage did not reset the zoom")
+    }
+
+    /// Save as PDF only presents sharing after the file is on disk; the sheet is
+    /// therefore the proof the page became a real PDF.
+    func testSaveAsPDFPresentsTheFile() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app)
+
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                      "menu did not open")
+        app.buttons["menu.save-as-pdf"].tap()
+
+        let activity = app.otherElements["ActivityListView"]
+        let close = app.buttons["Close"]
+        let deadline = Date().addingTimeInterval(30)
+        var presented = false
+        while Date() < deadline {
+            if activity.exists || close.exists { presented = true; break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertTrue(presented, "the PDF was never offered for sharing")
+        if close.exists { close.tap() }
+    }
+
+    /// The dock must stay above the keyboard, or the page controls go under it.
+    func testKeyboardDoesNotCoverTheDock() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app)
+
+        let field = app.textFields["rail.address"]
+        field.tap()
+        let keyboard = app.keyboards.firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 10), "the keyboard never came up")
+        let reload = app.buttons["rail.reload"]
+        XCTAssertTrue(reload.waitForExistence(timeout: 10), "the dock left the screen")
+        XCTAssertLessThanOrEqual(reload.frame.maxY, keyboard.frame.minY + 1,
+                                 "the dock sits under the keyboard")
+    }
+
+    /// One destination is not the whole phone: the dock has to survive rotation.
+    func testLandscapeKeepsTheDockOnScreen() {
+        let app = makeApp()
+        XCUIDevice.shared.orientation = .landscapeLeft
+        defer { XCUIDevice.shared.orientation = .portrait }
+        open("http://localhost:8000/article.html", in: app)
+
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15), "no address pill in landscape")
+        XCTAssertTrue(app.windows.firstMatch.frame.contains(field.frame),
+                      "the address pill left the screen in landscape")
+        app.buttons["rail.menu"].tap()
+        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
+                      "the menu did not open in landscape")
+    }
+
     /// A popup whose scheme the browser cannot render is refused in the app's own
     /// card: no system alert, no tab, and the page stays exactly where it was.
     func testRefusedPopupUsesTheAppsCard() {
