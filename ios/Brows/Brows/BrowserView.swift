@@ -298,7 +298,7 @@ struct BottomRail: View {
                 // opens; the host is the value, not the label, so VoiceOver does
                 // not read "Lock" for a control that shows site information.
                 .accessibilityLabel("Site information")
-                .accessibilityValue(model.activeHost)
+                .accessibilityValue(model.activeHost ?? "")
                 .accessibilityIdentifier("rail.siteInfo")
 
                 AddressField(
