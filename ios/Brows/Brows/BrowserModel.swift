@@ -607,14 +607,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
         configuration.userContentController.add(self, name: "browsCredentials")
         configuration.userContentController.add(self, name: "browsStart")
-        configuration.userContentController.add(self, name: "browsPopup")
-        configuration.userContentController.addUserScript(
-            WKUserScript(
-                source: PageTools.popupGuardScript,
-                injectionTime: .atDocumentStart,
-                forMainFrameOnly: false
-            )
-        )
         configuration.userContentController.addUserScript(
             WKUserScript(
                 source: PageTools.credentialScript,
@@ -1630,14 +1622,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "browsStart", let query = message.body as? String {
             navigate(to: query)
-            return
-        }
-        if message.name == "browsPopup", let text = message.body as? String {
-            if text.hasPrefix("guard:") {
-                lastRoute = "popup guard " + (text == "guard:true" ? "armed" : "failed")
-                return
-            }
-            if let url = URL(string: text) { _ = routeExternalLink(url) }
             return
         }
         guard message.name == "browsCredentials",

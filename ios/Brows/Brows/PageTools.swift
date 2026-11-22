@@ -50,50 +50,6 @@ enum PageTools {
     /// Watches form submissions and reports the credentials the user typed, so the
     /// app can offer to save them — the password manager half that iOS WebKit does
     /// not give a shell for free.
-    /// `window.open` with a scheme the web view cannot render never reaches the
-    /// app: WebKit does not deliver a custom-scheme popup to `createWebViewWith`,
-    /// so the refusal was swallowed and no card was drawn (trace and accessibility
-    /// snapshot, shard 3, run 44956470184). This guard hands that URL to the app
-    /// through the same message handler as the start page, and leaves every
-    /// renderable popup on WebKit's own path untouched.
-    static let popupGuardScript = """
-    (function () {
-      if (window.__browsPopupGuard) { return; }
-      window.__browsPopupGuard = true;
-      var renderable = /^(https?|about|file|data|blob|javascript)$/i;
-      var original = window.open;
-      var wrapped = function (url) {
-        // A plain scheme match, with no URL parsing: WebKit's URL constructor is
-        // where the first version of this guard fell through, so the refusal still
-        // went to the native open and vanished (last route stayed "guard armed").
-        var text = url === undefined || url === null ? "" : String(url);
-        var match = text.match(/^([a-z][a-z0-9+.-]*):/i);
-        if (match && !renderable.test(match[1])) {
-          // The title is the channel that cannot be lost: the app already observes
-          // it, while the script message never arrived for this popup in three runs
-          // (last route stayed "guard armed").
-          document.title = 'BROWS_POPUP ' + text;
-          return null;
-        }
-        return original.apply(window, arguments);
-      };
-      var assigned = false;
-      try {
-        window.open = wrapped;
-        assigned = window.open === wrapped;
-      } catch (error) {}
-      if (!assigned) {
-        try {
-          Object.defineProperty(window, 'open', {
-            value: wrapped, configurable: true, writable: true
-          });
-          assigned = window.open === wrapped;
-        } catch (error) {}
-      }
-      window.webkit.messageHandlers.browsPopup.postMessage('guard:' + assigned);
-    })();
-    """
-
     static let credentialScript = """
     (function(){
       if (window.__browsCredentialHooked) { return; }

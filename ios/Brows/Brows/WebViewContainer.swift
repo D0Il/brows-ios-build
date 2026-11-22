@@ -24,16 +24,6 @@ struct WebViewContainer: UIViewRepresentable {
         context.coordinator.titleObservation = webView.observe(\.title, options: [.new]) { [weak owner] view, _ in
             let title = view.title ?? ""
             guard !title.isEmpty else { return }
-            // A refused popup reports itself here: `window.open` with a scheme the
-            // web view cannot render never reaches a navigation delegate, so the
-            // page guard writes the URL into the title and the app routes it.
-            if title.hasPrefix("BROWS_POPUP ") {
-                let text = String(title.dropFirst("BROWS_POPUP ".count))
-                DispatchQueue.main.async {
-                    if let url = URL(string: text) { _ = owner?.routeExternalLink(url) }
-                }
-                return
-            }
             let url = view.url
             DispatchQueue.main.async {
                 owner?.update(tabId) { tab in
