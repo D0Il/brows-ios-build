@@ -69,7 +69,10 @@ enum PageTools {
         var text = url === undefined || url === null ? "" : String(url);
         var match = text.match(/^([a-z][a-z0-9+.-]*):/i);
         if (match && !renderable.test(match[1])) {
-          window.webkit.messageHandlers.browsPopup.postMessage(text);
+          // The title is the channel that cannot be lost: the app already observes
+          // it, while the script message never arrived for this popup in three runs
+          // (last route stayed "guard armed").
+          document.title = 'BROWS_POPUP ' + text;
           return null;
         }
         return original.apply(window, arguments);
