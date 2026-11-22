@@ -326,26 +326,28 @@ struct BottomRail: View {
                 // The star yields the pill to the keyboard: while the address is being
                 // typed the field takes the star's width, and the star comes back when
                 // editing ends. Nothing else in the dock hides.
-                // The star keeps its 34 pt of row while the field is being edited:
-                // removing it re-flowed the pill under the very tap that focused the
-                // field, and the field was measured at 26 pt in the failure snapshot
-                // (shard 2, run 45013202399). It is hidden and removed from the
-                // accessibility tree while typing, which is what the dock promises.
-                Button {
-                    model.toggleBookmark()
-                } label: {
-                    Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.plateInk)
+                // The slot keeps the star's 34 pt whether or not the star is in
+                // it, so focusing the field can never re-flow the pill under the
+                // same tap (the field was measured at 26 pt in the failure snapshot,
+                // shard 2, run 45013202399). The button itself only exists off-edit,
+                // so `rail.star` really is absent from the accessibility tree.
+                ZStack {
+                    if !model.isEditingAddress {
+                        Button {
+                            model.toggleBookmark()
+                        } label: {
+                            Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(Theme.plateInk)
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: 34, height: 40)
+                        .contentShape(Rectangle())
+                        .accessibilityIdentifier("rail.star")
+                        .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
+                    }
                 }
-                .buttonStyle(.plain)
                 .frame(width: 34, height: 40)
-                .contentShape(Rectangle())
-                .opacity(model.isEditingAddress ? 0 : 1)
-                .disabled(model.isEditingAddress)
-                .accessibilityHidden(model.isEditingAddress)
-                .accessibilityIdentifier("rail.star")
-                .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
             }
             .padding(.horizontal, 12)
             .frame(height: 40)

@@ -90,7 +90,7 @@ button{display:block;width:100%;font-size:16px;padding:12px 18px;margin:10px 0;b
 <a href="/other.html" target="_blank">Open blank</a>
 <button onclick="window.open('/article.html','_blank')">Open popup</button>
 <button id="features" onclick="var w = window.open('/article.html','oauth','width=420,height=640,menubar=no'); document.getElementById('popup-result').textContent = w ? 'opened' : 'blocked'">Open popup with features</button>
-<a id="refuse" href="brows-nothing:popup" target="_blank">Open refused popup</a>
+<a id="refuse" href="brows-nothing:popup">Open refused popup</a>
 <p id="popup-result">none</p>
 </body></html>
 HTML
