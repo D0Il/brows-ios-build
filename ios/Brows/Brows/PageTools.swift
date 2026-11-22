@@ -67,7 +67,7 @@ enum PageTools {
         // where the first version of this guard fell through, so the refusal still
         // went to the native open and vanished (last route stayed "guard armed").
         var text = url === undefined || url === null ? "" : String(url);
-        var match = text.match(/^([a-z][a-z0-9+.\-]*):/i);
+        var match = text.match(/^([a-z][a-z0-9+.-]*):/i);
         if (match && !renderable.test(match[1])) {
           window.webkit.messageHandlers.browsPopup.postMessage(text);
           return null;
