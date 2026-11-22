@@ -173,6 +173,11 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.history")
                     .accessibilityLabel("\(model.history.count)|\(model.history.first?.title ?? "-")")
+                Text("lastroute")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.lastroute")
+                    .accessibilityLabel(model.lastRoute)
                 // The tab gallery is a sheet, so reading the count through it
                 // means a sheet sits over the page between taps. The model's tab
                 // list is the same fact with nothing in front of the page.
