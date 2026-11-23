@@ -467,77 +467,87 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
     }
 
-    private func presentLaunchSheet(_ name: String) {
+    private func presentLaunchSheet(_ name: String, afterLayout: Bool = true) {
+        guard afterLayout else {
+            presentLaunchSheetNow(name)
+            return
+        }
         // Present after the first layout so the sheet is not dropped by the
         // presentation system during launch.
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            guard let self else { return }
-            switch name {
-            case "menu": self.showingMenu = true
-            case "bookmarks": self.showingBookmarks = true
-            case "downloads": self.showingDownloads = true
-            case "history": self.showingHistory = true
-            case "workspaces": self.showingWorkspaces = true
-            case "passwords": self.showingPasswords = true
-            case "extensions": self.showingExtensions = true
-            case "settings": self.showingSettings = true
-            case "tabs": self.showingTabSwitcher = true
-            case "auth":
-                self.pendingHTTPAuth = PendingHTTPAuth(
-                    host: "localhost:8000",
-                    realm: "Brows Fixture",
-                    username: "browsuser"
+            self?.presentLaunchSheetNow(name)
+        }
+    }
+
+    /// The launch sheet's switch. `pageDidRender` calls this directly: the page
+    /// has finished and laid out, so waiting again would put the pane's
+    /// snapshot past the capture's 3 s window.
+    private func presentLaunchSheetNow(_ name: String) {
+        switch name {
+        case "menu": showingMenu = true
+        case "bookmarks": showingBookmarks = true
+        case "downloads": showingDownloads = true
+        case "history": showingHistory = true
+        case "workspaces": showingWorkspaces = true
+        case "passwords": showingPasswords = true
+        case "extensions": showingExtensions = true
+        case "settings": showingSettings = true
+        case "tabs": showingTabSwitcher = true
+        case "auth":
+            pendingHTTPAuth = PendingHTTPAuth(
+                host: "localhost:8000",
+                realm: "Brows Fixture",
+                username: "browsuser"
+            )
+        case "suggest":
+            isEditingAddress = true
+            refreshPanelBackdrop()
+            addressText = "shape"
+            suggestions = [
+                AddressSuggestion(
+                    source: .history,
+                    title: "The shape of a browser",
+                    url: URL(string: "http://localhost:8000/article.html")!,
+                    detail: "localhost:8000"
+                ),
+                AddressSuggestion(
+                    source: .bookmark,
+                    title: "Brows",
+                    url: URL(string: "https://brows.dev")!,
+                    detail: "brows.dev"
                 )
-            case "suggest":
-                self.isEditingAddress = true
-                self.refreshPanelBackdrop()
-                self.addressText = "shape"
-                self.suggestions = [
-                    AddressSuggestion(
-                        source: .history,
-                        title: "The shape of a browser",
-                        url: URL(string: "http://localhost:8000/article.html")!,
-                        detail: "localhost:8000"
-                    ),
-                    AddressSuggestion(
-                        source: .bookmark,
-                        title: "Brows",
-                        url: URL(string: "https://brows.dev")!,
-                        detail: "brows.dev"
-                    )
-                ]
-            case "notice":
-                // The failure card Reader mode shows on a page with no article text.
-                self.pageNotice = PageNotice(
-                    title: "Reader mode",
-                    message: "This page has no article text to show in Reader."
-                )
-            case "linknotice":
-                self.pendingLinkNotice = PendingLinkNotice(
-                    url: "mailto:someone@brows.dev",
-                    scheme: "mailto"
-                )
-            case "dialog":
-                self.pendingScriptDialog = PendingScriptDialog(
-                    kind: .confirm,
-                    message: "Remove this bookmark from the shelf?",
-                    host: "brows.dev"
-                )
-            case "authsave":
-                self.pendingCredential = PendingCredential(
-                    host: "localhost:8000",
-                    username: "otheraccount",
-                    secret: "othersecret",
-                    realm: "Brows Fixture 2",
-                    existingID: UUID(),
-                    existingUsername: "browsuser"
-                )
-            case "siteinfo":
-                self.showingSiteInfo = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.loadSiteInfo() }
-            default:
-                break
-            }
+            ]
+        case "notice":
+            // The failure card Reader mode shows on a page with no article text.
+            pageNotice = PageNotice(
+                title: "Reader mode",
+                message: "This page has no article text to show in Reader."
+            )
+        case "linknotice":
+            pendingLinkNotice = PendingLinkNotice(
+                url: "mailto:someone@brows.dev",
+                scheme: "mailto"
+            )
+        case "dialog":
+            pendingScriptDialog = PendingScriptDialog(
+                kind: .confirm,
+                message: "Remove this bookmark from the shelf?",
+                host: "brows.dev"
+            )
+        case "authsave":
+            pendingCredential = PendingCredential(
+                host: "localhost:8000",
+                username: "otheraccount",
+                secret: "othersecret",
+                realm: "Brows Fixture 2",
+                existingID: UUID(),
+                existingUsername: "browsuser"
+            )
+        case "siteinfo":
+            showingSiteInfo = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.loadSiteInfo() }
+        default:
+            break
         }
     }
 
@@ -581,7 +591,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func pageDidRender() {
         if let sheet = pendingCaptureSheet {
             pendingCaptureSheet = nil
-            presentLaunchSheet(sheet)
+            presentLaunchSheet(sheet, afterLayout: false)
         }
         guard hasOpenPanel, !isEditingAddress else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
