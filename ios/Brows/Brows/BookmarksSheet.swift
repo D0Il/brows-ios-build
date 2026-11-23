@@ -41,8 +41,17 @@ struct BookmarksSheet: View {
                             .accessibilityValue(model.newBookmarkFolder)
                         }
                         .listRowBackground(Color.clear)
-                    } footer: {
+
+                        // A section footer is a platform surface: it painted an
+                        // opaque band (white in light, black in dark) over the
+                        // glass pane (captures bookmarks-light/dark, run
+                        // 45095272714). A plain row in the section keeps the
+                        // hint on the pane.
                         Text("New bookmarks are filed here.")
+                            .font(.system(size: 12))
+                            .foregroundColor(Theme.panelMuted)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     }
 
                     if model.bookmarks.isEmpty {

@@ -21,6 +21,8 @@ enum Theme {
     static let panelMutedDark = UIColor(red: 170 / 255, green: 178 / 255, blue: 190 / 255, alpha: 1) // #aab2be
     static let surfaceLight = UIColor(red: 247 / 255, green: 250 / 255, blue: 253 / 255, alpha: 0.97)
     static let surfaceDark = UIColor(red: 24 / 255, green: 28 / 255, blue: 35 / 255, alpha: 0.94)
+    /// The dark plate's base as a UIColor, for the contrast audit's composite.
+    static let plateDarkBase = UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 1)
 
     static func adaptive(light: UIColor, dark: UIColor) -> Color {
         Color(UIColor { $0.userInterfaceStyle == .dark ? dark : light })
@@ -34,7 +36,9 @@ enum Theme {
     /// with its .7 border in light, and the dark block's white washes in dark.
     static let rowFill = adaptive(
         light: UIColor(white: 1, alpha: 0.28),
-        dark: UIColor(red: 34 / 255, green: 38 / 255, blue: 45 / 255, alpha: 0.45)
+        // A white wash on the dark block, as the desktop paints its rows: the
+        // dark plate is nearly black, so a #22262d fill would disappear into it.
+        dark: UIColor(white: 1, alpha: 0.07)
     )
     static let rowBorder = adaptive(
         light: UIColor(white: 1, alpha: 0.70),
@@ -63,6 +67,12 @@ enum Theme {
     /// The pane's own tint. Light glass must stay see-through over a page;
     /// the dark block keeps the desktop's heavier plate.
     static let plateAlpha = 0.30
+    /// The dark block's plate is nearly opaque. At .30 the pane over a white
+    /// page measured ~176, so #f2f4f8 ink sat at 2.1:1 and #aab2be muted at
+    /// 1.03:1 (captures menu-dark, history-dark, extensions-dark, run
+    /// 45095272714). At .90 the pane lands near #3c4046: ink 10.3:1, muted
+    /// 5.3:1, and the page still shows through the blur as glass.
+    static let plateDarkAlpha = 0.90
     /// What actually makes glass glass: the page behind is blurred, not just tinted.
     static let glassBlur: CGFloat = 22
     /// The wash a control's glass takes. Only a tint, never a fill: the phone's
@@ -99,11 +109,29 @@ enum Theme {
             return (max(first, second) + 0.05) / (min(first, second) + 0.05)
         }
 
+        /// What a plate actually composites to over the white fixture page.
+        /// The sheet tokens alone audit the near-black surface; a dark plate at
+        /// .90 over a white page is #3c4046, and that is the surface the text
+        /// in the captures sits on.
+        func over(_ top: UIColor, _ alpha: CGFloat, _ bottom: UIColor) -> UIColor {
+            var tr: CGFloat = 0, tg: CGFloat = 0, tb: CGFloat = 0
+            var br: CGFloat = 0, bg: CGFloat = 0, bb: CGFloat = 0
+            top.getRed(&tr, green: &tg, blue: &tb, alpha: nil)
+            bottom.getRed(&br, green: &bg, blue: &bb, alpha: nil)
+            return UIColor(red: tr * alpha + br * (1 - alpha),
+                           green: tg * alpha + bg * (1 - alpha),
+                           blue: tb * alpha + bb * (1 - alpha),
+                           alpha: 1)
+        }
+        let darkGlass = over(plateDarkBase, CGFloat(plateDarkAlpha), .white)
+
         let pairs: [(String, UIColor, UIColor)] = [
             ("light ink", panelInkLight, surfaceLight),
             ("light muted", panelMutedLight, surfaceLight),
             ("dark ink", panelInkDark, surfaceDark),
-            ("dark muted", panelMutedDark, surfaceDark)
+            ("dark muted", panelMutedDark, surfaceDark),
+            ("dark ink glass", panelInkDark, darkGlass),
+            ("dark muted glass", panelMutedDark, darkGlass)
         ]
         let failures = pairs.filter { ratio($0.1, $0.2) < 4.5 }
         if failures.isEmpty { return "PASS" }
@@ -206,8 +234,16 @@ struct GlassPane: View {
     /// owner passes the same offset here and it is added to the crop's origin.
     var backdropOffset: CGSize = .zero
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private var tint: Color { plate ? Theme.plateBase : Theme.railBase }
-    private var tintAlpha: Double { plate ? Theme.plateAlpha : Theme.railBaseAlpha }
+    /// The rail band stays the desktop's light tint in both appearances; a
+    /// plate is the dark block in dark mode, and .30 over a white page left it
+    /// light grey under white ink.
+    private var tintAlpha: Double {
+        if !plate { return Theme.railBaseAlpha }
+        return colorScheme == .dark ? Theme.plateDarkAlpha : Theme.plateAlpha
+    }
 
     var body: some View {
         GeometryReader { geo in

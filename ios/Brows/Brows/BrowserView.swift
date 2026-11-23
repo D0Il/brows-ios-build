@@ -326,7 +326,7 @@ struct BottomRail: View {
                 } label: {
                     Image(systemName: model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Theme.plateInk)
+                        .foregroundColor(Theme.ink)
                 }
                 .buttonStyle(.plain)
                 // The glyph is small like an in-field control; the target is the pill's
@@ -354,7 +354,7 @@ struct BottomRail: View {
                 } label: {
                     Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.plateInk)
+                        .foregroundColor(Theme.ink)
                 }
                 .buttonStyle(.plain)
                 .frame(width: 34, height: 40)
@@ -366,12 +366,12 @@ struct BottomRail: View {
                 .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
                 .frame(width: 34, height: 40)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 8)
             .frame(height: 40)
             // 96, not 126: a floating capsule spends ~32 pt of row width on its own
             // margins, and at 126 the row overflowed and squeezed the field's tap
             // target (runs 44928536766, 44930532421, 44931912138).
-            .frame(minWidth: 96)
+            .frame(minWidth: 96, maxWidth: .infinity)
             // Glass, not a white plate: nothing in this rail may paint a white
             // slab over the page. The pane is a background layer, so it never sees
             // the field's taps; focusing the field only brightens the rim.
@@ -415,7 +415,7 @@ struct BottomRail: View {
                     Text("\(model.tabs.count)").font(.system(size: 12, weight: .bold))
                 }
             }
-            .buttonStyle(GlassCircleButtonStyle())
+            .buttonStyle(GlassCircleButtonStyle(glyph: Theme.ink))
             // Tabs and the menu are the two destinations a thumb reaches without
             // moving the hand, so they sit last, nearest the trailing edge.
             .frame(minWidth: 44, minHeight: 44)
@@ -429,7 +429,7 @@ struct BottomRail: View {
             } label: {
                 Image(systemName: "line.3.horizontal")
             }
-            .buttonStyle(GlassCircleButtonStyle())
+            .buttonStyle(GlassCircleButtonStyle(glyph: Theme.ink))
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
             .accessibilityLabel("Menu")
@@ -482,7 +482,7 @@ struct BottomRail: View {
         Button(action: action) {
             Image(systemName: symbol)
         }
-        .buttonStyle(GlassCircleButtonStyle())
+        .buttonStyle(GlassCircleButtonStyle(glyph: Theme.ink))
         // The plate stays 36 pt; the target is 44, so the capsule's breathing room
         // is part of the button rather than dead glass.
         .frame(minWidth: 44, minHeight: 44)

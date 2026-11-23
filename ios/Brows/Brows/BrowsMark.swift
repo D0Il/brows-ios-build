@@ -28,13 +28,16 @@ struct SiteBadge: View {
                     } else {
                         Text(String(host.prefix(1)).uppercased())
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(Theme.panelMuted)
+                            // The badge sits in the address pill, whose pane is
+                            // the light rail band in both appearances; adaptive
+                            // white ink vanished in dark mode (pill-dark).
+                            .foregroundColor(Theme.ink)
                     }
                 }
             } else {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(Theme.panelMuted)
+                    .foregroundColor(Theme.ink)
             }
         }
         .frame(width: 26, height: 26)

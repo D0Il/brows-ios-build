@@ -112,10 +112,17 @@ struct AddressField: UIViewRepresentable {
             armReplacement(in: field)
         }
 
-        /// Caret at the head of the URL, whole value armed for the next keystroke.
-        /// No selected range, so UIKit draws a caret and no drag handles.
+        /// Caret at the host, whole value armed for the next keystroke. No
+        /// selected range, so UIKit draws a caret and no drag handles. The
+        /// field is narrow, so a caret at the head showed only the scheme
+        /// ("http:/") and hid the host -- the one part of the URL the pill is
+        /// for (captures pill-light/dark, run 45095272714).
         private func armReplacement(in field: UITextField) {
-            let start = field.beginningOfDocument
+            let text = (field.text ?? "") as NSString
+            let scheme = text.range(of: "://")
+            let offset = scheme.location == NSNotFound ? 0 : scheme.location + scheme.length
+            let start = field.position(from: field.beginningOfDocument, offset: offset)
+                ?? field.beginningOfDocument
             field.selectedTextRange = field.textRange(from: start, to: start)
             replacesWholeValue = true
         }
