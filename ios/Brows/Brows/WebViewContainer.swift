@@ -20,14 +20,11 @@ struct WebViewContainer: UIViewRepresentable {
         // ready. Reading it back from the navigation callback raced the load and
         // left every probe blank.
         let scripts = webView.configuration.userContentController
+        // WebKit throws if a name is registered twice, and SwiftUI builds this
+        // container again every time the pane appears. Replacing the handler keeps
+        // one registration for the web view's whole life.
+        scripts.removeScriptMessageHandler(forName: "browsProbe")
         scripts.add(context.coordinator, name: "browsProbe")
-        scripts.addUserScript(
-            WKUserScript(
-                source: PageEnhancements.probePostJS,
-                injectionTime: .atDocumentEnd,
-                forMainFrameOnly: true
-            )
-        )
 
         let owner = model
         // The tab pane names the page; WebKit sets the title after load, and SPAs

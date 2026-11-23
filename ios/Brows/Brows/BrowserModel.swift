@@ -769,6 +769,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             )
         }
 
+        // The page posts what it is once its document is ready; the pull read in
+        // `refreshPageState()` stays as the second, independent path.
+        configuration.userContentController.addUserScript(
+            WKUserScript(
+                source: PageEnhancements.probePostJS,
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            )
+        )
+
         // Every page this app loads — the browser's own view and an adopted
         // popup alike — carries the app's name and real version. Setting it on
         // the configuration covers the first request itself.
