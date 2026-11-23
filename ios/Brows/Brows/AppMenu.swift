@@ -69,11 +69,11 @@ struct AppMenu: View {
 
             Spacer(minLength: 0)
 
-            Button { model.adjustZoom(by: -0.1) } label: { Image(systemName: "minus") }
+            Button { NSLog("BROWS-ZOOM minus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: -0.1) } label: { Image(systemName: "minus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
                 .accessibilityLabel("Zoom out")
                 .accessibilityIdentifier("menu.zoom.out")
-            Button { model.resetZoom() } label: {
+            Button { NSLog("BROWS-ZOOM reset tap zoom=\(model.activeTab?.zoom ?? -1)"); model.resetZoom() } label: {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 12, weight: .semibold))
             }
@@ -81,7 +81,7 @@ struct AppMenu: View {
             .accessibilityLabel("Reset zoom")
             .accessibilityValue("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
             .accessibilityIdentifier("menu.zoom.reset")
-            Button { model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
+            Button { NSLog("BROWS-ZOOM plus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
                 .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
                 .accessibilityLabel("Zoom in")
                 .accessibilityIdentifier("menu.zoom.in")

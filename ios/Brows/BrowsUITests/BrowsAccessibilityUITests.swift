@@ -188,9 +188,13 @@ final class BrowsAccessibilityUITests: XCTestCase {
         dismiss(app)
 
         openPage(app)
-        XCTAssertEqual(
-            app.textFields["rail.address"].value as? String,
-            "http://localhost:8000/article.html",
+        // Once the page commits, the pill returns to its placeholder; the URL
+        // is only in the field while it is being edited. The page's own heading
+        // is the proof the navigation landed, the same check every other test
+        // makes. Run 45086747875 read the placeholder here and failed on a page
+        // that had loaded.
+        XCTAssertTrue(
+            app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 25),
             "the navigation did not commit with Reduce Motion on"
         )
         openMenu(app)

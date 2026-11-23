@@ -797,16 +797,20 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     // MARK: Zoom
 
     func adjustZoom(by delta: Double) {
+        NSLog("BROWS-ZOOM adjust \(delta) tab=\(activeTab?.zoom ?? -1) view=\(activeTab.map { webViews[$0.id] != nil } ?? false)")
         guard let tab = activeTab, let webView = webViews[tab.id] else { return }
         let next = min(5.0, max(0.25, tab.zoom + delta))
         webView.pageZoom = next
         update(tab.id) { $0.zoom = next }
+        NSLog("BROWS-ZOOM adjust -> \(next) tab=\(activeTab?.zoom ?? -1)")
     }
 
     func resetZoom() {
+        NSLog("BROWS-ZOOM reset tab=\(activeTab?.zoom ?? -1) view=\(activeTab.map { webViews[$0.id] != nil } ?? false)")
         guard let tab = activeTab, let webView = webViews[tab.id] else { return }
         webView.pageZoom = 1
         update(tab.id) { $0.zoom = 1 }
+        NSLog("BROWS-ZOOM reset -> tab=\(activeTab?.zoom ?? -1)")
     }
 
     // MARK: Tabs

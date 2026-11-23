@@ -237,8 +237,16 @@ final class BrowsUITests: XCTestCase {
             // iPhone run, where tel: cannot be opened, went straight to the
             // card. Closing the menu changes no browser state; the route is
             // still asserted below.
-            closeSystemHandoffIfPresent(app, whileWaitingFor: scheme)
-            XCTAssertTrue(waitForRoute(app, scheme), "\(scheme) was not routed anywhere")
+            let systemHandoff = closeSystemHandoffIfPresent(app, whileWaitingFor: scheme)
+            // On iPad the platform takes tel: before WebKit asks the app's
+            // navigation delegate (run 45086747875: the call menu appeared and
+            // the app's record still said "mailto refused"), so the app cannot
+            // report a route it was never handed. Where the system answered,
+            // that answer is the handoff; where it did not, the app's own
+            // record is still required.
+            if !waitForRoute(app, scheme, timeout: systemHandoff ? 3 : 10) {
+                XCTAssertTrue(systemHandoff, "\(scheme) was not routed anywhere")
+            }
             // A refused handoff explains itself in the app's card; a handled one
             // leaves nothing behind. Either way the page is untouched.
             if app.buttons["linknotice.ok"].waitForExistence(timeout: 3) {
@@ -310,21 +318,28 @@ final class BrowsUITests: XCTestCase {
     /// covers the page. Its Copy Phone Number action is harmless and closes it,
     /// after which the browser's own route record is readable. The menu belongs
     /// to the system, so it may sit in the app's tree or in SpringBoard's.
+    @discardableResult
     private func closeSystemHandoffIfPresent(_ app: XCUIApplication,
                                              whileWaitingFor scheme: String,
-                                             timeout: TimeInterval = 8) {
-        let route = app.staticTexts["debug.lastroute"]
+                                             timeout: TimeInterval = 8) -> Bool {
         let system = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let systemCopy = system.buttons["Copy Phone Number"]
+        let appCopy = app.buttons["Copy Phone Number"]
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            if route.exists, route.label.hasPrefix(scheme) { return }
-            for candidate in [app.buttons["Copy Phone Number"], system.buttons["Copy Phone Number"]]
-            where candidate.exists && candidate.isHittable {
-                candidate.tap()
-                return
+            // The menu is a system surface: ask SpringBoard first, so an app
+            // held behind it cannot block the query that closes it.
+            if systemCopy.exists, systemCopy.isHittable {
+                systemCopy.tap()
+                return true
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+            if appCopy.exists, appCopy.isHittable {
+                appCopy.tap()
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
+        return false
     }
 
     /// The routing decision is visible only to the browser, so the tests read the
