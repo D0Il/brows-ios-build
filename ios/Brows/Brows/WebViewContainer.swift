@@ -94,6 +94,16 @@ struct WebViewContainer: UIViewRepresentable {
             model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
             samplePageBackground(webView)
             model?.pageDidRender()
+            // Capture hook (`-BrowsScrollPage`): the audit's scrolled frame. At
+            // rest the article starts below the top strip by its content inset,
+            // so only a scrolled page puts text under the strip and shows what
+            // the scroll edge does there. 420 pt clears the title in both
+            // appearances and leaves body lines at the status bar.
+            if CommandLine.arguments.contains("-BrowsScrollPage") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    webView.evaluateJavaScript("window.scrollTo(0, 420)")
+                }
+            }
         }
 
         /// Basic and Digest challenges belong to the browser: the model answers from
@@ -377,3 +387,20 @@ struct WebViewContainer: UIViewRepresentable {
 
 /// Type alias so the KVO token is stored without spelling the generic type.
 typealias KVOObservation = NSKeyValueObservation
+
+extension WKWebView {
+    /// The page is the chrome: it runs full-bleed under the tab pane and the
+    /// dock, with no bar of its own. iOS 26 draws a scroll-edge pocket beneath a
+    /// bar as content slides under it, and a pocket here would veil the first
+    /// line of the article at the status bar. Every edge is off explicitly —
+    /// WebKit also hides them for fixed edges, but that is WebKit's policy, not
+    /// this app's, and the audit asks for the contract rather than the default.
+    func hideScrollEdgeEffects() {
+        if #available(iOS 26.0, *) {
+            scrollView.topEdgeEffect.isHidden = true
+            scrollView.bottomEdgeEffect.isHidden = true
+            scrollView.leftEdgeEffect.isHidden = true
+            scrollView.rightEdgeEffect.isHidden = true
+        }
+    }
+}

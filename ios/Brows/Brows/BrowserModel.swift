@@ -637,6 +637,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.hideScrollEdgeEffects()
         webView.underPageBackgroundColor = UIColor(Theme.backdropBottom)
         webView.pageZoom = tab?.zoom ?? settings.defaultZoom
         webView.allowsLinkPreview = true
@@ -765,6 +766,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.hideScrollEdgeEffects()
         webView.underPageBackgroundColor = UIColor(Theme.backdropBottom)
         webViews[tab.id] = webView
         suppliedWebViews.insert(tab.id)
