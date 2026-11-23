@@ -67,13 +67,18 @@ final class BrowsAccessibilityUITests: XCTestCase {
             app.buttons["menu.site-information"].waitForExistence(timeout: 10),
             "menu did not open"
         )
-        if scroll { app.swipeUp() }
+        _ = scroll
     }
 
     private func openPanel(_ app: XCUIApplication, row: String, title: String, scroll: Bool = false) {
         openMenu(app, scroll: scroll)
         let button = app.buttons[row]
         XCTAssertTrue(button.waitForExistence(timeout: 5), "\(row) row missing from the menu")
+        var scrolls = 0
+        while !button.isHittable && scrolls < 8 {
+            app.swipeUp()
+            scrolls += 1
+        }
         button.tap()
         XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 10), "\(title) panel missing")
     }

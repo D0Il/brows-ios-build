@@ -66,6 +66,14 @@ enum PageEnhancements {
     })();
     """
 
+    /// The same report, posted to the browser when the document is ready. A call
+    /// made from the navigation callback raced the load and came back empty, so
+    /// the page pushes its state instead.
+    static var probePostJS: String {
+        let call = probeJS.hasSuffix(";") ? String(probeJS.dropLast()) : probeJS
+        return "try { window.webkit.messageHandlers.browsProbe.postMessage(\(call)); } catch (e) {}"
+    }
+
     /// What the app reads back after a page loads or a tool changes something.
     static let probeJS = """
     (function(){

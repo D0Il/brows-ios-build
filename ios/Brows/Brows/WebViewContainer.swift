@@ -16,6 +16,18 @@ struct WebViewContainer: UIViewRepresentable {
         let webView = model.webView(for: tabId)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        // The page reports what it is through this channel once its document is
+        // ready. Reading it back from the navigation callback raced the load and
+        // left every probe blank.
+        let scripts = webView.configuration.userContentController
+        scripts.add(context.coordinator, name: "browsProbe")
+        scripts.addUserScript(
+            WKUserScript(
+                source: PageEnhancements.probePostJS,
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            )
+        )
 
         let owner = model
         // The tab pane names the page; WebKit sets the title after load, and SPAs
@@ -67,6 +79,7 @@ struct WebViewContainer: UIViewRepresentable {
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         coordinator.observation?.invalidate()
         coordinator.titleObservation?.invalidate()
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "browsProbe")
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
@@ -403,5 +416,13 @@ extension WKWebView {
             scrollView.leftEdgeEffect.isHidden = true
             scrollView.rightEdgeEffect.isHidden = true
         }
+    }
+}
+
+extension WebViewContainer.Coordinator: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        guard message.name == "browsProbe", let json = message.body as? String else { return }
+        model?.applyProbe(json, tabId: tabId)
     }
 }

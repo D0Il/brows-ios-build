@@ -13,6 +13,28 @@ final class BrowsUITests: XCTestCase {
         return app
     }
 
+
+    /// Returns a menu row that can actually be tapped: opens the menu when it is
+    /// not already open, and scrolls the list until the row is on screen. The
+    /// menu is longer than the phone now, so a row can exist without being
+    /// reachable — a tap on it silently misses.
+    @discardableResult
+    private func menuRow(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
+        if !app.buttons["menu.site-information"].exists {
+            app.buttons["rail.menu"].tap()
+            XCTAssertTrue(app.buttons["menu.site-information"].waitForExistence(timeout: 10),
+                          "menu did not open for \(identifier)")
+        }
+        let row = app.buttons[identifier]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "\(identifier) missing from the menu")
+        var scrolls = 0
+        while !row.isHittable && scrolls < 8 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        return row
+    }
+
     /// The sheet tokens must clear WCAG AA in both appearances, not just look
     /// plausible: Theme computes the ratios at launch when asked.
     func testAppearanceTokensPassContrastAudit() {
@@ -67,7 +89,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Workspaces"].waitForExistence(timeout: 10), "menu did not reopen")
-        app.buttons["menu.workspaces"].tap()
+        menuRow("menu.workspaces", in: app).tap()
         XCTAssertTrue(app.staticTexts["CURRENT"].waitForExistence(timeout: 10), "workspaces panel missing")
         app.buttons["Done"].tap()
 
@@ -757,7 +779,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.buttons["menu.workspaces"].waitForExistence(timeout: 10), "menu did not open")
-        app.buttons["menu.workspaces"].tap()
+        menuRow("menu.workspaces", in: app).tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -779,7 +801,7 @@ final class BrowsUITests: XCTestCase {
         // workspaces live, by the row that now reads CURRENT.
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.buttons["menu.workspaces"].waitForExistence(timeout: 10), "menu did not open")
-        app.buttons["menu.workspaces"].tap()
+        menuRow("menu.workspaces", in: app).tap()
 
         let workRow = app.buttons.matching(identifier: "workspace.row.WO").firstMatch
         XCTAssertTrue(workRow.waitForExistence(timeout: 10), "workspace row missing")
@@ -1258,7 +1280,7 @@ final class BrowsUITests: XCTestCase {
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
                       "menu did not open")
-        app.buttons["menu.history"].tap()
+        menuRow("menu.history", in: app).tap()
 
         let first = app.staticTexts["The shape of a browser"]
         XCTAssertTrue(first.waitForExistence(timeout: 10), "history lost the first page")
@@ -1306,12 +1328,12 @@ final class BrowsUITests: XCTestCase {
         // applied by the web view before the model republishes its value; run
         // 45057825247 read the old percentage 0.7 s after each iPad tap. The
         // expected values are unchanged, they are now waited for.
-        app.buttons["menu.zoom.in"].tap()
+        menuRow("menu.zoom.in", in: app).tap()
         XCTAssertTrue(waitForValue(reset, "110%"), "zoom in did not step the page")
-        app.buttons["menu.zoom.in"].tap()
+        menuRow("menu.zoom.in", in: app).tap()
         XCTAssertTrue(waitForValue(reset, "120%"), "zoom in did not step the page")
 
-        app.buttons["menu.zoom.out"].tap()
+        menuRow("menu.zoom.out", in: app).tap()
         XCTAssertTrue(waitForValue(reset, "110%"), "zoom out did not step the page")
 
         reset.tap()
@@ -1327,7 +1349,7 @@ final class BrowsUITests: XCTestCase {
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10),
                       "menu did not open")
-        app.buttons["menu.save-as-pdf"].tap()
+        menuRow("menu.save-as-pdf", in: app).tap()
 
         let activity = app.otherElements["ActivityListView"]
         let close = app.buttons["Close"]
@@ -1470,7 +1492,7 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.buttons["menu.bookmarks"].waitForExistence(timeout: 10), "menu did not open")
-        app.buttons["menu.bookmarks"].tap()
+        menuRow("menu.bookmarks", in: app).tap()
         let row = app.buttons.matching(identifier: "bookmark.row").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 10), "bookmark row missing from the sheet")
         // The row is a full-width button; make sure it is not still fading in.
@@ -1488,7 +1510,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.buttons["menu.workspaces"].waitForExistence(timeout: 10), "menu did not open")
-        app.buttons["menu.workspaces"].tap()
+        menuRow("menu.workspaces", in: app).tap()
 
         let field = app.textFields["New workspace"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -1511,11 +1533,8 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10))
-        app.swipeUp()
 
-        let settingsRow = app.staticTexts["Settings"]
-        XCTAssertTrue(settingsRow.waitForExistence(timeout: 10), "Settings row missing")
-        settingsRow.tap()
+        menuRow("menu.settings", in: app).tap()
         XCTAssertTrue(app.staticTexts["Settings"].waitForExistence(timeout: 10))
 
         // The setting persists, so the switch may already be off from an earlier
@@ -1601,7 +1620,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(probe.label.contains("|light|"), "page started dark: \(probe.label)")
         app.buttons["rail.menu"].tap()
         app.swipeUp()
-        app.buttons["menu.darken-web-pages"].tap()
+        menuRow("menu.darken-web-pages", in: app).tap()
         let dark = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS '|dark|'"), object: probe)
         XCTAssertEqual(XCTWaiter().wait(for: [dark], timeout: 20), .completed,
                        "the page was not darkened: \(probe.label)")
@@ -1622,7 +1641,7 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
         app.buttons["rail.menu"].tap()
         app.swipeUp()
-        app.buttons["menu.translate-page"].tap()
+        menuRow("menu.translate-page", in: app).tap()
         XCTAssertTrue(app.staticTexts["Translate page"].waitForExistence(timeout: 15), "translate card missing")
         XCTAssertTrue(app.buttons["translate.run"].waitForExistence(timeout: 5), "translate action missing")
     }
@@ -1632,7 +1651,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         app.buttons["rail.menu"].tap()
         app.swipeUp()
-        app.buttons["menu.voice-search"].tap()
+        menuRow("menu.voice-search", in: app).tap()
         XCTAssertTrue(app.staticTexts["voice.status"].waitForExistence(timeout: 15), "voice card missing")
         XCTAssertTrue(app.buttons["voice.cancel"].exists, "voice card cannot be dismissed")
     }
@@ -1642,7 +1661,7 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         app.buttons["rail.menu"].tap()
         app.swipeUp()
-        app.buttons["menu.scan-a-code"].tap()
+        menuRow("menu.scan-a-code", in: app).tap()
         XCTAssertTrue(app.staticTexts["scan.unavailable"].waitForExistence(timeout: 15), "scanner card did not open")
     }
 

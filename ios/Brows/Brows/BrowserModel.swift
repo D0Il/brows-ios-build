@@ -627,21 +627,25 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     func refreshPageState() {
         guard let tab = activeTab, let webView = webViews[tab.id] else { return }
         webView.evaluateJavaScript(PageEnhancements.probeJS) { [weak self] result, _ in
-            guard let self,
-                  let json = result as? String,
-                  let data = json.data(using: .utf8),
-                  let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-            else { return }
-            DispatchQueue.main.async {
-                var probe = PageProbe()
-                probe.userAgent = object["ua"] as? String ?? ""
-                probe.filter = object["filter"] as? String ?? ""
-                probe.banners = object["banners"] as? Int ?? 0
-                probe.title = object["title"] as? String ?? ""
-                probe.text = object["text"] as? String ?? ""
-                self.pageProbe = probe
-            }
+            guard let self, let json = result as? String else { return }
+            DispatchQueue.main.async { self.applyProbe(json, tabId: tab.id) }
         }
+    }
+
+    /// Take the page's own report. Only the visible tab may publish it, so a
+    /// background tab finishing its load cannot overwrite what is on screen.
+    func applyProbe(_ json: String, tabId: UUID) {
+        guard activeTab?.id == tabId,
+              let data = json.data(using: .utf8),
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return }
+        var probe = PageProbe()
+        probe.userAgent = object["ua"] as? String ?? ""
+        probe.filter = object["filter"] as? String ?? ""
+        probe.banners = object["banners"] as? Int ?? 0
+        probe.title = object["title"] as? String ?? ""
+        probe.text = object["text"] as? String ?? ""
+        if probe != pageProbe { pageProbe = probe }
     }
 
     /// Ask for the desktop version of this tab's page, or the mobile one again.
