@@ -69,22 +69,43 @@ struct AppMenu: View {
 
             Spacer(minLength: 0)
 
-            Button { NSLog("BROWS-ZOOM minus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: -0.1) } label: { Image(systemName: "minus") }
-                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
-                .accessibilityLabel("Zoom out")
-                .accessibilityIdentifier("menu.zoom.out")
+            // A plain button with an explicit content shape, the pattern the
+            // menu rows use: the custom glass style's nearly transparent plate
+            // published 36 pt to accessibility but only its glyph took the tap,
+            // so on iPad the − and the % did nothing while + (whose glyph covers
+            // its centre) worked. Run 45093256894 logged the touches reaching the
+            // row at all three centres and only + firing.
+            Button { NSLog("BROWS-ZOOM minus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: -0.1) } label: {
+                Image(systemName: "minus")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Theme.plateInk)
+                    .frame(width: 36, height: 36)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Zoom out")
+            .accessibilityIdentifier("menu.zoom.out")
             Button { NSLog("BROWS-ZOOM reset tap zoom=\(model.activeTab?.zoom ?? -1)"); model.resetZoom() } label: {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Theme.plateInk)
+                    .frame(width: 36, height: 36)
+                    .contentShape(Rectangle())
             }
-            .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
+            .buttonStyle(.plain)
             .accessibilityLabel("Reset zoom")
             .accessibilityValue("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
             .accessibilityIdentifier("menu.zoom.reset")
-            Button { NSLog("BROWS-ZOOM plus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: 0.1) } label: { Image(systemName: "plus") }
-                .buttonStyle(GlassCircleButtonStyle(glyph: Theme.plateInk, plate: Theme.plate))
-                .accessibilityLabel("Zoom in")
-                .accessibilityIdentifier("menu.zoom.in")
+            Button { NSLog("BROWS-ZOOM plus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: 0.1) } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Theme.plateInk)
+                    .frame(width: 36, height: 36)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Zoom in")
+            .accessibilityIdentifier("menu.zoom.in")
         }
         .listRowBackground(Color.clear)
         .simultaneousGesture(SpatialTapGesture().onEnded { value in
