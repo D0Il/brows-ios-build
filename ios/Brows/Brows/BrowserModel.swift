@@ -435,7 +435,15 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
         if let index = arguments.firstIndex(of: "-BrowsSheet"),
            index + 1 < arguments.count {
-            presentLaunchSheet(arguments[index + 1])
+            // The pane photographs the page when it appears. A launch-time sheet
+            // opened before the article painted kept a blank white backdrop
+            // (bookmarks-light and downloads-light, run 45157463903), while the
+            // menu's later appearance kept the page. Wait the same beat the
+            // pill hook waits for, so the capture proves the glass.
+            let sheet = arguments[index + 1]
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                self?.presentLaunchSheet(sheet)
+            }
         }
     }
 
