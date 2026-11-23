@@ -104,11 +104,19 @@ struct BrowserView: View {
         .sheet(item: $model.pdfFile) { file in
             ActivityView(url: file.url)
         }
+        .sheet(isPresented: $model.showingScan) {
+            CodeScannerSheet().environmentObject(model)
+        }
+        .sheet(isPresented: $model.showingTranslate) {
+            TranslateSheet().environmentObject(model)
+        }
         .overlay {
             // Both credential surfaces live in the browser's own hierarchy, never in
             // a sheet: a sheet that dismisses can swallow the tap that follows it.
             // Exactly one of them exists at a time.
-            if let dialog = model.pendingScriptDialog {
+            if model.showingVoice {
+                VoiceSearchCard().environmentObject(model)
+            } else if let dialog = model.pendingScriptDialog {
                 ScriptDialogCard(dialog: dialog).environmentObject(model)
             } else if let notice = model.pendingLinkNotice {
                 LinkNoticeCard(notice: notice).environmentObject(model)
@@ -186,6 +194,14 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.tabs")
                     .accessibilityLabel("\(model.tabs.count)|\(model.activeTab?.url?.absoluteString ?? "-")")
+                // What the page says it is: mobile or desktop name, light or dark
+                // filter, visible consent banners, title. The page tools are proved
+                // through this, not through a picture of a button.
+                Text("page")
+                    .font(.system(size: 1))
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.page")
+                    .accessibilityLabel(model.pageProbe.label)
             }
         }
     }

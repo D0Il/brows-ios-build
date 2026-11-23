@@ -73,6 +73,10 @@ struct SettingsSheet: View {
                                 get: { model.settings.blockTrackers },
                                 set: { model.settings.blockTrackers = $0; model.saveSettings() }
                             ))
+                            ToggleRow(title: "Block cookie banners", subtitle: "Hides the consent banner a site puts over its own page", isOn: Binding(
+                                get: { model.settings.blockCookieBanners },
+                                set: { _ in model.toggleCookieBanners() }
+                            ), identifier: "settings.blockCookieBanners")
                             ToggleRow(title: "Restore tabs on launch", subtitle: "Off starts with one blank tab", isOn: Binding(
                                 get: { model.settings.restoreSession },
                                 set: { model.settings.restoreSession = $0; model.saveSettings() }

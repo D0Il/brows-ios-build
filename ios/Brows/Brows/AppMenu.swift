@@ -35,6 +35,15 @@ struct AppMenu: View {
                         row("Reload page", "arrow.clockwise") { model.reloadOrStop() }
                         row("Find in page", "magnifyingglass") { model.startFind() }
                         row("Reader mode", "doc.plaintext") { model.pendingPanel = .reader }
+                        toggleRow("Desktop site", "desktopcomputer", isOn: model.activeTab?.desktopMode == true) {
+                            model.toggleDesktopSite()
+                        }
+                        toggleRow("Darken web pages", "circle.lefthalf.filled", isOn: model.activeTab?.darkPages == true) {
+                            model.toggleDarkPages()
+                        }
+                        row("Translate page", "character.book.closed") { model.openTranslation() }
+                        row("Scan a code", "qrcode.viewfinder") { model.showingScan = true }
+                        row("Voice search", "mic") { model.startVoiceSearch() }
                         row("Print", "printer") { model.pendingPanel = .print }
                         row("Save as PDF", "doc.richtext") { model.pendingPanel = .pdf }
                         row("Reopen closed tab", "arrow.uturn.backward") {
@@ -107,6 +116,36 @@ struct AppMenu: View {
             .accessibilityLabel("Zoom in")
             .accessibilityIdentifier("menu.zoom.in")
         }
+        .listRowBackground(Color.clear)
+    }
+
+    /// A row that remembers a state — the desktop site and the darkened page are
+    /// on or off per tab — with the tick the desktop's own menus use.
+    private func toggleRow(_ title: String, _ symbol: String, isOn: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            action()
+            dismiss()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: symbol)
+                    .font(.system(size: 15))
+                    .foregroundColor(Theme.panelMuted)
+                    .frame(width: 22)
+                Text(title)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Theme.panelInk)
+                Spacer(minLength: 0)
+                if isOn {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Theme.panelMuted)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("menu." + title.lowercased().replacingOccurrences(of: " ", with: "-"))
+        .accessibilityValue(isOn ? "on" : "off")
         .listRowBackground(Color.clear)
     }
 

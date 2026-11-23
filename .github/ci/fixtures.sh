@@ -41,6 +41,28 @@ cat > fixtures/other.html <<'HTML'
 <body style="font-family:-apple-system,Helvetica,sans-serif;padding:24px"><h1>Other page</h1>
 <p>This page exists so the password test can leave the login origin and come back.</p></body></html>
 HTML
+cat > fixtures/refresh.html <<'HTML'
+<!doctype html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Refresh fixture</title></head>
+<body style="font-family:-apple-system,Helvetica,sans-serif;padding:24px">
+<h1>Refresh</h1><p id="stamp">-</p>
+<script>
+var stamp = 'Refresh ' + Date.now();
+document.getElementById('stamp').textContent = stamp;
+document.title = stamp;
+</script>
+</body></html>
+HTML
+cat > fixtures/cookie.html <<'HTML'
+<!doctype html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cookie fixture</title></head>
+<body style="font-family:-apple-system,Helvetica,sans-serif;padding:24px">
+<h1>Cookies</h1><p>Body text under a consent banner.</p>
+<div id="onetrust-banner-sdk" style="position:fixed;left:0;right:0;bottom:0;background:#22262d;color:#fff;padding:24px">
+We use cookies. <button>Accept</button>
+</div>
+</body></html>
+HTML
 cat > fixtures/dialog.html <<'HTML'
 <!doctype html>
 <html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dialogs</title>
@@ -89,6 +111,7 @@ button{display:block;width:100%;font-size:16px;padding:12px 18px;margin:10px 0;b
 <button id="named-fresh" onclick="var w = window.open('/other.html','browsNamed'); document.getElementById('fresh-result').textContent = w ? 'fresh-open' : 'fresh-null'">Open the closed name again</button>
 <p id="fresh-result">none</p>
 <a href="/other.html" target="_blank">Open blank</a>
+<a href="/ua" target="_blank">Open identity popup</a>
 <button onclick="window.open('/article.html','_blank')">Open popup</button>
 <button id="features" onclick="var w = window.open('/article.html','oauth','width=420,height=640,menubar=no'); document.getElementById('popup-result').textContent = w ? 'opened' : 'blocked'">Open popup with features</button>
 <p id="popup-result">none</p>
@@ -110,6 +133,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory='fixtures', **kwargs)
     def do_GET(self):
         path = self.path.split('?', 1)[0]
+        if path == '/ua':
+            import html as htmlmod
+            ua = htmlmod.escape(self.headers.get('User-Agent', ''))
+            body = ('<!doctype html><html><head><meta name="viewport" '
+                    'content="width=device-width,initial-scale=1"><title>Identity</title>'
+                    '</head><body style="font-family:-apple-system,Helvetica,sans-serif;padding:24px">'
+                    '<h1>Identity</h1>'
+                    '<p>HEADER %s</p>'
+                    '<p>JS </p>'
+                    '<script>document.querySelectorAll("p")[1].textContent = "JS " + navigator.userAgent;</script>'
+                    '</body></html>' % ua).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if path in ('/auth.html', '/auth2.html'):
             second = path == '/auth2.html'
             realm = 'Brows Fixture 2' if second else 'Brows Fixture'

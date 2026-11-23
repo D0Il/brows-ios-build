@@ -106,7 +106,9 @@ struct HTMLReader: UIViewRepresentable {
     let baseURL: URL?
 
     func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
+        let configuration = WKWebViewConfiguration()
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        BrowserIdentity.apply(to: webView)
         webView.isOpaque = false
         webView.backgroundColor = UIColor(white: 0.98, alpha: 1)
         webView.scrollView.backgroundColor = UIColor(white: 0.98, alpha: 1)

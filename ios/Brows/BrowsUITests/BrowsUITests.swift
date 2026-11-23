@@ -1559,4 +1559,113 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(value.contains("example.com"), "pill did not take the navigation: \(value)")
         XCTAssertTrue(app.webViews.firstMatch.exists, "no web view after navigation")
     }
+    // MARK: Page tools
+
+    /// Pull down at the top of a page: the browser loads it again.
+    func testPullToRefreshReloadsThePage() {
+        let app = makeApp()
+        open("http://localhost:8000/refresh.html", in: app, expect: "Refresh")
+        let probe = app.staticTexts["debug.page"]
+        XCTAssertTrue(probe.waitForExistence(timeout: 10))
+        let first = probe.label
+        XCTAssertTrue(first.contains("Refresh"), "page probe did not report the fixture: \(first)")
+        app.webViews.firstMatch.swipeDown()
+        let changed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label != %@", first), object: probe)
+        XCTAssertEqual(XCTWaiter().wait(for: [changed], timeout: 25), .completed,
+                       "pull to refresh did not load the page again: \(probe.label)")
+    }
+
+    /// The desktop version is a name change for this tab, and the page sees it.
+    func testDesktopSiteChangesTheNameThisTabSends() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+        let probe = app.staticTexts["debug.page"]
+        XCTAssertTrue(probe.waitForExistence(timeout: 10))
+        XCTAssertFalse(probe.label.hasPrefix("desktop|"), "started on the desktop name: \(probe.label)")
+        app.buttons["rail.menu"].tap()
+        app.swipeUp()
+        let row = app.buttons["menu.desktop-site"]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "desktop row missing")
+        row.tap()
+        let desktop = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label BEGINSWITH 'desktop|'"), object: probe)
+        XCTAssertEqual(XCTWaiter().wait(for: [desktop], timeout: 30), .completed,
+                       "the page never saw the desktop name: \(probe.label)")
+    }
+
+    /// Darkening a page is a filter on the page, not a change to the app.
+    func testDarkPagesDarkenThePage() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+        let probe = app.staticTexts["debug.page"]
+        XCTAssertTrue(probe.waitForExistence(timeout: 10))
+        XCTAssertTrue(probe.label.contains("|light|"), "page started dark: \(probe.label)")
+        app.buttons["rail.menu"].tap()
+        app.swipeUp()
+        app.buttons["menu.darken-web-pages"].tap()
+        let dark = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS '|dark|'"), object: probe)
+        XCTAssertEqual(XCTWaiter().wait(for: [dark], timeout: 20), .completed,
+                       "the page was not darkened: \(probe.label)")
+    }
+
+    /// The consent banner on the fixture page is hidden before it is seen.
+    func testCookieBannerIsHidden() {
+        let app = makeApp()
+        open("http://localhost:8000/cookie.html", in: app, expect: "Cookies")
+        let probe = app.staticTexts["debug.page"]
+        XCTAssertTrue(probe.waitForExistence(timeout: 10))
+        XCTAssertTrue(probe.label.contains("|0|"), "a consent banner is still visible: \(probe.label)")
+    }
+
+    /// Translate opens on the page's own text.
+    func testTranslatePageOpensOnThePagesText() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+        app.buttons["rail.menu"].tap()
+        app.swipeUp()
+        app.buttons["menu.translate-page"].tap()
+        XCTAssertTrue(app.staticTexts["Translate page"].waitForExistence(timeout: 15), "translate card missing")
+        XCTAssertTrue(app.buttons["translate.run"].waitForExistence(timeout: 5), "translate action missing")
+    }
+
+    /// Voice search opens its card and can be dismissed.
+    func testVoiceSearchOpensTheMicrophoneCard() {
+        let app = makeApp()
+        app.buttons["rail.menu"].tap()
+        app.swipeUp()
+        app.buttons["menu.voice-search"].tap()
+        XCTAssertTrue(app.staticTexts["voice.status"].waitForExistence(timeout: 15), "voice card missing")
+        XCTAssertTrue(app.buttons["voice.cancel"].exists, "voice card cannot be dismissed")
+    }
+
+    /// The scanner card opens and tells the truth on a machine without a camera.
+    func testCodeScannerSaysThisDeviceHasNoCamera() {
+        let app = makeApp()
+        app.buttons["rail.menu"].tap()
+        app.swipeUp()
+        app.buttons["menu.scan-a-code"].tap()
+        XCTAssertTrue(app.staticTexts["scan.unavailable"].waitForExistence(timeout: 15), "scanner card did not open")
+    }
+
+    /// The name the browser gives websites is the same in the request the server
+    /// receives, in what the page reads, and in a popup window.
+    func testBrowserIdentityReachesServerAndPage() {
+        let app = makeApp()
+        open("http://localhost:8000/ua", in: app, expect: "Identity")
+        let header = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'HEADER '")).firstMatch
+        let page = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'JS '")).firstMatch
+        XCTAssertTrue(header.waitForExistence(timeout: 15), "server row missing")
+        XCTAssertTrue(page.waitForExistence(timeout: 15), "page row missing")
+        print("BROWS-UA-SERVER: \(header.label)")
+        print("BROWS-UA-JS: \(page.label)")
+        XCTAssertTrue(header.label.contains("Safari/"), "server saw: \(header.label)")
+        XCTAssertTrue(page.label.contains("Safari/"), "page saw: \(page.label)")
+
+        open("http://localhost:8000/links.html", in: app, expect: "Links")
+        app.webViews.links["Open identity popup"].tap()
+        let popupHeader = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'HEADER '")).firstMatch
+        XCTAssertTrue(popupHeader.waitForExistence(timeout: 25), "popup identity row missing")
+        print("BROWS-UA-POPUP: \(popupHeader.label)")
+        XCTAssertTrue(popupHeader.label.contains("Safari/"), "popup saw: \(popupHeader.label)")
+    }
+
 }

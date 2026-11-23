@@ -94,6 +94,7 @@ struct WebViewContainer: UIViewRepresentable {
             model?.autofillCredential(for: webView, url: webView.url, tabId: tabId)
             samplePageBackground(webView)
             model?.pageDidRender()
+            model?.pageDidLoad(tabId)
             // Capture hook (`-BrowsScrollPage`): the audit's scrolled frame. At
             // rest the article starts below the top strip by its content inset,
             // so only a scrolled page puts text under the strip and shows what

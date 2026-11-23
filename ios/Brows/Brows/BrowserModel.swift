@@ -40,6 +40,9 @@ struct BrowserSettings: Codable, Equatable {
     /// Folder a new bookmark is filed in. Optional so settings written before
     /// folders existed still decode; absent means the bookmarks bar.
     var bookmarkFolder: String?
+    /// Consent banners are hidden the way content blockers hide ads: on by
+    /// default, because every famous phone browser does it without being asked.
+    var blockCookieBanners = true
 }
 
 // MARK: - Records
@@ -63,6 +66,10 @@ struct Tab: Identifiable, Equatable {
     var isPrivate: Bool
     var workspaceId: UUID
     var isSecure: Bool
+    /// Per-tab page tools, the way every mobile browser remembers them: asking
+    /// for the desktop version or a darkened page applies to this tab only.
+    var desktopMode: Bool = false
+    var darkPages: Bool = false
 
     init(id: UUID = UUID(), url: URL? = nil, workspaceId: UUID, isPrivate: Bool = false) {
         self.id = id
@@ -76,6 +83,8 @@ struct Tab: Identifiable, Equatable {
         self.isPrivate = isPrivate
         self.workspaceId = workspaceId
         self.isSecure = url?.scheme == "https"
+        self.desktopMode = false
+        self.darkPages = false
     }
 }
 
@@ -340,6 +349,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// The page as the popups' glass sees it. `UIVisualEffectView` cannot sample a
     /// WKWebView, so a pane over the page gets this blurred snapshot instead.
     @Published var panelBackdrop: UIImage?
+    /// What the active page reports about itself: its name as the web sees it,
+    /// whether it is darkened, how many consent banners are still visible, and
+    /// its text (the translate card reads this).
+    @Published var pageProbe = PageProbe()
+    @Published var showingScan = false
+    @Published var showingTranslate = false
+    @Published var showingVoice = false
+    @Published var voiceStatus = ""
+    @Published var voiceTranscript = ""
+    lazy var dictation = Dictation()
 
     private var webViews: [UUID: WKWebView] = [:]
     private var cancelHandlers: [UUID: () -> Void] = [:]
@@ -586,6 +605,108 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             || pendingCredential != nil || pageNotice != nil
     }
 
+    // MARK: Page tools
+
+    /// A page finished loading: end the pull-to-refresh spinner, put the page's
+    /// saved tools back on it (a darkened page stays dark across a reload), and
+    /// read back what the page now is.
+    func pageDidLoad(_ id: UUID) {
+        guard let webView = webViews[id] else { return }
+        webView.scrollView.refreshControl?.endRefreshing()
+        if tabs.first(where: { $0.id == id })?.darkPages == true {
+            webView.evaluateJavaScript(PageEnhancements.darkModeJS(true))
+        }
+        if settings.blockCookieBanners {
+            webView.evaluateJavaScript(PageEnhancements.cookieBannerJS)
+        }
+        refreshPageState()
+    }
+
+    /// Ask the active page what it is, and publish the answer for the probes and
+    /// for the translate card.
+    func refreshPageState() {
+        guard let tab = activeTab, let webView = webViews[tab.id] else { return }
+        webView.evaluateJavaScript(PageEnhancements.probeJS) { [weak self] result, _ in
+            guard let self,
+                  let json = result as? String,
+                  let data = json.data(using: .utf8),
+                  let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            else { return }
+            DispatchQueue.main.async {
+                var probe = PageProbe()
+                probe.userAgent = object["ua"] as? String ?? ""
+                probe.filter = object["filter"] as? String ?? ""
+                probe.banners = object["banners"] as? Int ?? 0
+                probe.title = object["title"] as? String ?? ""
+                probe.text = object["text"] as? String ?? ""
+                self.pageProbe = probe
+            }
+        }
+    }
+
+    /// Ask for the desktop version of this tab's page, or the mobile one again.
+    /// The whole point is the name the page is given, so it is set on this web
+    /// view only and the page is loaded again.
+    func toggleDesktopSite() {
+        guard let tab = activeTab, let webView = webViews[tab.id] else { return }
+        let on = !tab.desktopMode
+        update(tab.id) { $0.desktopMode = on }
+        webView.customUserAgent = on ? PageEnhancements.desktopUserAgent : nil
+        webView.reload()
+    }
+
+    /// Darken this tab's pages, or put the site's own colours back. The page's
+    /// layout is untouched; only its colours are filtered.
+    func toggleDarkPages() {
+        guard let tab = activeTab, let webView = webViews[tab.id] else { return }
+        let on = !tab.darkPages
+        update(tab.id) { $0.darkPages = on }
+        webView.evaluateJavaScript(PageEnhancements.darkModeJS(on)) { [weak self] _, _ in
+            self?.refreshPageState()
+        }
+    }
+
+    /// Hide the consent banners on this page now, and on every page after it.
+    func toggleCookieBanners() {
+        settings.blockCookieBanners.toggle()
+        saveSettings()
+        if let tab = activeTab, let webView = webViews[tab.id], settings.blockCookieBanners {
+            webView.evaluateJavaScript(PageEnhancements.cookieBannerJS) { [weak self] _, _ in
+                self?.refreshPageState()
+            }
+        } else {
+            refreshPageState()
+        }
+    }
+
+    func openTranslation() {
+        refreshPageState()
+        showingTranslate = true
+    }
+
+    func startVoiceSearch() {
+        voiceStatus = "Preparing the microphone…"
+        voiceTranscript = ""
+        dictation.onStatus = { [weak self] text in self?.voiceStatus = text }
+        dictation.onTranscript = { [weak self] text in self?.voiceTranscript = text }
+        dictation.start()
+        showingVoice = true
+    }
+
+    func stopVoiceSearch() {
+        dictation.finish()
+        showingVoice = false
+    }
+
+    func useDictation() {
+        let text = voiceTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
+        dictation.finish()
+        showingVoice = false
+        guard !text.isEmpty else { return }
+        addressText = text
+        isEditingAddress = true
+    }
+
     /// Called when a page has finished loading. The snapshot is retaken only with a
     /// panel up, and a beat later so WebKit has painted the frame it will hand back.
     func pageDidRender() {
@@ -634,13 +755,36 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             )
         )
 
+        if settings.blockCookieBanners {
+            configuration.userContentController.addUserScript(
+                WKUserScript(
+                    source: PageEnhancements.cookieBannerJS,
+                    injectionTime: .atDocumentEnd,
+                    forMainFrameOnly: true
+                )
+            )
+        }
+
+        // Every page this app loads — the browser's own view and an adopted
+        // popup alike — carries the app's name and real version. Setting it on
+        // the configuration covers the first request itself.
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        BrowserIdentity.apply(to: webView)
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.hideScrollEdgeEffects()
         webView.underPageBackgroundColor = UIColor(Theme.backdropBottom)
         webView.pageZoom = tab?.zoom ?? settings.defaultZoom
         webView.allowsLinkPreview = true
+        // Pull down at the top of a page to reload it. The control belongs to the
+        // web view's own scrolling surface, so the gesture never competes with the
+        // dock or the top strip.
+        webView.scrollView.refreshControl = ClosureRefreshControl { [weak webView] in
+            webView?.reload()
+        }
+        if tab?.desktopMode == true {
+            webView.customUserAgent = PageEnhancements.desktopUserAgent
+        }
         webViews[id] = webView
         return webView
     }
@@ -763,11 +907,18 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// phone browser - so they are honoured by opening the tab itself.
     func adoptPopup(_ configuration: WKWebViewConfiguration, url: URL) -> WKWebView {
         let tab = Tab(url: url, workspaceId: activeWorkspaceId, isPrivate: activeTab?.isPrivate ?? false)
+        // Every page this app loads — the browser's own view and an adopted
+        // popup alike — carries the app's name and real version. Setting it on
+        // the configuration covers the first request itself.
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        BrowserIdentity.apply(to: webView)
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.hideScrollEdgeEffects()
         webView.underPageBackgroundColor = UIColor(Theme.backdropBottom)
+        webView.scrollView.refreshControl = ClosureRefreshControl { [weak webView] in
+            webView?.reload()
+        }
         webViews[tab.id] = webView
         suppliedWebViews.insert(tab.id)
         tabs.append(tab)
