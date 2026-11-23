@@ -213,21 +213,31 @@ struct TopStrip: View {
             // translucent glass pane with a .72 white stroke over the page, not a
             // full-width slab. The workspace is the rail button, not a label here.
             HStack(spacing: 7) {
+                // The active tab is the desktop's translucent white pane in
+                // both appearances (tab strip order, `.72` white stroke), so
+                // its ink is fixed like the dock's: the system glass resolved
+                // this chip's whole subtree against the opposite appearance in
+                // authsave-light/dark and notice-light (run 45184392996), white
+                // text on a white chip, and `GlassPane` is the pane the rest of
+                // the chrome already uses.
                 Text(model.activeTab?.title ?? "New Tab")
                     .font(.system(size: 11, weight: .medium))
                     .lineLimit(1)
-                    .foregroundColor(Theme.panelInk)
+                    .foregroundColor(Theme.ink)
 
                 if model.activeTab?.isPrivate == true {
                     Text("PRIVATE")
                         .font(.system(size: 8, weight: .bold))
                         .tracking(1)
-                        .foregroundColor(Theme.panelMuted)
+                        .foregroundColor(Theme.muted)
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .browsGlass(cornerRadius: 9)
+            .background(
+                GlassPane(cornerRadius: 9)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+            )
             .frame(maxWidth: 230, alignment: .leading)
 
             Spacer(minLength: 0)
@@ -378,19 +388,15 @@ struct BottomRail: View {
                 .accessibilityLabel(model.activeTab?.isLoading == true ? "Stop" : "Reload")
                 .accessibilityIdentifier("rail.reload")
 
-                // The star yields the pill to the keyboard: while the address is being
-                // typed the field takes the star's width, and the star comes back when
-                // editing ends. Nothing else in the dock hides.
-                // The slot keeps the star's 34 pt whether or not the star is in
-                // it, so focusing the field can never re-flow the pill under the
-                // same tap (the field was measured at 26 pt in the failure snapshot,
-                // shard 2, run 45013202399). The button itself only exists off-edit,
-                // so `rail.star` really is absent from the accessibility tree.
-                // Nothing is inserted or removed here on focus: the slot holds
-                // the button for the pill's whole life, so the field's UIView and
-                // its first responder survive the state change that the focusing
-                // tap itself causes. While the address is being edited the star
-                // steps out of the accessibility tree and stops taking taps.
+                // While the address is being typed the star closes with it: the
+                // 34 pt its slot was keeping is what the URL needs to fit whole
+                // (the pill capture read `article.h…` with the slot held open,
+                // run 45184392996). The field grows into that space and no
+                // control appears under the focusing tap. Nothing is inserted
+                // or removed: the button stays in the tree for the pill's whole
+                // life, named `rail.star.typing`, hidden from VoiceOver and out
+                // of the hit test while editing, so the field's UIView and its
+                // first responder survive the state change.
                 Button {
                     model.toggleBookmark()
                 } label: {
@@ -406,7 +412,7 @@ struct BottomRail: View {
                 .accessibilityHidden(model.isEditingAddress)
                 .accessibilityIdentifier(model.isEditingAddress ? "rail.star.typing" : "rail.star")
                 .accessibilityValue(model.isBookmarked(model.currentURL()) ? "bookmarked" : "not bookmarked")
-                .frame(width: 34, height: 40)
+                .frame(width: model.isEditingAddress ? 0 : 34, height: 40)
             }
             .padding(.horizontal, 8)
             .frame(height: 40)

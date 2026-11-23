@@ -21,7 +21,7 @@ struct AddressField: UIViewRepresentable {
     var autoFocus: Bool = false
 
     func makeUIView(context: Context) -> UITextField {
-        let field = UITextField()
+        let field = FittingTextField()
         field.delegate = context.coordinator
         field.accessibilityIdentifier = "rail.address"
         // The placeholder alone is not a name: VoiceOver read this field as
@@ -34,8 +34,6 @@ struct AddressField: UIViewRepresentable {
         // selection, so a selected long URL showed only its tail and the host
         // vanished (capture pill-dark). Shrink to fit instead, and the whole URL
         // remains visible inside the pill.
-        field.adjustsFontSizeToFitWidth = true
-        field.minimumFontSize = 10
 
         field.textColor = UIColor(Theme.ink)
         field.tintColor = UIColor(Theme.ink)
@@ -79,6 +77,7 @@ struct AddressField: UIViewRepresentable {
         if field.text != text {
             field.text = text
         }
+        (field as? FittingTextField)?.refit()
     }
 
     func makeCoordinator() -> Coordinator {
@@ -143,6 +142,7 @@ struct AddressField: UIViewRepresentable {
 
         @objc func editingChanged(_ field: UITextField) {
             parent.text = field.text ?? ""
+            (field as? FittingTextField)?.refit()
         }
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -162,6 +162,48 @@ struct AddressField: UIViewRepresentable {
             textField.resignFirstResponder()
             parent.onSubmit(value)
             return false
+        }
+    }
+}
+
+/// The pill shrinks its URL to fit. UIKit's `adjustsFontSizeToFitWidth` does
+/// that only in some states, so the same capture rendered the whole URL at
+/// 10 pt in one run and truncated it to `article.h…` in the next (45177700804
+/// and 45184392996). The size is computed from the text and the field's own
+/// width here, so every pass renders it the same way. 10 pt is the floor;
+/// below that the tail is truncated, and the host still leads the URL.
+final class FittingTextField: UITextField {
+    private let baseFontSize: CGFloat = 15
+    private let floorFontSize: CGFloat = 10
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        fitFont()
+    }
+
+
+    /// Re-run the fit after the coordinator has taken a keystroke.
+    func refit() { fitFont() }
+
+    private func fitFont() {
+        let available = bounds.width - 2
+        guard available > 0 else { return }
+        let value = text ?? ""
+        guard !value.isEmpty else {
+            setFontSize(baseFontSize)
+            return
+        }
+        let base = UIFont.systemFont(ofSize: baseFontSize)
+        let needed = (value as NSString).size(withAttributes: [.font: base]).width
+        let size = needed <= available
+            ? baseFontSize
+            : max(floorFontSize, baseFontSize * available / needed)
+        setFontSize(size)
+    }
+
+    private func setFontSize(_ size: CGFloat) {
+        if abs((font?.pointSize ?? 0) - size) > 0.05 {
+            font = UIFont.systemFont(ofSize: size)
         }
     }
 }
