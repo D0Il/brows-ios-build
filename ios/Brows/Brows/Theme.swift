@@ -235,6 +235,21 @@ struct GlassPane: View {
     var backdropOffset: CGSize = .zero
 
     @Environment(\.colorScheme) private var colorScheme
+    /// The user's Reduce Transparency setting. It is read here, not at each call
+    /// site, because every surface the chrome builds is a `GlassPane`.
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    /// Reduce Transparency, stated once for the whole chrome. iOS degrades its own
+    /// materials, but this pane's blur samples a page *snapshot* the setting never
+    /// touches, so with the setting on the chip and the dock would still show the
+    /// article through them. When this is true the pane drops backdrop, ramp and
+    /// sheen and paints its tint solid — the tab chip, the address pill, the dock
+    /// capsule, the notices and every panel all follow. `-BrowsReduceTransparency`
+    /// forces the same state for the capture pass: `simctl` has no key for the
+    /// setting, and a photograph of the state is the proof this audit counts.
+    private var opaqueChrome: Bool {
+        reduceTransparency || CommandLine.arguments.contains("-BrowsReduceTransparency")
+    }
 
     private var tint: Color { plate ? Theme.plateBase : Theme.railBase }
     /// The rail band stays the desktop's light tint in both appearances; a
@@ -251,11 +266,17 @@ struct GlassPane: View {
                 // The desktop pane is `backdrop-filter: blur(var(--glass-blur))`
                 // under its tint. Paint alone is a slab with a little transparency,
                 // not glass: the page behind it must be blurred through the pane.
-                backdropLayer(geo)
+                // Under Reduce Transparency there is no pane to see through, so
+                // there is no blur either — see `opaqueChrome`.
+                if !opaqueChrome {
+                    backdropLayer(geo)
+                }
 
-                tint.opacity(tintAlpha)
+                tint.opacity(opaqueChrome ? 1 : tintAlpha)
 
-                if !plate {
+                // The ramp and the sheen are light *on* glass. A solid pane keeps
+                // the flat fill, so nothing in it implies a surface to see through.
+                if !plate && !opaqueChrome {
                     LinearGradient(
                         colors: [Theme.railRampTop, Theme.railRampBottom],
                         startPoint: .top,
@@ -265,7 +286,7 @@ struct GlassPane: View {
 
                 // brows_glass.h: transparent at 52% of the gradient's reach,
                 // not at the end of it.
-                if !plate {
+                if !plate && !opaqueChrome {
                     RadialGradient(
                         stops: [
                             Gradient.Stop(color: Theme.railSheen, location: 0),

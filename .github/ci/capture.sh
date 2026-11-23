@@ -9,12 +9,13 @@ xcrun simctl launch "$DEVICE" dev.brows.ios -BrowsOpenURL http://localhost:8000/
 sleep 8
 xcrun simctl io "$DEVICE" screenshot brows-article.png
 # Every text-bearing sheet, in both appearances, plus the pill's selected
-# state and a page scrolled under the top strip. These are launch-only hooks
-# (`-BrowsSheet`, `-BrowsAppearance`, `-BrowsFocusPill`, `-BrowsScrollPage`)
-# and never reachable from a page.
+# state, a page scrolled under the top strip, and the chrome with Reduce
+# Transparency forced. These are launch-only hooks (`-BrowsSheet`,
+# `-BrowsAppearance`, `-BrowsFocusPill`, `-BrowsScrollPage`,
+# `-BrowsReduceTransparency`) and never reachable from a page.
 mkdir -p captures
 for mode in light dark; do
-  for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs auth authsave dialog notice linknotice suggest pill scrolled; do
+  for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs auth authsave dialog notice linknotice suggest pill scrolled reduced; do
     xcrun simctl terminate "$DEVICE" dev.brows.ios > /dev/null 2>&1 || true
     args=(-BrowsUITestReset -BrowsCaptureSeed -BrowsAppearance "$mode" -BrowsOpenURL http://localhost:8000/article.html)
     if [ "$sheet" = "pill" ]; then
@@ -23,6 +24,11 @@ for mode in light dark; do
       # The article scrolled under the top strip: the one frame that shows
       # whether a scroll-edge pocket veils the first line at the status bar.
       args+=(-BrowsScrollPage)
+    elif [ "$sheet" = "reduced" ]; then
+      # Reduce Transparency forced on: the chip and the dock must be solid over
+      # the page, not a blurred snapshot of it. simctl has no key for the
+      # setting, so the app's own launch argument states it.
+      args+=(-BrowsReduceTransparency)
     else
       args+=(-BrowsSheet "$sheet")
     fi
