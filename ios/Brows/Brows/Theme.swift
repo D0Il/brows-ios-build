@@ -430,6 +430,11 @@ struct GlassCircleButtonStyle: ButtonStyle {
             .font(.system(size: 16, weight: .semibold))
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
+            // The plate is nearly transparent, so without an explicit shape the
+            // button only took taps on the glyph itself. Make the whole 36pt
+            // plate the hit target, which is the area it publishes to assistive
+            // technology and the point a tap (or XCTest) aims at.
+            .contentShape(RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous))
             // No plate: the control is a glyph on the glass it sits on, the way
             // system bars draw their symbols. Only a press wash, no fill.
             .background(

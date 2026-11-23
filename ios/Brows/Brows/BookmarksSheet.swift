@@ -71,6 +71,12 @@ struct BookmarksSheet: View {
                                                 .lineLimit(1)
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
+                                        // The row reads as a full-width button to
+                                        // assistive technology. Without this only the
+                                        // two text lines took the tap, so tapping the
+                                        // row's own centre (the point XCTest and
+                                        // VoiceOver use) did nothing on iPad.
+                                        .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
                                     .accessibilityIdentifier("bookmark.row")

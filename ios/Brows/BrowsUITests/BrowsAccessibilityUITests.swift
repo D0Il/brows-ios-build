@@ -81,14 +81,23 @@ final class BrowsAccessibilityUITests: XCTestCase {
     private func openPage(_ app: XCUIApplication) {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15), "address pill missing")
+        let address = "http://localhost:8000/article.html"
         for _ in 0..<3 {
             field.tap()
             if app.keyboards.firstMatch.waitForExistence(timeout: 8) { break }
         }
-        field.typeText("http://localhost:8000/article.html")
+        field.typeText(address)
+        // The keystrokes are synthesized faster than an AX5 simulator repaints
+        // the field: run 45057825247 read the placeholder seven seconds after
+        // typeText returned, and the Return that followed still navigated, so
+        // the text was there and the read was early. Wait for the field to hold
+        // the address; the assertion itself stays exact.
+        let tookAddress = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", address),
+            object: field
+        )
         XCTAssertEqual(
-            field.value as? String,
-            "http://localhost:8000/article.html",
+            XCTWaiter().wait(for: [tookAddress], timeout: 10), .completed,
             "the pill did not take the address"
         )
         field.typeText("\n")

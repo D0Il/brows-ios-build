@@ -227,12 +227,24 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
         for (link, scheme) in [("Mail", "mailto"), ("Call", "tel")] {
-            app.webViews.links[link].tap()
+            let element = app.webViews.links[link]
+            waitUntilHittable(element)
+            element.tap()
+            // iPadOS can answer a supported scheme itself: the simulator's
+            // FaceTime takes tel: and its call menu sits over the page, so the
+            // browser's own record is only readable after the menu closes. Run
+            // 45057825247 showed the menu covering the app on iPad while the
+            // iPhone run, where tel: cannot be opened, went straight to the
+            // card. Closing the menu changes no browser state; the route is
+            // still asserted below.
+            closeSystemHandoffIfPresent(app, whileWaitingFor: scheme)
             XCTAssertTrue(waitForRoute(app, scheme), "\(scheme) was not routed anywhere")
             // A refused handoff explains itself in the app's card; a handled one
             // leaves nothing behind. Either way the page is untouched.
             if app.buttons["linknotice.ok"].waitForExistence(timeout: 3) {
                 app.buttons["linknotice.ok"].tap()
+                XCTAssertTrue(app.buttons["linknotice.ok"].waitForNonExistence(timeout: 5),
+                              "the \(scheme) notice stayed over the page")
             }
             XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 5), "\(scheme) replaced the page")
             // The count comes from the app's own record rather than the gallery,
@@ -246,6 +258,7 @@ final class BrowsUITests: XCTestCase {
             XCTAssertTrue(tabs.hasSuffix("links.html"), "\(scheme) navigated the page: \(tabs)")
         }
 
+        waitUntilHittable(app.webViews.links["Unsupported"])
         app.webViews.links["Unsupported"].tap()
         let route = app.staticTexts["debug.lastroute"]
         XCTAssertTrue(app.buttons["linknotice.ok"].waitForExistence(timeout: 7),
@@ -279,6 +292,39 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 15),
                       "tapping the suggestion did not open the page")
         XCTAssertFalse(app.buttons["suggest.row"].exists, "the completion list stayed open")
+    }
+
+    /// Wait for a control to publish exactly this value, rather than reading it
+    /// the moment after a tap. The assertion still compares exact strings.
+    private func waitForValue(_ element: XCUIElement, _ value: String,
+                              timeout: TimeInterval = 10) -> Bool {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", value),
+            object: element
+        )
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    /// A supported external scheme can be answered by the platform itself: on
+    /// iPad the simulator's FaceTime takes `tel:` and presents a call menu that
+    /// covers the page. Its Copy Phone Number action is harmless and closes it,
+    /// after which the browser's own route record is readable. The menu belongs
+    /// to the system, so it may sit in the app's tree or in SpringBoard's.
+    private func closeSystemHandoffIfPresent(_ app: XCUIApplication,
+                                             whileWaitingFor scheme: String,
+                                             timeout: TimeInterval = 8) {
+        let route = app.staticTexts["debug.lastroute"]
+        let system = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if route.exists, route.label.hasPrefix(scheme) { return }
+            for candidate in [app.buttons["Copy Phone Number"], system.buttons["Copy Phone Number"]]
+            where candidate.exists && candidate.isHittable {
+                candidate.tap()
+                return
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
     }
 
     /// The routing decision is visible only to the browser, so the tests read the
@@ -1238,17 +1284,23 @@ final class BrowsUITests: XCTestCase {
                       "menu did not open")
         let reset = app.buttons["menu.zoom.reset"]
         XCTAssertTrue(reset.waitForExistence(timeout: 10), "no zoom control in the menu")
+        waitUntilHittable(reset)
         XCTAssertEqual(reset.value as? String, "100%", "zoom did not start at 100%")
 
+        // The row is a plate of three small controls and the page's zoom is
+        // applied by the web view before the model republishes its value; run
+        // 45057825247 read the old percentage 0.7 s after each iPad tap. The
+        // expected values are unchanged, they are now waited for.
         app.buttons["menu.zoom.in"].tap()
+        XCTAssertTrue(waitForValue(reset, "110%"), "zoom in did not step the page")
         app.buttons["menu.zoom.in"].tap()
-        XCTAssertEqual(reset.value as? String, "120%", "zoom in did not step the page")
+        XCTAssertTrue(waitForValue(reset, "120%"), "zoom in did not step the page")
 
         app.buttons["menu.zoom.out"].tap()
-        XCTAssertEqual(reset.value as? String, "110%", "zoom out did not step the page")
+        XCTAssertTrue(waitForValue(reset, "110%"), "zoom out did not step the page")
 
         reset.tap()
-        XCTAssertEqual(reset.value as? String, "100%", "the percentage did not reset the zoom")
+        XCTAssertTrue(waitForValue(reset, "100%"), "the percentage did not reset the zoom")
     }
 
     /// Save as PDF only presents sharing after the file is on disk; the sheet is
@@ -1406,6 +1458,8 @@ final class BrowsUITests: XCTestCase {
         app.buttons["menu.bookmarks"].tap()
         let row = app.buttons.matching(identifier: "bookmark.row").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 10), "bookmark row missing from the sheet")
+        // The row is a full-width button; make sure it is not still fading in.
+        waitUntilHittable(row)
         row.tap()
 
         XCTAssertTrue(
