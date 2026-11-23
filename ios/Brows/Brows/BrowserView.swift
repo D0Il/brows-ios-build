@@ -280,37 +280,50 @@ struct BottomRail: View {
             // The slots come back on blur. Workspace switches still keep their
             // fixed slots, which is the re-flow that mattered (run 44956470184);
             // focusing is not a workspace switch and the field is the tap target.
-            if !model.isEditingAddress {
-                Group {
-                    if canBack {
-                        railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
-                    } else {
-                        Color.clear.frame(width: 44, height: 44)
-                    }
-                    if canForward {
-                        railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
-                    } else {
-                        Color.clear.frame(width: 44, height: 44)
-                    }
+            // The slots stay in the tree while editing and collapse to zero
+            // width, rather than being removed: an `if` around a sibling changes
+            // the HStack's child structure, which rebuilt the AddressField and
+            // dropped first responder mid-typing. Three address-pill navigations
+            // then stayed on the start page ("SEARCH") in run 45168968759
+            // (testDockKeepsTabsAndMenuAfterThePill, testFindInPage,
+            // testHistoryListsVisitedPagesAndRemovesOne).
+            HStack(spacing: 8) {
+                if canBack {
+                    railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
+                } else {
+                    Color.clear.frame(width: 44, height: 44)
+                }
+                if canForward {
+                    railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
+                } else {
+                    Color.clear.frame(width: 44, height: 44)
                 }
             }
+            .frame(width: model.isEditingAddress ? 0 : 96, height: 44)
+            .clipped()
+            .opacity(model.isEditingAddress ? 0 : 1)
+            .allowsHitTesting(!model.isEditingAddress)
+            .accessibilityHidden(model.isEditingAddress)
 
             HStack(spacing: 6) {
-                if !model.isEditingAddress {
-                    Button {
-                        model.loadSiteInfo()
-                        model.showingSiteInfo = true
-                    } label: {
-                        SiteBadge(host: model.activeHost)
-                    }
-                    .buttonStyle(.plain)
-                    // The lock glyph was the button's whole name. Name the panel it
-                    // opens; the host is the value, not the label, so VoiceOver does
-                    // not read "Lock" for a control that shows site information.
-                    .accessibilityLabel("Site information")
-                    .accessibilityValue(model.activeHost ?? "")
-                    .accessibilityIdentifier("rail.siteInfo")
+                Button {
+                    model.loadSiteInfo()
+                    model.showingSiteInfo = true
+                } label: {
+                    SiteBadge(host: model.activeHost)
                 }
+                .buttonStyle(.plain)
+                // The lock glyph was the button's whole name. Name the panel it
+                // opens; the host is the value, not the label, so VoiceOver does
+                // not read "Lock" for a control that shows site information.
+                .accessibilityLabel("Site information")
+                .accessibilityValue(model.activeHost ?? "")
+                .accessibilityIdentifier("rail.siteInfo")
+                .frame(width: model.isEditingAddress ? 0 : 26, height: 26)
+                .clipped()
+                .opacity(model.isEditingAddress ? 0 : 1)
+                .allowsHitTesting(!model.isEditingAddress)
+                .accessibilityHidden(model.isEditingAddress)
 
                 AddressField(
                     text: $model.addressText,

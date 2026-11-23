@@ -1,0 +1,1369 @@
+UI tests shard 2/4	UNKNOWN STEP	﻿2026-11-22T15:07:47.2815930Z Current runner version: '2.338.2'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2833740Z ##[group]Runner Image Provisioner
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2834440Z Hosted Compute Agent
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2834810Z Version: 20261111.635
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2835210Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2835710Z Build Date: 2026-11-11T01:49:01Z
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2836660Z Worker ID: {5c25ca75-3ed2-4820-8e1f-94b48bf3b63b}
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2837110Z Region: westus
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2837450Z Cloud: MacCloud
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2837890Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2838870Z ##[group]Operating System
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2839250Z macOS
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2839560Z 15.8.2
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2839880Z 24H232
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2840200Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2840540Z ##[group]Runner Image
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2840950Z Image: macos-15-arm64
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2841360Z Version: 20261118.0550.1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2842220Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20261118.0550/images/macos/macos-15-arm64-Readme.md
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2843250Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20261118.0550
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2843890Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2844670Z ##[group]GITHUB_TOKEN Permissions
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2845830Z Contents: read
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2846180Z Metadata: read
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2846530Z Packages: read
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2846880Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2848340Z Secret source: Actions
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2848880Z Cache mode: write
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.2849310Z Prepare workflow directory
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.3185000Z Prepare all required actions
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.3233900Z Getting action download info
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.4904690Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:47.7391180Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.5011720Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.7681120Z Complete job name: UI tests shard 2/4
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8390310Z ##[group]Run actions/checkout@v4
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8390890Z with:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8391250Z   repository: D0Il/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8394250Z   token: ***
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8394700Z   ssh-strict: true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8395050Z   ssh-user: git
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8395400Z   persist-credentials: true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8395770Z   clean: true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8396140Z   sparse-checkout-cone-mode: true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8396640Z   fetch-depth: 1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8410610Z   fetch-tags: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8410960Z   show-progress: true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8411290Z   lfs: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8411590Z   submodules: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8411920Z   set-safe-directory: true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8412300Z   allow-unsafe-pr-checkout: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:48.8413310Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.2965230Z Syncing repository: D0Il/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.2968310Z ##[group]Getting Git version info
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.2969060Z Working directory is '/Users/runner/work/brows-ios-build/brows-ios-build'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.2970110Z [command]/opt/homebrew/bin/git version
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3303100Z git version 2.56.1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3326320Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3338270Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/593e6243-6160-4aea-aa32-3b2fd07a59d7/.gitconfig'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3351760Z Temporarily overriding HOME='/Users/runner/work/_temp/593e6243-6160-4aea-aa32-3b2fd07a59d7' before making global git config changes
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3355210Z Adding repository directory to the temporary git global config as a safe directory
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3358440Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/brows-ios-build/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3482470Z Deleting the contents of '/Users/runner/work/brows-ios-build/brows-ios-build'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3491340Z ##[group]Initializing the repository
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3493920Z [command]/opt/homebrew/bin/git init /Users/runner/work/brows-ios-build/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3817250Z hint: Using 'master' as the name for the initial branch. This default branch name
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3819360Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3820220Z hint: to use in all of your new repositories, which will suppress this warning,
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3820860Z hint: call:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3821210Z hint:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3821670Z hint: 	git config --global init.defaultBranch <name>
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3822200Z hint:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3822730Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3823600Z hint: 'development'. The just-created branch can be renamed via this command:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3824220Z hint:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3824610Z hint: 	git branch -m <name>
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3825080Z hint:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3825650Z hint: Disable this message with "git config set advice.defaultBranchName false"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3830480Z Initialized empty Git repository in /Users/runner/work/brows-ios-build/brows-ios-build/.git/
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.3836590Z [command]/opt/homebrew/bin/git remote add origin https://github.com/D0Il/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4043830Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4051570Z ##[group]Disabling automatic garbage collection
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4075630Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4077780Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4078660Z ##[group]Setting up auth
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4079610Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.4099180Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.5260760Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.5335500Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.6255870Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.6441940Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.7223450Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.7300030Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.7301950Z ##[group]Fetching the repository
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:49.7305200Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c300e85c83231b7499cfc9bc185cbf41016c6d5b:refs/remotes/origin/master
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8179180Z From https://github.com/D0Il/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8180380Z  * [new ref]         c300e85c83231b7499cfc9bc185cbf41016c6d5b -> origin/master
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8184780Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8185340Z ##[group]Determining the checkout info
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8187640Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8195420Z [command]/opt/homebrew/bin/git sparse-checkout disable
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8281240Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8404520Z ##[group]Checking out the ref
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8420310Z [command]/opt/homebrew/bin/git checkout --progress --force -B master refs/remotes/origin/master
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8800370Z Reset branch 'master'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8805670Z branch 'master' set up to track 'origin/master'.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8808250Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.8945970Z [command]/opt/homebrew/bin/git log -1 --format=%H
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9029220Z c300e85c83231b7499cfc9bc185cbf41016c6d5b
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9327220Z ##[group]Run ls /Applications | grep -i "^Xcode" || true
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9328950Z ^[[36;1mls /Applications | grep -i "^Xcode" || true^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9330360Z ^[[36;1msudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9331650Z ^[[36;1mxcodebuild -version^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9384760Z shell: /bin/bash -e {0}
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9385160Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9906710Z Xcode_16.0.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9907430Z Xcode_16.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9907900Z Xcode_16.1.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9935380Z Xcode_16.1.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9948070Z Xcode_16.2.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9949800Z Xcode_16.2.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9951390Z Xcode_16.3.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9953890Z Xcode_16.3.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9959340Z Xcode_16.4.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9961590Z Xcode_16.4.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9985710Z Xcode_16.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9986210Z Xcode_26.0.1.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9986600Z Xcode_26.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9987040Z Xcode_26.1.1.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9988100Z Xcode_26.1.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9988530Z Xcode_26.2.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9988890Z Xcode_26.2.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9989250Z Xcode_26.3.0.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9989660Z Xcode_26.3.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:50.9989990Z Xcode.app
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.0903690Z Xcode 26.3
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.0904520Z Build version 17C529
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1028310Z ##[group]Run # simctl lists devices oldest runtime first and this image ships iOS 18.5
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1029170Z ^[[36;1m# simctl lists devices oldest runtime first and this image ships iOS 18.5^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1029990Z ^[[36;1m# and 18.6 beside 26.x, so take the first iPhone in the newest iOS block.^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1030600Z ^[[36;1m# The JSON form of this query costs 20-45 s on a cold runner.^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1031590Z ^[[36;1mDEVICE=$(xcrun simctl list devices available | awk '/^-- /{ split($3,p,"."); cur=p[1]*100+p[2]; next } /iPhone/ && cur>best { if (match($0,/[0-9A-F-]{36}/)) { best=cur; u=substr($0,RSTART,RLENGTH) } } END{ print u }')^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1032760Z ^[[36;1mecho "device: $DEVICE"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1033120Z ^[[36;1mxcrun simctl boot "$DEVICE" || true^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1033630Z ^[[36;1mecho "DEVICE=$DEVICE" >> "$GITHUB_ENV"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1104100Z shell: /bin/bash -e {0}
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:07:54.1104580Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:45.2430780Z device: B290E327-433A-4878-BC55-828A994DCA6C
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7579920Z ##[group]Run actions/download-artifact@v4
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7580560Z with:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7581030Z   name: Brows-testbuild
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7581300Z   path: ios/Brows/build-test/Build/Products
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7582580Z   merge-multiple: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7582820Z   repository: D0Il/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7583290Z   run-id: 45036456881
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7583870Z env:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7584170Z   DEVICE: B290E327-433A-4878-BC55-828A994DCA6C
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:08:51.7584550Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:34.3952180Z Downloading single artifact
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:34.8517900Z (node:2141) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:34.8661930Z (Use `node --trace-deprecation ...` to show where the warning was created)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:35.2192190Z Preparing to download the following artifacts:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:35.2393010Z - Brows-testbuild (ID: 14760290262, Size: 9428399, Expected Digest: sha256:615f9490c34c7f484f8acdd5ac8850460d0a6e67f8f5f1aacd225c76151114ac)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:35.5695500Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/3567c5da-1a89-836e-b004-83d7d90c9c61/workflow-job-run-5bc51f59-a731-50b7-9be7-96aa10d8b405/artifacts/001511abd99583f9f3c5519b83856b071fdffd0a8509737d87cf7a3b314e2351.zip
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:35.5697680Z Starting download of artifact to: /Users/runner/work/brows-ios-build/brows-ios-build/ios/Brows/build-test/Build/Products
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:35.8118690Z (node:2141) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.0366660Z SHA256 digest of downloaded artifact is 615f9490c34c7f484f8acdd5ac8850460d0a6e67f8f5f1aacd225c76151114ac
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.0471610Z Artifact download completed successfully.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.0582400Z Total of 1 artifact(s) downloaded
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.0689980Z Download artifact has finished successfully
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.0975730Z ##[group]Run bash .github/ci/fixtures.sh
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.0976280Z ^[[36;1mbash .github/ci/fixtures.sh^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.4383830Z shell: /bin/bash -e {0}
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.4385270Z env:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.4386080Z   DEVICE: B290E327-433A-4878-BC55-828A994DCA6C
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:41.4387440Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3837170Z ##[group]Run set -euo pipefail
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3837750Z ^[[36;1mset -euo pipefail^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3838180Z ^[[36;1mXCTESTRUN=$(ls build-test/Build/Products/*.xctestrun | head -1)^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3838630Z ^[[36;1mecho "xctestrun: $XCTESTRUN"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3845650Z ^[[36;1mONLY=$(python3 -c "import json;d=json.load(open('$GITHUB_WORKSPACE/.github/ci/shards.json'));print(' '.join('-only-testing:BrowsUITests/BrowsUITests/'+t for t in d['2']))")^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3846600Z ^[[36;1mecho "shard 2 methods:"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3846950Z ^[[36;1mprintf '%s\n' $ONLY^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3847390Z ^[[36;1mecho "device: $DEVICE"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3847850Z ^[[36;1mxcrun simctl bootstatus "$DEVICE" -b^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3848230Z ^[[36;1mRC=0^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3938100Z ^[[36;1mxcodebuild test-without-building \^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3996680Z ^[[36;1m  -xctestrun "$XCTESTRUN" \^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3997530Z ^[[36;1m  -destination "id=$DEVICE" \^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3998110Z ^[[36;1m  -resultBundlePath "shard-2.xcresult" \^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3998440Z ^[[36;1m  $ONLY || RC=$?^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.3998970Z ^[[36;1mecho "---- crash reports ----"^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4000210Z ^[[36;1mfind ~/Library/Logs/DiagnosticReports -name "Brows*" -mmin -10 2>/dev/null | head -5 | while read -r f; do echo "### $f"; head -80 "$f"; done^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4001130Z ^[[36;1mxcrun simctl spawn "$DEVICE" log show --last 3m --predicate 'process == "Brows"' > shard-sim.log || true^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4001880Z ^[[36;1mtail -60 shard-sim.log^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4002450Z ^[[36;1mexit $RC^[[0m
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4222470Z shell: /bin/bash -e {0}
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4223580Z env:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4227890Z   DEVICE: B290E327-433A-4878-BC55-828A994DCA6C
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.4228930Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.5764340Z xctestrun: build-test/Build/Products/Brows_iphonesimulator26.2-arm64.xctestrun
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.6959490Z shard 2 methods:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7069740Z -only-testing:BrowsUITests/BrowsUITests/testAddressBarTopSetting
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7221850Z -only-testing:BrowsUITests/BrowsUITests/testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7345240Z -only-testing:BrowsUITests/BrowsUITests/testNamedWindowReopensAfterItsPopupIsClosed
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7451730Z -only-testing:BrowsUITests/BrowsUITests/testNewWindowLinksOpenAndSelectANewTab
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7556730Z -only-testing:BrowsUITests/BrowsUITests/testDockKeepsTabsAndMenuAfterThePill
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7661310Z -only-testing:BrowsUITests/BrowsUITests/testTabGallerySearch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.7837020Z -only-testing:BrowsUITests/BrowsUITests/testWindowOpenReusesTheNamedWindow
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.8003300Z -only-testing:BrowsUITests/BrowsUITests/testWindowOpenWithFeaturesOpensOneSelectedTab
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.8017700Z -only-testing:BrowsUITests/BrowsUITests/testWorkspaceSwitch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.8122590Z -only-testing:BrowsUITests/BrowsUITests/testKeyboardDoesNotCoverTheDock
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:09:43.8236110Z device: B290E327-433A-4878-BC55-828A994DCA6C
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:10:17.7673780Z Monitoring boot status for iPhone 17 Pro (B290E327-433A-4878-BC55-828A994DCA6C).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:10:17.7674890Z Device already booted, nothing to do.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:10:17.7675200Z 
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:45.5836990Z Command line invocation:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:45.5948250Z     /Applications/Xcode_26.3.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun build-test/Build/Products/Brows_iphonesimulator26.2-arm64.xctestrun -destination id=B290E327-433A-4878-BC55-828A994DCA6C -resultBundlePath shard-2.xcresult "-only-testing:BrowsUITests/BrowsUITests/testAddressBarTopSetting" "-only-testing:BrowsUITests/BrowsUITests/testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice" "-only-testing:BrowsUITests/BrowsUITests/testNamedWindowReopensAfterItsPopupIsClosed" "-only-testing:BrowsUITests/BrowsUITests/testNewWindowLinksOpenAndSelectANewTab" "-only-testing:BrowsUITests/BrowsUITests/testDockKeepsTabsAndMenuAfterThePill" "-only-testing:BrowsUITests/BrowsUITests/testTabGallerySearch" "-only-testing:BrowsUITests/BrowsUITests/testWindowOpenReusesTheNamedWindow" "-only-testing:BrowsUITests/BrowsUITests/testWindowOpenWithFeaturesOpensOneSelectedTab" "-only-testing:BrowsUITests/BrowsUITests/testWorkspaceSwitch" "-only-testing:BrowsUITests/BrowsUITests/testKeyboardDoesNotCoverTheDock"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:45.5960280Z 
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.3376420Z 2026-11-22 15:11:50.332 xcodebuild[3259:14790] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.4066210Z Writing result bundle at path:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.4168870Z 	/Users/runner/work/brows-ios-build/brows-ios-build/ios/Brows/shard-2.xcresult
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.4269920Z 
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.4914350Z 2026-11-22 15:11:50.450 xcodebuild[3259:14790] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.5023860Z --- xcodebuild: WARNING: Using the first of multiple matching destinations:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.5332910Z { platform:iOS Simulator, arch:arm64, id:B290E327-433A-4878-BC55-828A994DCA6C, OS:26.2, name:iPhone 17 Pro }
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:50.5671590Z { platform:iOS Simulator, arch:x86_64, id:B290E327-433A-4878-BC55-828A994DCA6C, OS:26.2, name:iPhone 17 Pro }
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:11:56.2701340Z 2026-11-22 15:11:56.259 xcodebuild[3259:14790] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:30.6215440Z 2026-11-22 15:12:30.476624+0000 BrowsUITests-Runner[5546:21729] [Default] Running tests...
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:30.7461220Z 2026-11-22 15:12:30.586796+0000 BrowsUITests-Runner[5546:22120] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:31.1061300Z 2026-11-22 15:12:30.629102+0000 BrowsUITests-Runner[5546:22123] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:39.6621010Z     t =      nans Interface orientation changed to Portrait
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:39.7184930Z Test Suite 'Selected tests' started at 2026-11-22 15:12:39.715.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:39.7694510Z Test Suite 'BrowsUITests.xctest' started at 2026-11-22 15:12:39.715.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:39.7824280Z Test Suite 'BrowsUITests' started at 2026-11-22 15:12:39.715.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:39.7943100Z Test Case '-[BrowsUITests.BrowsUITests testAddressBarTopSetting]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:39.8569660Z     t =     0.00s Start Test at 2026-11-22 15:12:39.718
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:40.4595420Z     t =     0.67s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:40.4731030Z     t =     0.70s Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:40.4999930Z     t =     0.70s     Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:55.3513000Z     t =    15.27s         Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:55.4061900Z     t =    15.48s         Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:58.9923680Z     t =    18.71s Tap "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:58.9932170Z     t =    18.71s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:12:59.0434610Z     t =    18.72s     Find the "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:02.5962020Z     t =    21.67s     Check for interrupting elements affecting "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:03.2805000Z     t =    23.27s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:03.8027440Z     t =    24.03s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:04.0173660Z     t =    24.22s Waiting 10.0s for "Site information" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:05.0247630Z     t =    25.24s     Checking `Expect predicate `existsNoRetry == 1` for object "Site information" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:05.0354310Z     t =    25.24s         Checking existence of `"Site information" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:06.6077700Z     t =    26.63s Swipe up Target Application 'dev.brows.ios'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:06.6266910Z     t =    26.63s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:06.6861690Z     t =    26.63s     Find the Target Application 'dev.brows.ios'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:06.7885640Z     t =    27.02s     Check for interrupting elements affecting "Brows" Application
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:06.9417410Z     t =    27.21s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:07.6455540Z     t =    27.67s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:07.9754540Z     t =    28.17s Waiting 10.0s for "Settings" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:08.9652010Z     t =    29.20s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:08.9819760Z     t =    29.20s         Checking existence of `"Settings" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.0304240Z     t =    29.31s Tap "Settings" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.0406290Z     t =    29.31s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.1447410Z     t =    29.42s     Find the "Settings" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.2911650Z     t =    29.56s     Check for interrupting elements affecting "Settings" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.4096430Z     t =    29.66s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.7286580Z     t =    29.97s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:09.7387940Z     t =    29.98s Waiting 10.0s for "Settings" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:10.8220180Z     t =    31.04s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:10.8428680Z     t =    31.04s         Checking existence of `"Settings" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:11.6826150Z     t =    31.96s Waiting 10.0s for "settings.addressBarBottom" Switch to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.7219110Z     t =    32.99s     Checking `Expect predicate `existsNoRetry == 1` for object "settings.addressBarBottom" Switch`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.7321070Z     t =    32.99s         Checking existence of `"settings.addressBarBottom" Switch`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.7718950Z     t =    33.05s Find the "settings.addressBarBottom" Switch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.8197200Z     t =    33.08s Tap "settings.addressBarBottom" Switch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.8297790Z     t =    33.08s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.8422290Z     t =    33.08s     Find the "settings.addressBarBottom" Switch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.8772320Z     t =    33.13s     Check for interrupting elements affecting "settings.addressBarBottom" Switch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:12.9457600Z     t =    33.22s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.2859000Z     t =    33.52s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.2861600Z     t =    33.53s Find the "settings.addressBarBottom" Switch
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.3682920Z     t =    33.64s Tap "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.3784410Z     t =    33.64s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.3951210Z     t =    33.64s     Find the "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.4155790Z     t =    33.69s     Check for interrupting elements affecting "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.4627090Z     t =    33.73s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.7564010Z     t =    34.03s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:13.7665550Z     t =    34.03s Waiting 10.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.8216730Z     t =    35.07s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.8320140Z     t =    35.07s         Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.8643520Z     t =    35.11s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.8879480Z     t =    35.16s Find the Target Application 'dev.brows.ios'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.8982120Z     t =    35.17s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.9388990Z     t =    35.21s Find the Target Application 'dev.brows.ios'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:14.9490550Z     t =    35.23s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:18.9817460Z Test Case '-[BrowsUITests.BrowsUITests testAddressBarTopSetting]' passed (39.260 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:18.9929540Z Test Case '-[BrowsUITests.BrowsUITests testDockKeepsTabsAndMenuAfterThePill]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:19.0056720Z     t =     0.00s Start Test at 2026-11-22 15:13:18.979
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:19.7421580Z     t =     0.20s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:19.7523690Z     t =     0.21s Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:20.0410100Z     t =     0.21s     Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:20.2053760Z     t =     0.21s         Terminate dev.brows.ios:5853
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:25.2829060Z     t =     6.28s         Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:25.3379030Z     t =     6.34s         Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:26.3392720Z     t =     7.36s Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.3562260Z     t =     8.38s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.3694500Z     t =     8.38s         Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.4738000Z     t =     8.48s Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.4925320Z     t =     8.48s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.5125660Z     t =     8.49s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.5126600Z     t =     8.52s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.5359050Z     t =     8.55s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:27.8315200Z     t =     8.84s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:29.7552240Z     t =     9.66s Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:29.7677250Z     t =    10.67s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:29.7977470Z     t =    10.67s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:30.1608590Z     t =    11.16s Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:30.1735870Z     t =    11.16s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:30.1889120Z     t =    11.17s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:30.4213740Z     t =    11.42s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:30.5331700Z     t =    11.54s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.3242000Z     t =    12.28s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.3420370Z     t =    12.29s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.3523190Z     t =    12.36s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.4269900Z     t =    12.42s Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.4374950Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.4480390Z     t =    12.42s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.4581780Z     t =    12.42s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.4975020Z     t =    12.48s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:31.5378520Z     t =    12.55s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:32.3206290Z     t =    12.98s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:32.7753800Z     t =    13.08s Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:33.3567310Z     t =    14.16s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:33.4686860Z     t =    14.17s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:33.6948830Z     t =    14.70s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:34.1162830Z     t =    15.10s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:34.1300650Z     t =    15.10s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:34.5726010Z     t =    15.58s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.0790030Z     t =    16.09s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.1049200Z     t =    16.09s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.1914720Z     t =    16.20s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.2022890Z     t =    16.20s     Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.2618940Z     t =    16.28s Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.2734470Z     t =    16.28s     Requesting snapshot of accessibility hierarchy for app with pid 6707
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:35.5851340Z     t =    16.59s Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:36.6026910Z     t =    17.60s     Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:36.6129390Z     t =    17.60s         Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:36.6231900Z     t =    17.64s Waiting 12.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:37.6527600Z     t =    18.64s     Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:37.6675070Z     t =    18.65s         Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:37.6984470Z     t =    18.71s Waiting 10.0s for "rail.back" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:38.7517260Z     t =    19.73s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.back" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:38.7620400Z     t =    19.73s         Checking existence of `"rail.back" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:38.7899790Z     t =    19.81s Waiting 10.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:39.8309280Z     t =    20.85s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:39.8416580Z     t =    20.85s         Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:39.8914830Z     t =    20.90s Waiting 10.0s for "rail.tabs" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:40.9244320Z     t =    21.93s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.tabs" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:40.9383940Z     t =    21.93s         Checking existence of `"rail.tabs" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:41.1306860Z     t =    22.14s Waiting 10.0s for "rail.menu" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:42.1665250Z     t =    23.18s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.menu" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:42.1756160Z     t =    23.18s         Checking existence of `"rail.menu" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:42.2276780Z     t =    23.24s Waiting 10.0s for "rail.reload" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:43.6467240Z     t =    24.31s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.reload" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:43.6468250Z     t =    24.31s         Checking existence of `"rail.reload" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:43.6584700Z     t =    24.66s Find the "rail.back" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:43.8391710Z     t =    24.75s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:43.8673120Z     t =    24.87s Find the "rail.reload" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.0522790Z     t =    24.98s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.2196580Z     t =    25.12s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.2345360Z     t =    25.24s Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.3024870Z     t =    25.30s Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.5243400Z     t =    25.48s Find the "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.6968070Z     t =    25.61s Checking existence of `"rail.workspace" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.7084480Z     t =    25.71s Find the "rail.back" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.7824490Z     t =    25.77s Find the "rail.back" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.8476870Z     t =    25.87s Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.9050090Z     t =    25.92s Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:44.9870580Z     t =    25.99s Find the "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:45.0528420Z     t =    26.07s Find the "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:45.1062990Z     t =    26.12s Waiting 10.0s for "rail.star" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.1590940Z     t =    27.16s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.star" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.1708260Z     t =    27.16s         Checking existence of `"rail.star" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.3130300Z     t =    27.28s Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.3267930Z     t =    27.28s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.3401750Z     t =    27.30s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.3512330Z     t =    27.36s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.4116660Z     t =    27.43s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:46.8338740Z     t =    27.81s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:48.1855790Z     t =    29.13s Checking existence of `"rail.star" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:52.2016900Z     t =    33.17s Tap "rail.reload" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:52.2763210Z     t =    33.17s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:52.2872440Z     t =    33.19s     Find the "rail.reload" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:52.3245730Z     t =    33.34s     Check for interrupting elements affecting "rail.reload" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:52.3866210Z     t =    33.40s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:52.7946530Z     t =    33.72s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:53.1030230Z     t =    33.73s Waiting 20.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:53.8097600Z     t =    34.81s     Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:53.8257770Z     t =    34.81s         Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:54.0860970Z     t =    35.07s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:54.4613780Z Test Case '-[BrowsUITests.BrowsUITests testDockKeepsTabsAndMenuAfterThePill]' passed (35.461 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:54.4786670Z Test Case '-[BrowsUITests.BrowsUITests testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:54.5035110Z     t =     0.00s Start Test at 2026-11-22 15:13:54.440
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:54.9730150Z     t =     0.14s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:54.9902680Z     t =     0.14s Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:56.7412380Z     t =     0.14s     Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:13:56.7558890Z     t =     0.14s         Terminate dev.brows.ios:6707
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:22.2788690Z     t =    27.77s         Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:25.3910880Z     t =    30.94s         Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:28.3173810Z     t =    33.86s Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.3304120Z     t =    34.89s     Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.3541330Z     t =    34.89s         Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.5035580Z     t =    35.03s Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.5146340Z     t =    35.03s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.5255980Z     t =    35.04s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.5450930Z     t =    35.09s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.5802680Z     t =    35.14s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:29.9068460Z     t =    35.43s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:30.8706940Z     t =    36.35s Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.8463180Z     t =    37.38s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.8464190Z     t =    37.38s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.8931870Z     t =    37.42s Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.9071760Z     t =    37.42s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.9074510Z     t =    37.42s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.9529910Z     t =    37.48s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:31.9777240Z     t =    37.53s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.7079750Z     t =    38.26s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.7261690Z     t =    38.26s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.7461860Z     t =    38.30s Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.7841630Z     t =    38.34s Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.7942960Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.8057830Z     t =    38.34s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.8169130Z     t =    38.34s     Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.8270550Z     t =    38.38s     Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:32.8863930Z     t =    38.41s     Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:33.2452360Z     t =    38.63s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:56.5501960Z     t =    62.08s Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:57.6016020Z     t =    63.15s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:57.6117800Z     t =    63.15s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:57.9768230Z     t =    63.47s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:58.7573890Z     t =    64.20s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:58.7707000Z     t =    64.20s         Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:59.6017220Z     t =    65.14s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:59.6139800Z     t =    65.14s     Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:59.8275900Z     t =    65.38s Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:59.8379250Z     t =    65.38s     Requesting snapshot of accessibility hierarchy for app with pid 7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:14:59.9584510Z     t =    65.50s Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:00.9723160Z     t =    66.51s     Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:00.9834070Z     t =    66.52s         Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:00.9838620Z     t =    66.54s Waiting 15.0s for "auth.cancel" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:01.9871840Z     t =    67.55s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:01.9974420Z     t =    67.55s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:02.0634280Z     t =    67.59s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:03.0653530Z     t =    68.61s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:03.0756670Z     t =    68.61s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:03.0963080Z     t =    68.65s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:04.0462390Z     t =    69.58s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:04.0463470Z     t =    69.58s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:04.0665650Z     t =    69.62s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:05.0226170Z     t =    70.56s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:05.0246060Z     t =    70.56s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:05.0347220Z     t =    70.59s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:06.0481870Z     t =    71.60s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:06.0583290Z     t =    71.61s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:06.0961300Z     t =    71.65s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:07.0021430Z     t =    72.55s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:07.0147670Z     t =    72.55s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:07.0356050Z     t =    72.59s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:08.0786040Z     t =    73.58s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:08.1104240Z     t =    73.58s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:08.1105270Z     t =    73.63s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:09.0073340Z     t =    74.55s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:09.0194180Z     t =    74.55s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:09.0324160Z     t =    74.58s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:10.0745510Z     t =    75.60s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:10.0746440Z     t =    75.60s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:10.1344380Z     t =    75.68s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:11.0263240Z     t =    76.58s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:11.0363010Z     t =    76.58s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:11.0754900Z     t =    76.61s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:11.9893960Z     t =    77.55s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:11.9995980Z     t =    77.55s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:12.0249750Z     t =    77.57s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:13.0414350Z     t =    78.60s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:13.0505990Z     t =    78.60s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:13.0732530Z     t =    78.63s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:14.0142190Z     t =    79.56s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:14.0267230Z     t =    79.56s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:14.0495280Z     t =    79.61s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:14.9966250Z     t =    80.55s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:15.0077280Z     t =    80.55s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:15.0179470Z     t =    80.57s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:15.9932650Z     t =    81.55s     Checking `Expect predicate `existsNoRetry == 1` for object "auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.0034290Z     t =    81.55s         Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.0237550Z     t =    81.57s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.0364660Z     t =    81.57s     Checking existence of `"auth.cancel" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.0462710Z     t =    81.60s Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.0566230Z     t =    81.60s     Requesting snapshot of accessibility hierarchy for app with pid 7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.7683840Z /Users/runner/work/brows-ios-build/brows-ios-build/ios/Brows/BrowsUITests/BrowsUITests.swift:407: error: -[BrowsUITests.BrowsUITests testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice] : XCTAssertTrue failed - HTTP auth prompt missing
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:16.7786270Z     t =    82.33s Waiting 5.0s for "Username" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:17.7941000Z     t =    83.33s     Checking `Expect predicate `existsNoRetry == 1` for object "Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:17.7942130Z     t =    83.33s         Checking existence of `"Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:17.8241450Z     t =    83.37s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:18.7752410Z     t =    84.33s     Checking `Expect predicate `existsNoRetry == 1` for object "Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:18.7852210Z     t =    84.33s         Checking existence of `"Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:18.7963930Z     t =    84.35s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:19.8327880Z     t =    85.39s     Checking `Expect predicate `existsNoRetry == 1` for object "Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:19.8438510Z     t =    85.39s         Checking existence of `"Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:19.8774800Z     t =    85.43s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:20.7891230Z     t =    86.33s     Checking `Expect predicate `existsNoRetry == 1` for object "Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:20.8236920Z     t =    86.33s         Checking existence of `"Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:20.8338600Z     t =    86.36s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.7930700Z     t =    87.33s     Checking `Expect predicate `existsNoRetry == 1` for object "Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.8042530Z     t =    87.33s         Checking existence of `"Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.8420400Z     t =    87.37s         Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.8523720Z     t =    87.37s     Checking existence of `"Username" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.8762690Z     t =    87.42s Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.9089790Z     t =    87.42s     Requesting snapshot of accessibility hierarchy for app with pid 7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.9202920Z /Users/runner/work/brows-ios-build/brows-ios-build/ios/Brows/BrowsUITests/BrowsUITests.swift:492: error: -[BrowsUITests.BrowsUITests testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice] : XCTAssertTrue failed - auth username field missing
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.9324960Z     t =    87.46s Tap "Username" TextField[0.95, 0.50]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.9443380Z     t =    87.46s     Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:21.9597310Z     t =    87.47s     Find the "Username" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:22.9657900Z     t =    88.51s         Find the "Username" TextField (retry 1)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.0353620Z     t =    89.59s         Find the "Username" TextField (retry 2)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.1057570Z     t =    89.63s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.1160590Z     t =    89.63s             Requesting snapshot of accessibility hierarchy for app with pid 7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.1282040Z     t =    89.67s         Requesting snapshot of accessibility hierarchy for app with pid 7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.1810300Z     t =    89.71s         Find: Descendants matching type TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.1933340Z     t =    89.71s         Find: Elements matching predicate '"Username" IN identifiers'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.2035340Z     t =    89.71s         Requesting snapshot of accessibility hierarchy for app with pid 7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.2036640Z <unknown>:0: error: -[BrowsUITests.BrowsUITests testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice] : Failed to get matching snapshot: No matches found for Descendants matching type TextField from input {(
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.2138360Z     Application, pid: 7876, label: 'Brows'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.2248680Z )}
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.2495770Z     t =    89.77s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.5533570Z Test Case '-[BrowsUITests.BrowsUITests testHTTPAuthSurvivesRelaunchAndSecondAccountOffersChoice]' failed (90.108 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.5791050Z Test Case '-[BrowsUITests.BrowsUITests testKeyboardDoesNotCoverTheDock]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:24.6209790Z     t =     0.00s Start Test at 2026-11-22 15:15:24.549
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:26.9862080Z     t =     0.10s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:27.0027730Z     t =     0.10s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:27.1459550Z     t =     0.11s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:27.1463820Z     t =     0.11s                 Terminate dev.brows.ios:7876
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:37.4052720Z     t =    12.84s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:42.8755310Z     t =    18.30s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:45.5548410Z     t =    20.98s         Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:46.6042290Z     t =    21.99s             Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:46.6458580Z     t =    21.99s                 Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:47.4339650Z     t =    22.82s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:47.4510080Z     t =    22.82s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:47.4629920Z     t =    22.82s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:47.7416990Z     t =    23.03s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:47.9489090Z     t =    23.34s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:48.3433960Z     t =    23.72s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:48.9782900Z     t =    24.40s         Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:49.9785600Z     t =    25.42s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:49.9896870Z     t =    25.42s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:50.0139880Z     t =    25.46s         Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:50.0251780Z     t =    25.46s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:50.0512430Z     t =    25.48s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:50.1755950Z     t =    25.62s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:50.2776830Z     t =    25.71s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.1511050Z     t =    26.48s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.1859140Z     t =    26.49s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.2734930Z     t =    26.66s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.3884290Z     t =    26.77s         Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.3946490Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.4073730Z     t =    26.77s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.4305490Z     t =    26.78s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.4414650Z     t =    26.86s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:51.4891370Z     t =    26.94s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:52.2264030Z     t =    27.22s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:52.2393570Z     t =    27.54s         Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:54.0616600Z     t =    28.54s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:54.1029910Z     t =    28.55s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:55.4372830Z     t =    30.81s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:55.4501550Z     t =    30.81s             Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:55.7983150Z     t =    31.21s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:55.7993530Z     t =    31.22s             Requesting snapshot of accessibility hierarchy for app with pid 12583
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:55.8377910Z     t =    31.28s         Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.8720940Z     t =    32.32s             Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.8722710Z     t =    32.32s                 Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.8947490Z     t =    32.33s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.9050080Z     t =    32.33s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.9152000Z     t =    32.34s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.9482840Z     t =    32.38s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:56.9913490Z     t =    32.44s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:15:57.2986240Z     t =    32.74s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:00.4056150Z     t =    35.82s         Waiting 10.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:01.4294420Z     t =    36.88s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:01.4330750Z     t =    36.88s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:01.4591410Z     t =    36.91s         Waiting 10.0s for "rail.reload" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:02.4906130Z     t =    37.91s             Checking `Expect predicate `existsNoRetry == 1` for object "rail.reload" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:02.5182980Z     t =    37.91s                 Checking existence of `"rail.reload" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:02.6486520Z     t =    38.04s         Find the "rail.reload" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:02.7376030Z     t =    38.18s         Find the Keyboard (First Match)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:02.8273120Z     t =    38.23s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.1886330Z Test Case '-[BrowsUITests.BrowsUITests testKeyboardDoesNotCoverTheDock]' passed (38.573 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.2580790Z Test Case '-[BrowsUITests.BrowsUITests testNamedWindowReopensAfterItsPopupIsClosed]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.2684770Z     t =     0.00s Start Test at 2026-11-22 15:16:03.125
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.2888460Z     t =     0.10s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.2931150Z     t =     0.10s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.2950180Z     t =     0.11s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:03.2951340Z     t =     0.11s                 Terminate dev.brows.ios:12583
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:05.1681890Z     t =     1.89s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:07.4298310Z     t =     4.29s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:09.7201140Z     t =     6.57s         Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.7118030Z     t =     7.58s             Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.7225190Z     t =     7.58s                 Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.8253790Z     t =     7.69s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.8312470Z     t =     7.69s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.8320180Z     t =     7.69s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.8546570Z     t =     7.72s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:10.8960220Z     t =     7.76s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:11.5228540Z     t =     8.09s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:11.5412620Z     t =     8.41s         Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.5617180Z     t =     9.43s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.5749120Z     t =     9.43s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.6111810Z     t =     9.47s         Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.6113270Z     t =     9.47s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.6113850Z     t =     9.48s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.6766510Z     t =     9.55s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:12.7263150Z     t =     9.59s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.4597670Z     t =    10.33s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.4623730Z     t =    10.33s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.4981410Z     t =    10.37s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.5595900Z     t =    10.43s         Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.5621910Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.5715910Z     t =    10.43s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.5717050Z     t =    10.43s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.5918080Z     t =    10.46s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.6275290Z     t =    10.49s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:13.8668750Z     t =    10.71s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:14.9225260Z     t =    11.44s         Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:15.6538180Z     t =    12.45s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:15.6662760Z     t =    12.45s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:15.7459500Z     t =    12.60s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:16.5742840Z     t =    13.45s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:16.5847510Z     t =    13.45s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:16.8394860Z     t =    13.69s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.5745520Z     t =    14.45s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.5750150Z     t =    14.45s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.6206690Z     t =    14.50s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.6265140Z     t =    14.50s             Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.6543730Z     t =    14.53s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.6544960Z     t =    14.53s             Requesting snapshot of accessibility hierarchy for app with pid 13571
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:17.7041730Z     t =    14.58s         Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:18.7578180Z     t =    15.63s             Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:18.7608430Z     t =    15.63s                 Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:18.7856830Z     t =    15.66s         Waiting 12.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:19.8272760Z     t =    16.70s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:19.8375800Z     t =    16.70s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:19.8692290Z     t =    16.74s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:20.8196030Z     t =    17.69s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:20.8299380Z     t =    17.69s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:20.8400610Z     t =    17.71s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:21.8532150Z     t =    18.72s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:21.8642420Z     t =    18.72s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:21.9023990Z     t =    18.76s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:22.8025980Z     t =    19.68s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:22.8060110Z     t =    19.68s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:22.8399070Z     t =    19.71s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:23.7942120Z     t =    20.67s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:23.8043760Z     t =    20.67s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:23.8313290Z     t =    20.70s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:24.8394530Z     t =    21.70s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:24.8496110Z     t =    21.70s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:24.8780130Z     t =    21.75s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:25.8265090Z     t =    22.70s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:25.8318680Z     t =    22.70s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:25.8688000Z     t =    22.74s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:26.7881370Z     t =    23.66s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:26.7908490Z     t =    23.66s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:26.8119880Z     t =    23.69s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:27.8431600Z     t =    24.72s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:27.8655140Z     t =    24.72s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:27.8703150Z     t =    24.75s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:28.7937940Z     t =    25.67s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:28.7943820Z     t =    25.67s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:28.8299920Z     t =    25.71s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:29.8405580Z     t =    26.72s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:29.8487900Z     t =    26.72s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:29.8687360Z     t =    26.74s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.7919820Z     t =    27.66s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.7927710Z     t =    27.66s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.8184330Z     t =    27.69s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.8322230Z     t =    27.70s             Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.8579090Z     t =    27.73s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.8581330Z     t =    27.73s             Requesting snapshot of accessibility hierarchy for app with pid 13571
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.9059130Z     t =    27.78s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.9062880Z     t =    27.78s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.9070560Z     t =    27.78s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.9383970Z     t =    27.81s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:30.9861080Z     t =    27.86s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:31.8798490Z     t =    28.57s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:31.8952030Z     t =    28.74s         Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:32.9087400Z     t =    29.78s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:32.9097610Z     t =    29.79s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:32.9407620Z     t =    29.81s         Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:32.9470660Z     t =    29.81s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:32.9478130Z     t =    29.82s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:33.0707740Z     t =    29.92s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:33.1354700Z     t =    30.00s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:33.9930670Z     t =    30.77s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.0345320Z     t =    30.86s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.1431770Z     t =    31.01s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.1993920Z     t =    31.07s         Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.2093900Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.2267580Z     t =    31.07s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.2382500Z     t =    31.07s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.2490170Z     t =    31.12s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.3046740Z     t =    31.17s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.5589860Z     t =    31.41s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:34.9097390Z     t =    31.73s         Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:36.0322240Z     t =    32.80s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:36.0339260Z     t =    32.80s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:36.6466100Z     t =    33.44s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:36.9704760Z     t =    33.76s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:36.9822430Z     t =    33.79s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:38.1888300Z     t =    34.99s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:38.2013800Z     t =    34.99s             Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:38.4591650Z     t =    35.25s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:38.4893600Z     t =    35.25s             Requesting snapshot of accessibility hierarchy for app with pid 13571
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:38.5029820Z     t =    35.33s         Waiting 20.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.5142250Z     t =    36.39s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.5244010Z     t =    36.39s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.5922650Z     t =    36.44s         Tap "Open named window" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.5925150Z     t =    36.44s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.6125720Z     t =    36.45s             Find the "Open named window" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.7865280Z     t =    36.54s             Check for interrupting elements affecting "Open named window" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:39.8543310Z     t =    36.70s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:40.7920230Z     t =    37.14s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:40.7935410Z     t =    37.43s         Waiting 20.0s for "The shape of a browser" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.5801870Z     t =    38.44s             Checking `Expect predicate `existsNoRetry == 1` for object "The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.5900960Z     t =    38.44s                 Checking existence of `"The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.6557270Z     t =    38.52s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.6662250Z     t =    38.52s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.6771460Z     t =    38.52s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.7109480Z     t =    38.58s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:41.7782570Z     t =    38.62s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:42.3229070Z     t =    38.97s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:42.5918270Z     t =    39.04s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:43.2563460Z     t =    40.10s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:43.2608050Z     t =    40.10s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:44.2439280Z     t =    41.01s         Waiting 10.0s for "tab.close" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.1894600Z     t =    42.05s             Checking `Expect predicate `existsNoRetry == 1` for object "tab.close" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.2168740Z     t =    42.05s                 Checking existence of `"tab.close" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.3338920Z     t =    42.19s         Tap "tab.close" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.3439080Z     t =    42.19s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.4533500Z     t =    42.30s             Find the "tab.close" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.5877100Z     t =    42.44s             Check for interrupting elements affecting "tab.close" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:45.6493510Z     t =    42.49s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:46.2486770Z     t =    42.84s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:46.2624210Z     t =    42.88s         Waiting 10.0s for "1 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.0960040Z     t =    43.92s             Checking `Expect predicate `existsNoRetry == 1` for object "1 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.1144730Z     t =    43.92s                 Checking existence of `"1 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.1565580Z     t =    44.00s         Tap "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.1671060Z     t =    44.00s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.1947020Z     t =    44.00s             Find the "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.2695110Z     t =    44.13s             Check for interrupting elements affecting "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.3515230Z     t =    44.21s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.6558610Z     t =    44.52s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:47.6578310Z     t =    44.53s         Waiting 10.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.6937040Z     t =    45.54s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.7151150Z     t =    45.54s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.7359570Z     t =    45.59s         Tap "Open the closed name again" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.7587960Z     t =    45.59s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.7781990Z     t =    45.59s             Find the "Open the closed name again" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.7885310Z     t =    45.65s             Check for interrupting elements affecting "Open the closed name again" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:48.8294100Z     t =    45.69s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:49.5016240Z     t =    46.03s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:49.5109230Z     t =    46.04s         Waiting 20.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.2240190Z     t =    47.10s             Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.2344850Z     t =    47.10s                 Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.2912270Z     t =    47.14s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.3042100Z     t =    47.14s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.3259280Z     t =    47.14s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.3618070Z     t =    47.20s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.4269780Z     t =    47.25s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:50.7573640Z     t =    47.62s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:52.1608190Z     t =    49.01s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:53.1577490Z     t =    50.03s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:53.1627910Z     t =    50.03s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:53.2132830Z     t =    50.09s         Waiting 10.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.2523620Z     t =    51.13s             Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.2538740Z     t =    51.13s                 Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.2954750Z     t =    51.17s         Tap "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.2980420Z     t =    51.17s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.2982780Z     t =    51.17s             Find the "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.3401560Z     t =    51.22s             Check for interrupting elements affecting "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.3843610Z     t =    51.26s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.6942890Z     t =    51.57s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:54.6951980Z     t =    51.57s         Waiting 20.0s for "fresh-open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:55.7399790Z     t =    52.61s             Checking `Expect predicate `existsNoRetry == 1` for object "fresh-open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:55.7462720Z     t =    52.61s                 Checking existence of `"fresh-open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:55.8296820Z     t =    52.69s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.1546220Z Test Case '-[BrowsUITests.BrowsUITests testNamedWindowReopensAfterItsPopupIsClosed]' passed (53.030 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.1558870Z Test Case '-[BrowsUITests.BrowsUITests testNewWindowLinksOpenAndSelectANewTab]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.1606070Z     t =     0.00s Start Test at 2026-11-22 15:16:56.157
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.2352560Z     t =     0.08s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.2370520Z     t =     0.08s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.2378820Z     t =     0.08s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:16:56.2379390Z     t =     0.08s                 Terminate dev.brows.ios:13571
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:02.6126810Z     t =     6.45s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:04.9931050Z     t =     8.82s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:07.5167470Z     t =    11.14s         Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.4199420Z     t =    12.22s             Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.4308710Z     t =    12.22s                 Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.6328190Z     t =    12.46s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.7122470Z     t =    12.46s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.7345000Z     t =    12.47s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.8277350Z     t =    12.66s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:08.8942100Z     t =    12.72s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:09.2130660Z     t =    13.04s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:09.8084510Z     t =    13.63s         Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:10.8596570Z     t =    14.67s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:10.8598940Z     t =    14.67s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:10.9200050Z     t =    14.75s         Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:10.9306580Z     t =    14.75s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:10.9409270Z     t =    14.76s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.0159930Z     t =    14.85s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.0909460Z     t =    14.92s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.8422540Z     t =    15.67s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.8549880Z     t =    15.67s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.9094440Z     t =    15.73s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.9748440Z     t =    15.80s         Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.9850140Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:11.9951360Z     t =    15.80s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:12.0204730Z     t =    15.80s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:12.0306440Z     t =    15.85s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:12.0857180Z     t =    15.91s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:12.8891860Z     t =    16.15s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:12.9473200Z     t =    16.43s         Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:13.7039300Z     t =    17.46s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:13.7154130Z     t =    17.48s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:14.0144220Z     t =    17.79s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:14.6255700Z     t =    18.44s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:14.6429190Z     t =    18.44s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:14.8519170Z     t =    18.65s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:15.6055810Z     t =    19.44s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:15.6159440Z     t =    19.44s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:15.8670110Z     t =    19.63s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:15.8780600Z     t =    19.63s             Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:15.9977630Z     t =    19.79s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:16.0080060Z     t =    19.79s             Requesting snapshot of accessibility hierarchy for app with pid 16214
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:16.0429830Z     t =    19.87s         Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:17.0610120Z     t =    20.90s             Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:17.0631860Z     t =    20.90s                 Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:17.0721770Z     t =    20.92s         Waiting 12.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.1064060Z     t =    21.95s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.1088150Z     t =    21.95s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.1798930Z     t =    22.02s         Tap "Open blank" Link
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.1824420Z     t =    22.02s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.1833560Z     t =    22.02s             Find the "Open blank" Link
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.2302100Z     t =    22.07s             Check for interrupting elements affecting "Open blank" Link
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:18.2807810Z     t =    22.11s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:19.1043340Z     t =    22.51s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:19.3242280Z     t =    22.65s         Waiting 25.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:19.9700410Z     t =    23.72s             Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:19.9977960Z     t =    23.72s                 Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:20.1737250Z     t =    23.91s         Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:20.2416350Z     t =    23.96s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:20.2793880Z     t =    23.96s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:20.2795200Z     t =    23.96s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:20.3069900Z     t =    24.06s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:20.3292150Z     t =    24.14s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:21.1866460Z     t =    24.47s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:22.1435450Z     t =    25.97s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:23.1773180Z     t =    27.02s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:23.1886840Z     t =    27.02s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:23.2961760Z     t =    27.14s         Waiting 10.0s for "tab.close" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.3151970Z     t =    28.15s             Checking `Expect predicate `existsNoRetry == 1` for object "tab.close" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.3272640Z     t =    28.15s                 Checking existence of `"tab.close" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.5836280Z     t =    28.42s         Tap "tab.close" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.5902380Z     t =    28.42s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.5907900Z     t =    28.42s             Find the "tab.close" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.6633130Z     t =    28.49s             Check for interrupting elements affecting "tab.close" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:24.7430520Z     t =    28.54s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:25.0353710Z     t =    28.87s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:25.0528700Z     t =    28.87s         Waiting 10.0s for "1 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.1023740Z     t =    29.93s             Checking `Expect predicate `existsNoRetry == 1` for object "1 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.1265950Z     t =    29.93s                 Checking existence of `"1 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.2065320Z     t =    30.02s         Tap "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.2436370Z     t =    30.02s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.2545440Z     t =    30.03s             Find the "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.2760410Z     t =    30.12s             Check for interrupting elements affecting "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.3283710Z     t =    30.17s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.6265010Z     t =    30.47s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:26.6271740Z     t =    30.47s         Waiting 10.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.6508160Z     t =    31.49s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.6609790Z     t =    31.49s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.7354490Z     t =    31.56s         Tap "Open popup" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.7389800Z     t =    31.56s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.7393140Z     t =    31.57s             Find the "Open popup" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.7805910Z     t =    31.62s             Check for interrupting elements affecting "Open popup" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:27.8210310Z     t =    31.67s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:28.2989560Z     t =    32.04s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:28.3145140Z     t =    32.08s         Waiting 25.0s for "The shape of a browser" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.3396590Z     t =    33.16s             Checking `Expect predicate `existsNoRetry == 1` for object "The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.3415740Z     t =    33.17s                 Checking existence of `"The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.4740030Z     t =    33.29s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.4741570Z     t =    33.29s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.4827990Z     t =    33.29s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.5008340Z     t =    33.34s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.5757360Z     t =    33.42s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:29.9010800Z     t =    33.74s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:31.8569560Z     t =    35.65s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:32.8265820Z     t =    36.67s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:32.8367700Z     t =    36.67s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:32.8933470Z     t =    36.73s         Tap "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:32.8955180Z     t =    36.73s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:32.8959270Z     t =    36.74s             Find the "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:32.9600370Z     t =    36.80s             Check for interrupting elements affecting "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:33.0282680Z     t =    36.86s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:33.3377870Z     t =    37.18s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:33.3521640Z     t =    37.19s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:33.6586010Z Test Case '-[BrowsUITests.BrowsUITests testNewWindowLinksOpenAndSelectANewTab]' passed (37.499 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:33.6588180Z Test Case '-[BrowsUITests.BrowsUITests testTabGallerySearch]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:33.8075820Z     t =     0.01s Start Test at 2026-11-22 15:17:33.661
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:34.2580040Z     t =     0.14s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:34.2581140Z     t =     0.14s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:34.2604770Z     t =     0.14s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:34.2605640Z     t =     0.14s                 Terminate dev.brows.ios:16214
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:36.2731070Z     t =     2.59s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:38.1009090Z     t =     4.41s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.4378800Z     t =     6.77s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.4616680Z     t =     6.77s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.4721880Z     t =     6.78s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.5712520Z     t =     6.91s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.6614060Z     t =     6.95s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.9163230Z     t =     7.24s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:40.9265590Z     t =     7.25s         Waiting 10.0s for "Tabs" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:41.9455940Z     t =     8.28s             Checking `Expect predicate `existsNoRetry == 1` for object "Tabs" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:41.9574180Z     t =     8.28s                 Checking existence of `"Tabs" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:41.9925560Z     t =     8.33s         Checking existence of `"Close private" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:42.0565700Z     t =     8.37s         Waiting 5.0s for "Search tabs" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.0642460Z     t =     9.38s             Checking `Expect predicate `existsNoRetry == 1` for object "Search tabs" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.0758690Z     t =     9.38s                 Checking existence of `"Search tabs" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.0866410Z     t =     9.42s         Tap "Search tabs" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.0936420Z     t =     9.42s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.1046390Z     t =     9.42s             Find the "Search tabs" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.1431680Z     t =     9.47s             Check for interrupting elements affecting "Search tabs" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.1747930Z     t =     9.51s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:43.4726510Z     t =     9.81s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:44.0934240Z     t =    10.41s         Waiting 5.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.1248430Z     t =    11.46s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.1266080Z     t =    11.46s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.1630160Z     t =    11.50s         Type 'New' into "Search tabs" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.1637970Z     t =    11.50s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.1638710Z     t =    11.50s             Find the "Search tabs" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.2698410Z     t =    11.61s             Check for interrupting elements affecting "Search tabs" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.3487090Z     t =    11.69s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.6042000Z     t =    11.95s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:45.6129570Z     t =    11.95s         Waiting 8.0s for StaticText (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:46.6587030Z     t =    12.99s             Checking `Expect predicate `existsNoRetry == 1` for object StaticText (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:46.6780560Z     t =    12.99s                 Checking existence of `StaticText (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:47.4254230Z     t =    13.67s         Tap "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:47.4665920Z     t =    13.67s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:47.5824840Z     t =    13.68s             Find the "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:47.5950790Z     t =    13.93s             Check for interrupting elements affecting "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:47.6541760Z     t =    13.99s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.1952650Z     t =    14.34s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.2076630Z     t =    14.37s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.5751610Z Test Case '-[BrowsUITests.BrowsUITests testTabGallerySearch]' passed (14.754 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.5874820Z Test Case '-[BrowsUITests.BrowsUITests testWindowOpenReusesTheNamedWindow]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.6220620Z     t =     0.00s Start Test at 2026-11-22 15:17:48.410
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.7236740Z     t =     0.04s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.7295310Z     t =     0.04s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.7295970Z     t =     0.04s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:48.7296740Z     t =     0.04s                 Terminate dev.brows.ios:18096
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:50.1500030Z     t =     1.71s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:51.7528900Z     t =     3.32s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:53.7629790Z     t =     5.30s         Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:54.9137740Z     t =     6.37s             Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:54.9245370Z     t =     6.37s                 Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:55.0702010Z     t =     6.64s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:55.0879550Z     t =     6.64s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:55.1221580Z     t =     6.65s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:55.2815740Z     t =     6.75s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:55.4878050Z     t =     6.96s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:56.0172190Z     t =     7.39s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:56.3986800Z     t =     7.70s         Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.1616020Z     t =     8.73s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.1733460Z     t =     8.73s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.2147290Z     t =     8.78s         Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.2156230Z     t =     8.78s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.2222090Z     t =     8.79s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.3117770Z     t =     8.89s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:57.3682340Z     t =     8.95s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.1069580Z     t =     9.69s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.1201460Z     t =     9.70s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.1637660Z     t =     9.75s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.2217390Z     t =     9.80s         Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.2223770Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.2261930Z     t =     9.80s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.2389720Z     t =     9.81s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.2906830Z     t =     9.87s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.3300520Z     t =     9.92s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.9350810Z     t =    10.13s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:17:58.9495120Z     t =    10.42s         Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:00.0838740Z     t =    11.50s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:00.2641120Z     t =    11.50s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:00.7354840Z     t =    12.22s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:00.8703780Z     t =    12.45s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:00.9037500Z     t =    12.45s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:01.0409670Z     t =    12.61s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:01.8360310Z     t =    13.42s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:01.8470220Z     t =    13.43s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:01.9763540Z     t =    13.54s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:01.9867640Z     t =    13.54s             Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:02.0467770Z     t =    13.63s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:02.0779490Z     t =    13.63s             Requesting snapshot of accessibility hierarchy for app with pid 19044
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:02.1353700Z     t =    13.71s         Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:03.1370320Z     t =    14.71s             Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:03.1409620Z     t =    14.71s                 Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:03.1506660Z     t =    14.74s         Waiting 12.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.1705320Z     t =    15.75s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.1874620Z     t =    15.75s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.2270790Z     t =    15.81s         Tap "Open named window again" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.2274070Z     t =    15.81s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.2275080Z     t =    15.81s             Find the "Open named window again" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.2813330Z     t =    15.84s             Check for interrupting elements affecting "Open named window again" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:04.3366760Z     t =    15.91s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:05.2854090Z     t =    16.25s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:05.3347340Z     t =    16.70s         Waiting 20.0s for "The shape of a browser" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.2044780Z     t =    17.75s             Checking `Expect predicate `existsNoRetry == 1` for object "The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.2083060Z     t =    17.75s                 Checking existence of `"The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.2975140Z     t =    17.83s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.2984750Z     t =    17.83s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.2985510Z     t =    17.84s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.3576480Z     t =    17.95s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.4465360Z     t =    18.00s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:06.7904580Z     t =    18.37s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:08.6692290Z     t =    20.19s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.6733530Z     t =    21.23s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.6736400Z     t =    21.23s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.7757060Z     t =    21.36s         Tap "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.7877410Z     t =    21.36s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.8096680Z     t =    21.36s             Find the "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.8399770Z     t =    21.43s             Check for interrupting elements affecting "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:09.9056000Z     t =    21.50s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:10.2528690Z     t =    21.83s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:10.2552020Z     t =    21.84s         Waiting 20.0s for "same-window" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.2832670Z     t =    22.86s             Checking `Expect predicate `existsNoRetry == 1` for object "same-window" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.2834110Z     t =    22.86s                 Checking existence of `"same-window" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.3710630Z     t =    22.92s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.3712780Z     t =    22.92s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.3713860Z     t =    22.93s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.4215730Z     t =    23.01s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.4686350Z     t =    23.05s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:11.7780580Z     t =    23.36s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:13.3477200Z     t =    24.93s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:14.3574630Z     t =    25.95s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:14.3591580Z     t =    25.95s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:14.4871120Z     t =    26.06s         Waiting 10.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.5163710Z     t =    27.10s             Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.5229640Z     t =    27.10s                 Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.6146000Z     t =    27.17s         Tap "Other page" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.6160620Z     t =    27.17s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.6162190Z     t =    27.18s             Find the "Other page" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.6789510Z     t =    27.27s             Check for interrupting elements affecting "Other page" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:15.8120620Z     t =    27.38s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:16.1441370Z     t =    27.73s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:16.1506580Z     t =    27.74s         Waiting 10.0s for "Other page" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.1597470Z     t =    28.75s             Checking `Expect predicate `existsNoRetry == 1` for object "Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.1602000Z     t =    28.75s                 Checking existence of `"Other page" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.2141710Z     t =    28.79s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.5855100Z Test Case '-[BrowsUITests.BrowsUITests testWindowOpenReusesTheNamedWindow]' passed (29.173 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.6027520Z Test Case '-[BrowsUITests.BrowsUITests testWindowOpenWithFeaturesOpensOneSelectedTab]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.6028300Z     t =     0.00s Start Test at 2026-11-22 15:18:17.583
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.6385570Z     t =     0.05s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.6469360Z     t =     0.06s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.6470960Z     t =     0.06s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:17.6472060Z     t =     0.06s                 Terminate dev.brows.ios:19044
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:20.8893790Z     t =     2.97s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:26.3874090Z     t =     5.91s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:27.3835400Z     t =     8.22s         Waiting 15.0s for "rail.address" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:27.6264220Z     t =     9.32s             Checking `Expect predicate `existsNoRetry == 1` for object "rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:27.7113240Z     t =     9.32s                 Checking existence of `"rail.address" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:28.9569550Z     t =    11.21s         Tap "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:29.0400460Z     t =    11.21s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:29.2044380Z     t =    11.29s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:29.9389600Z     t =    12.04s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:31.1197400Z     t =    12.86s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:32.7611800Z     t =    13.89s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:33.0056070Z     t =    14.94s         Waiting 2.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:33.8563410Z     t =    15.94s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:33.8851440Z     t =    15.95s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:34.7666080Z     t =    16.92s         Type 'http://localhost:8...' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:34.8525230Z     t =    16.92s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:34.9425740Z     t =    16.93s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:34.9627680Z     t =    17.16s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:35.1185390Z     t =    17.48s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.1376690Z     t =    18.27s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.1539830Z     t =    18.35s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.5449360Z     t =    18.87s         Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.6824650Z     t =    19.05s         Type '
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.6935900Z ' into "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.7052970Z     t =    19.05s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.7205240Z     t =    19.08s             Find the "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.7652090Z     t =    19.16s             Check for interrupting elements affecting "rail.address" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:36.8387960Z     t =    19.23s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:37.6901380Z     t =    19.56s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:38.0114640Z     t =    19.87s         Waiting 3.0s for Keyboard (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:38.6379780Z     t =    20.94s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:38.7148970Z     t =    20.94s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:39.6587450Z     t =    21.93s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.5057130Z     t =    22.87s             Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.5180190Z     t =    22.88s                 Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.6482000Z     t =    23.06s                 Capturing element debug description
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.6616590Z     t =    23.06s             Checking existence of `Keyboard (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.8646810Z     t =    23.24s         Collecting debug information to assist test failure triage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.8759240Z     t =    23.24s             Requesting snapshot of accessibility hierarchy for app with pid 19939
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:40.9066770Z     t =    23.30s         Waiting 25.0s for WebView (First Match) to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:41.9412090Z     t =    24.32s             Checking `Expect predicate `existsNoRetry == 1` for object WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:41.9525940Z     t =    24.33s                 Checking existence of `WebView (First Match)`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:41.9770630Z     t =    24.39s         Waiting 12.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.1035300Z     t =    25.44s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.1062920Z     t =    25.44s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.2851600Z     t =    25.61s         Tap "Open popup with features" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.3198980Z     t =    25.61s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.4238360Z     t =    25.64s             Find the "Open popup with features" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.7220840Z     t =    26.02s             Check for interrupting elements affecting "Open popup with features" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:43.8197740Z     t =    26.20s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.1535510Z     t =    26.58s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.1700200Z     t =    26.86s         Waiting 20.0s for "The shape of a browser" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.4706990Z     t =    27.86s             Checking `Expect predicate `existsNoRetry == 1` for object "The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.4813010Z     t =    27.86s                 Checking existence of `"The shape of a browser" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.6366750Z     t =    28.02s         Tap "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.6370690Z     t =    28.02s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.6371430Z     t =    28.03s             Find the "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.6863230Z     t =    28.09s             Check for interrupting elements affecting "rail.tabs" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:45.7339160Z     t =    28.14s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:46.0574460Z     t =    28.46s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:48.0470150Z     t =    30.43s         Waiting 10.0s for "2 open" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.0564020Z     t =    31.46s             Checking `Expect predicate `existsNoRetry == 1` for object "2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.0674550Z     t =    31.46s                 Checking existence of `"2 open" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.1517810Z     t =    31.54s         Tap "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.1525560Z     t =    31.54s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.1526360Z     t =    31.55s             Find the "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.2019510Z     t =    31.62s             Check for interrupting elements affecting "Links" StaticText
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.2518060Z     t =    31.66s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.5910460Z     t =    31.99s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:49.5922490Z     t =    32.00s         Waiting 10.0s for "Links" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:50.6550270Z     t =    33.06s             Checking `Expect predicate `existsNoRetry == 1` for object "Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:50.6666060Z     t =    33.06s                 Checking existence of `"Links" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:50.7092940Z     t =    33.10s         Waiting 15.0s for "opened" StaticText to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:51.7297810Z     t =    34.14s             Checking `Expect predicate `existsNoRetry == 1` for object "opened" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:51.7304840Z     t =    34.14s                 Checking existence of `"opened" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:51.8022810Z     t =    34.19s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.0955260Z Test Case '-[BrowsUITests.BrowsUITests testWindowOpenWithFeaturesOpensOneSelectedTab]' passed (34.508 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.0968480Z Test Case '-[BrowsUITests.BrowsUITests testWorkspaceSwitch]' started.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.0970200Z     t =     0.00s Start Test at 2026-11-22 15:18:52.093
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.2157790Z     t =     0.09s Set Up
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.2288180Z     t =     0.09s         Open dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.2288950Z     t =     0.09s             Launch dev.brows.ios
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:52.2333420Z     t =     0.09s                 Terminate dev.brows.ios:19939
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:54.2331030Z     t =     1.93s                 Setting up automation session
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:56.6122720Z     t =     4.47s                 Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.0015680Z     t =     6.89s         Tap "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.0122190Z     t =     6.89s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.0225730Z     t =     6.90s             Find the "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.1593630Z     t =     7.05s             Check for interrupting elements affecting "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.2895490Z     t =     7.12s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.6092750Z     t =     7.44s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:18:59.7288160Z     t =     7.60s         Waiting 10.0s for "menu.workspaces" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:00.7346870Z     t =     8.62s             Checking `Expect predicate `existsNoRetry == 1` for object "menu.workspaces" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:00.7713070Z     t =     8.62s                 Checking existence of `"menu.workspaces" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:00.8740860Z     t =     8.77s         Tap "menu.workspaces" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:00.9207640Z     t =     8.77s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:00.9209190Z     t =     8.78s             Find the "menu.workspaces" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:00.9861220Z     t =     8.88s             Check for interrupting elements affecting "menu.workspaces" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:01.0502330Z     t =     8.95s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:01.3480430Z     t =     9.25s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:01.3585230Z     t =     9.25s         Waiting 5.0s for "New workspace" TextField to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.3677610Z     t =    10.26s             Checking `Expect predicate `existsNoRetry == 1` for object "New workspace" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.3781870Z     t =    10.26s                 Checking existence of `"New workspace" TextField`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.4437970Z     t =    10.34s         Tap "New workspace" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.4539310Z     t =    10.34s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.4642650Z     t =    10.34s             Find the "New workspace" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.4869440Z     t =    10.37s             Check for interrupting elements affecting "New workspace" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.5235130Z     t =    10.42s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:02.8377930Z     t =    10.73s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:03.5627250Z     t =    11.36s         Type 'Work' into "New workspace" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:03.6139380Z     t =    11.36s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:03.8522590Z     t =    11.69s             Find the "New workspace" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.0441810Z     t =    11.89s             Check for interrupting elements affecting "New workspace" TextField
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.0940950Z     t =    11.96s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.3993040Z     t =    12.27s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.4166770Z     t =    12.27s         Tap "workspace.add" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.4335530Z     t =    12.27s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.4588820Z     t =    12.27s             Find the "workspace.add" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.4725670Z     t =    12.37s             Check for interrupting elements affecting "workspace.add" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.5470990Z     t =    12.43s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:04.9402560Z     t =    12.77s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:32.6785490Z     t =    39.74s         Waiting 10.0s for "workspace.row.WO" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:32.9440390Z     t =    40.80s             Checking `Expect predicate `existsNoRetry == 1` for object "workspace.row.WO" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:32.9870430Z     t =    40.80s                 Checking existence of `"workspace.row.WO" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:33.3685460Z     t =    41.26s         Tap "workspace.row.WO" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:33.4036220Z     t =    41.26s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:33.4147620Z     t =    41.26s             Find the "workspace.row.WO" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:33.9673920Z     t =    41.70s             Check for interrupting elements affecting "workspace.row.WO" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:34.6758230Z     t =    42.27s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:35.3650600Z     t =    42.85s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:35.5437480Z     t =    42.86s         Waiting 10.0s for "Workspaces" StaticText to not exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.3727010Z     t =    43.90s             Checking `Expect predicate `existsNoRetry == 0` for object "Workspaces" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.3931010Z     t =    43.91s                 Checking existence of `"Workspaces" StaticText`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.7392050Z     t =    44.59s         Tap "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.7498190Z     t =    44.59s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.7600790Z     t =    44.59s             Find the "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.8694860Z     t =    44.76s             Check for interrupting elements affecting "rail.menu" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:36.9330360Z     t =    44.81s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:37.2703220Z     t =    45.12s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:39.0623430Z     t =    46.95s         Waiting 10.0s for "menu.workspaces" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.1358520Z     t =    48.01s             Checking `Expect predicate `existsNoRetry == 1` for object "menu.workspaces" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.1516050Z     t =    48.02s                 Checking existence of `"menu.workspaces" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.3076780Z     t =    48.17s         Tap "menu.workspaces" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.3169110Z     t =    48.17s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.3178780Z     t =    48.18s             Find the "menu.workspaces" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.3878990Z     t =    48.29s             Check for interrupting elements affecting "menu.workspaces" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.5042110Z     t =    48.41s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.8041040Z     t =    48.71s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:40.8048570Z     t =    48.71s         Waiting 10.0s for "workspace.row.WO" Button to exist
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:41.8637930Z     t =    49.76s             Checking `Expect predicate `existsNoRetry == 1` for object "workspace.row.WO" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:41.8649930Z     t =    49.76s                 Checking existence of `"workspace.row.WO" Button`
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:42.6706730Z     t =    50.57s         Find the "workspace.row.WO" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:42.7764360Z     t =    50.68s         Tap "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:42.7788650Z     t =    50.68s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:42.7789630Z     t =    50.68s             Find the "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:42.8292660Z     t =    50.73s             Check for interrupting elements affecting "Done" Button
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:42.8844090Z     t =    50.78s             Synthesize event
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.1766080Z     t =    51.08s             Wait for dev.brows.ios to idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.1799670Z     t =    51.09s Tear Down
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4800170Z Test Case '-[BrowsUITests.BrowsUITests testWorkspaceSwitch]' passed (51.379 seconds).
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4801070Z Test Suite 'BrowsUITests' failed at 2026-11-22 15:19:43.471.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4807420Z 	 Executed 10 tests, with 3 failures (0 unexpected) in 423.746 (423.756) seconds
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4809120Z Test Suite 'BrowsUITests.xctest' failed at 2026-11-22 15:19:43.472.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4820470Z 	 Executed 10 tests, with 3 failures (0 unexpected) in 423.746 (423.757) seconds
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4827830Z Test Suite 'Selected tests' failed at 2026-11-22 15:19:43.473.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:19:43.4828750Z 	 Executed 10 tests, with 3 failures (0 unexpected) in 423.746 (423.758) seconds
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.0867880Z 2026-11-22 15:20:24.073 xcodebuild[3259:14790] [MT] IDETestOperationsObserverDebug: 507.661 elapsed -- Testing started completed.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.0983770Z 2026-11-22 15:20:24.073 xcodebuild[3259:14790] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.1157060Z 2026-11-22 15:20:24.073 xcodebuild[3259:14790] [MT] IDETestOperationsObserverDebug: 507.661 sec, +507.661 sec -- end
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.2753680Z ** TEST EXECUTE FAILED **
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.2754220Z 
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.2855900Z 
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.2856740Z Test session results, code coverage, and logs:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.2975850Z 	/Users/runner/work/brows-ios-build/brows-ios-build/ios/Brows/shard-2.xcresult
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:24.3076910Z 
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:31.8196330Z Testing started
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:31.8302270Z ---- crash reports ----
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:33.4014200Z getpwuid_r did not find a match for uid 501
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.3622590Z     "XC_kAXXCAttributeVisiblePoint" =     {
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.3727050Z         X = "365.8333333333333";
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.3833940Z         Y = "88.16666666666666";
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.3936630Z     };
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4039360Z }
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4143180Z 2026-11-22 15:19:42.877154+0000 0xf0e1     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Received attributes request for element: AX element pid: 20570, elementOrHash.elementID: 4389154544.497. Attributes: (
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4250000Z     "XC_kAXXCAttributeSystemAutomationProperties"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4351940Z )
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4454000Z 2026-11-22 15:19:42.877245+0000 0xf0e1     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4554750Z 2026-11-22 15:19:42.877292+0000 0xf0e1     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4657870Z 2026-11-22 15:19:42.877307+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4764310Z 2026-11-22 15:19:42.877352+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.4870460Z 2026-11-22 15:19:42.877366+0000 0xf0e1     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5053740Z 2026-11-22 15:19:42.877839+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Fetching AX attributes XC_kAXXCAttributeSystemAutomationProperties for AX element pid: 20570, elementOrHash.elementID: 4389154544.497
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5169950Z 2026-11-22 15:19:42.877942+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Got attributes, transferring to dictionary for return.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5257960Z 2026-11-22 15:19:42.878016+0000 0xf0e1     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Replying with attribute values: {
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5359510Z }
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5463320Z 2026-11-22 15:19:42.878501+0000 0xf0e1     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Received attributes request for element: AX element pid: 20570, elementOrHash.elementID: 4386646576.4. Attributes: (
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5568310Z     "XC_kAXXCAttributeFrame",
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5672260Z     "XC_kAXXCAttributeWindowDisplayId",
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5776310Z     "XC_kAXXCAttributeWindowContextId"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5876270Z )
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.5977860Z 2026-11-22 15:19:42.878574+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6084940Z 2026-11-22 15:19:42.878619+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6188690Z 2026-11-22 15:19:42.878630+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6293530Z 2026-11-22 15:19:42.878680+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6392960Z 2026-11-22 15:19:42.878691+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6533470Z 2026-11-22 15:19:42.878728+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Fetching AX attributes XC_kAXXCAttributeFrame, XC_kAXXCAttributeWindowDisplayId, XC_kAXXCAttributeWindowContextId for AX element pid: 20570, elementOrHash.elementID: 4386646576.4
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6759250Z 2026-11-22 15:19:42.879299+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Got attributes, transferring to dictionary for return.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6859610Z 2026-11-22 15:19:42.879399+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Replying with attribute values: {
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.6962690Z     "XC_kAXXCAttributeFrame" =     {
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7062970Z         Height = 874;
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7166960Z         Width = 402;
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7269400Z         X = 0;
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7371760Z         Y = 0;
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7479050Z     };
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7580810Z     "XC_kAXXCAttributeWindowContextId" = 4228040107;
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7681010Z     "XC_kAXXCAttributeWindowDisplayId" = 1;
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7790330Z }
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7893940Z 2026-11-22 15:19:42.890386+0000 0xf04e     Default     0x0                  20570  0    Brows: (UIKitCore) [com.apple.KeyboardArbiter:Client] TX focusApplication (peekAppEvent) stealKB:Y scene:dev.brows.ios-default
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.7994260Z 2026-11-22 15:19:42.890613+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 1; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8119650Z 2026-11-22 15:19:42.890754+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Sending UIEvent type: 0; subtype: 0; to windows: 1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8469490Z 2026-11-22 15:19:42.890815+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Sending UIEvent type: 0; subtype: 0; to window: <UIWindow: 0x10576ea30>; contextId: 0xFC02C5AB
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8572570Z 2026-11-22 15:19:42.892763+0000 0xf04e     Activity    0x55767              20570  0    Brows: (UIKitCore) send gesture actions
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8576260Z 2026-11-22 15:19:42.893549+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 0; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8683630Z 2026-11-22 15:19:42.911883+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 0; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8787840Z 2026-11-22 15:19:42.922106+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 0; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8896890Z 2026-11-22 15:19:42.937992+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 0; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.8999360Z 2026-11-22 15:19:42.961361+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 0; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9121160Z 2026-11-22 15:19:42.970040+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 1; ignoreInteractionEvents: 0, systemGestureStateChange: 0
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9254560Z 2026-11-22 15:19:42.970090+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Sending UIEvent type: 0; subtype: 0; to windows: 1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9357410Z 2026-11-22 15:19:42.970113+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Sending UIEvent type: 0; subtype: 0; to window: <UIWindow: 0x10576ea30>; contextId: 0xFC02C5AB
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9460550Z 2026-11-22 15:19:42.970527+0000 0xf04e     Activity    0x55768              20570  0    Brows: (UIKitCore) send gesture actions
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9562790Z 2026-11-22 15:19:42.986828+0000 0xf04e     Default     0x0                  20570  1    Brows: (UIKitCore) [com.apple.UIKit:EventDispatch] Evaluating dispatch of UIEvent: 0x600003d30b40; type: 0; subtype: 0; backing type: 11; shouldSend: 0; ignoreInteractionEvents: 0, systemGestureStateChange: 1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9662880Z 2026-11-22 15:19:43.173011+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Received request to notify when the main run loop is idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9766450Z 2026-11-22 15:19:43.173140+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Idle notifier finished setting up run loop observer
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:35.9866660Z 2026-11-22 15:19:43.173164+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Idle notifier run loop observer fired
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.0075210Z 2026-11-22 15:19:43.173222+0000 0xf04e     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Sending main run loop idle reply
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.0177770Z 2026-11-22 15:19:43.173226+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Received request to notify when animations are idle
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.0179130Z 2026-11-22 15:19:43.173276+0000 0xf186     Default     0x0                  20570  0    Brows: (XCTAutomationSupport) [com.apple.dt.xctest:Default] Sending animations idle reply with error: (null)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.0642350Z ##[error]Process completed with exit code 65.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1146400Z ##[group]Run actions/upload-artifact@v4
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1147330Z with:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1147630Z   name: tests-shard-2
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1148370Z   path: fixtures/server.log
+UI tests shard 2/4	UNKNOWN STEP	ios/Brows/shard-sim.log
+UI tests shard 2/4	UNKNOWN STEP	ios/Brows/shard-2.xcresult
+UI tests shard 2/4	UNKNOWN STEP	
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1149080Z   if-no-files-found: ignore
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1149330Z   compression-level: 6
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1149780Z   overwrite: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1150150Z   include-hidden-files: false
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1150460Z env:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1150870Z   DEVICE: B290E327-433A-4878-BC55-828A994DCA6C
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.1151220Z ##[endgroup]
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.9702650Z (node:26201) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:36.9703500Z (Use `node --trace-deprecation ...` to show where the warning was created)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:37.1135730Z Multiple search paths detected. Calculating the least common ancestor of all paths
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:37.1136710Z The least common ancestor is /Users/runner/work/brows-ios-build/brows-ios-build. This will be the root directory of the artifact
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:37.1137230Z With the provided path, there will be 1079 files uploaded
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:37.1137740Z Artifact name is valid!
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:37.1137940Z Root directory input is valid!
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:37.3683860Z Beginning upload of artifact content to blob storage
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:38.2980240Z (node:26201) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:38.8694240Z Uploaded bytes 8388608
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:39.5071730Z Uploaded bytes 16777216
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:39.9048840Z Uploaded bytes 25165824
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:40.3332870Z Uploaded bytes 33554432
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:40.9412780Z Uploaded bytes 41943040
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:41.5695460Z Uploaded bytes 50331648
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:42.1465330Z Uploaded bytes 58720256
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:42.7521060Z Uploaded bytes 67108864
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:43.8178060Z Uploaded bytes 75497472
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:44.3152980Z Uploaded bytes 83886080
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:45.5753340Z Uploaded bytes 88154034
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:45.6047410Z Finished uploading artifact content to blob storage!
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:45.6057810Z SHA256 digest of uploaded artifact zip is 4b3e7ea98b1e092c8cdc45f36cf6034c31732fee929172908deb04333a393bb2
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:45.6058640Z Finalizing artifact upload
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:46.0241770Z Artifact tests-shard-2.zip successfully finalized. Artifact ID 14759948315
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:46.0253770Z Artifact tests-shard-2 has been successfully uploaded! Final size is 88154034 bytes. Artifact ID is 14759948315
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:46.0263120Z Artifact download URL: https://github.com/D0Il/brows-ios-build/actions/runs/45036456881/artifacts/14759948315
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:46.1455180Z Post job cleanup.
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.0593330Z [command]/opt/homebrew/bin/git version
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1201500Z git version 2.56.1
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1249070Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/135d3f85-6268-46d7-be7b-4da543ca9866/.gitconfig'
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1280530Z Temporarily overriding HOME='/Users/runner/work/_temp/135d3f85-6268-46d7-be7b-4da543ca9866' before making global git config changes
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1281500Z Adding repository directory to the temporary git global config as a safe directory
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1282970Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/brows-ios-build/brows-ios-build
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1371440Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.1454950Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.3824130Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.3923450Z http.https://github.com/.extraheader
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.3932800Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.4314950Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.6078210Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.6153120Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:47.8293880Z Cleaning up orphan processes
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:50.0314480Z Terminate orphan process: pid (5606) (DTServiceHub)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:20:56.0422820Z Terminate orphan process: pid (2926) (Python)
+UI tests shard 2/4	UNKNOWN STEP	2026-11-22T15:21:02.3388010Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
