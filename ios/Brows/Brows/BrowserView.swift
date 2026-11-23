@@ -273,33 +273,44 @@ struct BottomRail: View {
             // already on its way down: the tap landed in the slot the menu button
             // had occupied a frame earlier and did nothing (trace, shard 2,
             // run 44956470184: tap synthesized, app idle, no panel).
-            Group {
-                if canBack {
-                    railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
-                } else {
-                    Color.clear.frame(width: 44, height: 44)
-                }
-                if canForward {
-                    railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
-                } else {
-                    Color.clear.frame(width: 44, height: 44)
+            // While the address is being typed the pill takes the whole dock,
+            // the way a phone browser's editing bar does: at 26 pt the field
+            // showed only `http:/` and at 50 pt only `://locall` — never the
+            // host (captures pill-light/dark, runs 45095272714 and 45100747363).
+            // The slots come back on blur. Workspace switches still keep their
+            // fixed slots, which is the re-flow that mattered (run 44956470184);
+            // focusing is not a workspace switch and the field is the tap target.
+            if !model.isEditingAddress {
+                Group {
+                    if canBack {
+                        railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
+                    } else {
+                        Color.clear.frame(width: 44, height: 44)
+                    }
+                    if canForward {
+                        railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
+                    } else {
+                        Color.clear.frame(width: 44, height: 44)
+                    }
                 }
             }
 
             HStack(spacing: 6) {
-                Button {
-                    model.loadSiteInfo()
-                    model.showingSiteInfo = true
-                } label: {
-                    SiteBadge(host: model.activeHost)
+                if !model.isEditingAddress {
+                    Button {
+                        model.loadSiteInfo()
+                        model.showingSiteInfo = true
+                    } label: {
+                        SiteBadge(host: model.activeHost)
+                    }
+                    .buttonStyle(.plain)
+                    // The lock glyph was the button's whole name. Name the panel it
+                    // opens; the host is the value, not the label, so VoiceOver does
+                    // not read "Lock" for a control that shows site information.
+                    .accessibilityLabel("Site information")
+                    .accessibilityValue(model.activeHost ?? "")
+                    .accessibilityIdentifier("rail.siteInfo")
                 }
-                .buttonStyle(.plain)
-                // The lock glyph was the button's whole name. Name the panel it
-                // opens; the host is the value, not the label, so VoiceOver does
-                // not read "Lock" for a control that shows site information.
-                .accessibilityLabel("Site information")
-                .accessibilityValue(model.activeHost ?? "")
-                .accessibilityIdentifier("rail.siteInfo")
 
                 AddressField(
                     text: $model.addressText,
