@@ -265,6 +265,22 @@ struct BottomRail: View {
     private var canBack: Bool { model.activeTab?.canGoBack == true }
     private var canForward: Bool { model.activeTab?.canGoForward == true }
 
+    /// The dock spends only the arrows it has. A fixed 96 pt pair left a
+    /// fresh tab's pill 163 pt wide and its field 35 pt, so the URL read
+    /// `http:…` under every non-editing capture of run 45177700804 (auth,
+    /// dialog, notice, linknotice and the plain article shot). With no
+    /// arrows the pill takes those 96 pt; with one it takes 44. The tabs and
+    /// the menu stay pinned to the trailing edge — the pill is the flexible
+    /// child — so a workspace switch never moves them under a thumb.
+    private var navSlotWidth: CGFloat {
+        if model.isEditingAddress { return 0 }
+        switch (canBack, canForward) {
+        case (true, true): return 96
+        case (false, false): return 0
+        default: return 44
+        }
+    }
+
     var body: some View {
         HStack(spacing: 8) {
             // The slots are always there, even when there is nowhere to go. A
@@ -287,23 +303,25 @@ struct BottomRail: View {
             // then stayed on the start page ("SEARCH") in run 45168968759
             // (testDockKeepsTabsAndMenuAfterThePill, testFindInPage,
             // testHistoryListsVisitedPagesAndRemovesOne).
-            HStack(spacing: 8) {
+            // The group also closes to the arrows it has, so a tab with no
+            // history hands its 96 pt to the pill instead of to empty glass.
+            HStack(spacing: canBack && canForward ? 8 : 0) {
                 if canBack {
                     railButton("chevron.left", id: "rail.back", label: "Back") { model.goBack() }
                 } else {
-                    Color.clear.frame(width: 44, height: 44)
+                    Color.clear.frame(width: 0, height: 44)
                 }
                 if canForward {
                     railButton("chevron.right", id: "rail.forward", label: "Forward") { model.goForward() }
                 } else {
-                    Color.clear.frame(width: 44, height: 44)
+                    Color.clear.frame(width: 0, height: 44)
                 }
             }
-            .frame(width: model.isEditingAddress ? 0 : 96, height: 44)
+            .frame(width: navSlotWidth, height: 44)
             .clipped()
-            .opacity(model.isEditingAddress ? 0 : 1)
-            .allowsHitTesting(!model.isEditingAddress)
-            .accessibilityHidden(model.isEditingAddress)
+            .opacity(navSlotWidth == 0 ? 0 : 1)
+            .allowsHitTesting(navSlotWidth > 0)
+            .accessibilityHidden(navSlotWidth == 0)
 
             HStack(spacing: 6) {
                 Button {
