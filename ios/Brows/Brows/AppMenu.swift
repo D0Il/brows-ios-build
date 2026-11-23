@@ -75,7 +75,7 @@ struct AppMenu: View {
             // so on iPad the − and the % did nothing while + (whose glyph covers
             // its centre) worked. Run 45093256894 logged the touches reaching the
             // row at all three centres and only + firing.
-            Button { NSLog("BROWS-ZOOM minus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: -0.1) } label: {
+            Button(action: { model.adjustZoom(by: -0.1) }) {
                 Image(systemName: "minus")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(Theme.plateInk)
@@ -85,7 +85,7 @@ struct AppMenu: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Zoom out")
             .accessibilityIdentifier("menu.zoom.out")
-            Button { NSLog("BROWS-ZOOM reset tap zoom=\(model.activeTab?.zoom ?? -1)"); model.resetZoom() } label: {
+            Button(action: { model.resetZoom() }) {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(Theme.plateInk)
@@ -96,7 +96,7 @@ struct AppMenu: View {
             .accessibilityLabel("Reset zoom")
             .accessibilityValue("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
             .accessibilityIdentifier("menu.zoom.reset")
-            Button { NSLog("BROWS-ZOOM plus tap zoom=\(model.activeTab?.zoom ?? -1)"); model.adjustZoom(by: 0.1) } label: {
+            Button(action: { model.adjustZoom(by: 0.1) }) {
                 Image(systemName: "plus")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(Theme.plateInk)
@@ -108,9 +108,6 @@ struct AppMenu: View {
             .accessibilityIdentifier("menu.zoom.in")
         }
         .listRowBackground(Color.clear)
-        .simultaneousGesture(SpatialTapGesture().onEnded { value in
-            NSLog("BROWS-ZOOM row tap at \(value.location)")
-        })
     }
 
     private func row(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
