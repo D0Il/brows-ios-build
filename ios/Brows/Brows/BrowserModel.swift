@@ -620,6 +620,12 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             webView.evaluateJavaScript(PageEnhancements.cookieBannerJS)
         }
         refreshPageState()
+        // A page opened from the address pill finishes loading before the new tab
+        // is the visible one, and a report for a tab that is not visible is
+        // dropped. Ask again once selection has settled.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+            self?.refreshPageState()
+        }
     }
 
     /// Ask the active page what it is, and publish the answer for the probes and

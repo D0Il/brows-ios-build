@@ -20,16 +20,26 @@ final class BrowsUITests: XCTestCase {
     /// reachable — a tap on it silently misses.
     @discardableResult
     private func menuRow(_ identifier: String, in app: XCUIApplication) -> XCUIElement {
-        if !app.buttons["menu.site-information"].exists {
-            app.buttons["rail.menu"].tap()
-            XCTAssertTrue(app.buttons["menu.site-information"].waitForExistence(timeout: 10),
-                          "menu did not open for \(identifier)")
+        // The dock re-lays itself out when a page load changes the back control,
+        // and a tap that lands during that swap is lost. Retry the tap rather
+        // than failing on the known race.
+        for attempt in 0..<3 {
+            if app.buttons["menu.site-information"].exists { break }
+            if attempt == 0 {
+                app.buttons["rail.menu"].tap()
+            } else if app.buttons["rail.menu"].isHittable {
+                app.buttons["rail.menu"].tap()
+            }
+            _ = app.buttons["menu.site-information"].waitForExistence(timeout: 5)
         }
+        XCTAssertTrue(app.buttons["menu.site-information"].exists,
+                      "menu did not open for \(identifier)")
         let row = app.buttons[identifier]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "\(identifier) missing from the menu")
         var scrolls = 0
         while !row.isHittable && scrolls < 8 {
             app.swipeUp()
+            _ = row.waitForExistence(timeout: 1)
             scrolls += 1
         }
         return row
