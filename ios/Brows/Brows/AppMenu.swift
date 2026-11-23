@@ -87,6 +87,9 @@ struct AppMenu: View {
                 .accessibilityIdentifier("menu.zoom.in")
         }
         .listRowBackground(Color.clear)
+        .simultaneousGesture(SpatialTapGesture().onEnded { value in
+            NSLog("BROWS-ZOOM row tap at \(value.location)")
+        })
     }
 
     private func row(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
