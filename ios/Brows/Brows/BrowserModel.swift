@@ -285,6 +285,11 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var contrastAudit = ""
     /// `-BrowsFocusPill` opens with the pill in its selected state for capture.
     @Published var focusPillOnLaunch = false
+    /// A `-BrowsSheet` waits for the page's first `didFinish`: a pane
+    /// photographs the page when it appears, and a launch-time sheet opened
+    /// before the article painted kept a blank white pane (bookmarks-light and
+    /// downloads-light, runs 45157463903 and 45161862085).
+    private var pendingCaptureSheet: String?
     @Published var siteInfo: SiteInfo?
     @Published var readerContent: ReaderContent?
     @Published var findQuery = ""
@@ -435,15 +440,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
         if let index = arguments.firstIndex(of: "-BrowsSheet"),
            index + 1 < arguments.count {
-            // The pane photographs the page when it appears. A launch-time sheet
-            // opened before the article painted kept a blank white backdrop
-            // (bookmarks-light and downloads-light, run 45157463903), while the
-            // menu's later appearance kept the page. Wait the same beat the
-            // pill hook waits for, so the capture proves the glass.
-            let sheet = arguments[index + 1]
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-                self?.presentLaunchSheet(sheet)
-            }
+            pendingCaptureSheet = arguments[index + 1]
         }
     }
 
@@ -582,6 +579,10 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// Called when a page has finished loading. The snapshot is retaken only with a
     /// panel up, and a beat later so WebKit has painted the frame it will hand back.
     func pageDidRender() {
+        if let sheet = pendingCaptureSheet {
+            pendingCaptureSheet = nil
+            presentLaunchSheet(sheet)
+        }
         guard hasOpenPanel, !isEditingAddress else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self, self.hasOpenPanel else { return }
