@@ -77,6 +77,12 @@ enum PageEnhancements {
     /// What the app reads back after a page loads or a tool changes something.
     static let probeJS = """
     (function(){
+      function safe(fn, fallback){
+        try {
+          var value = fn();
+          return (value === undefined || value === null) ? fallback : value;
+        } catch (e) { return fallback; }
+      }
       function banners(){
         var selectors = [
           "#onetrust-banner-sdk", "#onetrust-consent-sdk", "#CybotCookiebotDialog",
@@ -99,11 +105,11 @@ enum PageEnhancements {
         return count;
       }
       return JSON.stringify({
-        ua: navigator.userAgent || "",
-        filter: getComputedStyle(document.documentElement).filter || "",
-        banners: banners(),
-        title: document.title || "",
-        text: (document.body ? (document.body.innerText || "") : "").slice(0, 4000)
+        ua: safe(function(){ return navigator.userAgent; }, ""),
+        filter: safe(function(){ return getComputedStyle(document.documentElement).filter; }, ""),
+        banners: safe(banners, 0),
+        title: safe(function(){ return document.title; }, ""),
+        text: safe(function(){ return document.body ? document.body.innerText : ""; }, "")
       });
     })();
     """

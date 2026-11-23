@@ -35,13 +35,20 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["menu.site-information"].exists,
                       "menu did not open for \(identifier)")
         let row = app.buttons[identifier]
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "\(identifier) missing from the menu")
+        // Rows below the fold are not in the accessibility tree at all, so scroll
+        // the menu's own list until the row appears and can be tapped.
+        let list = app.collectionViews.firstMatch
         var scrolls = 0
-        while !row.isHittable && scrolls < 8 {
-            app.swipeUp()
+        while !(row.exists && row.isHittable) && scrolls < 8 {
+            if list.exists {
+                list.swipeUp()
+            } else {
+                app.swipeUp()
+            }
             _ = row.waitForExistence(timeout: 1)
             scrolls += 1
         }
+        XCTAssertTrue(row.exists, "\(identifier) missing from the menu")
         return row
     }
 
