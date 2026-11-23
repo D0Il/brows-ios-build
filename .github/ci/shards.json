@@ -11,7 +11,9 @@
     "testTypedExternalSchemeRoutesInsteadOfBecomingAPage",
     "testWorkspaceDelete",
     "testHistoryListsVisitedPagesAndRemovesOne",
-    "testSiteInformationNamesTheHostAndScheme"
+    "testSiteInformationNamesTheHostAndScheme",
+    "testPullToRefreshReloadsThePage",
+    "testCookieBannerIsHidden"
   ],
   "2": [
     "testAddressBarTopSetting",
@@ -23,7 +25,9 @@
     "testWindowOpenReusesTheNamedWindow",
     "testWindowOpenWithFeaturesOpensOneSelectedTab",
     "testWorkspaceSwitch",
-    "testKeyboardDoesNotCoverTheDock"
+    "testKeyboardDoesNotCoverTheDock",
+    "testDarkPagesDarkenThePage",
+    "testTranslatePageOpensOnThePagesText"
   ],
   "3": [
     "testAddressPillExplainsAnAddressItCannotOpen",
@@ -35,7 +39,9 @@
     "testPrivateDownloadIsNotPersisted",
     "testRefusedPopupUsesTheAppsCard",
     "testStartPageSearchNavigates",
-    "testZoomStepsAndResets"
+    "testZoomStepsAndResets",
+    "testDesktopSiteChangesTheNameThisTabSends",
+    "testVoiceSearchOpensTheMicrophoneCard"
   ],
   "4": [
     "testBookmarkStar",
@@ -48,6 +54,8 @@
     "testReaderMode",
     "testSiteBlockingToggle",
     "testSaveAsPDFPresentsTheFile",
-    "testLandscapeKeepsTheDockOnScreen"
+    "testLandscapeKeepsTheDockOnScreen",
+    "testCodeScannerSaysThisDeviceHasNoCamera",
+    "testBrowserIdentityReachesServerAndPage"
   ]
 }

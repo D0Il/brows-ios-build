@@ -344,9 +344,6 @@ struct CodeScannerSheet: View {
 struct TranslateSheet: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.dismiss) private var dismiss
-    @State private var output = ""
-    @State private var status = "Translate the page's text into English."
-    @State private var configuration: TranslationSession.Configuration?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -356,68 +353,58 @@ struct TranslateSheet: View {
             ZStack {
                 GlassPane(cornerRadius: 0, plate: true)
                     .ignoresSafeArea()
-                VStack(spacing: 14) {
-                    ScrollView {
-                        Text(output.isEmpty ? status : output)
-                            .font(.system(size: 15))
-                            .foregroundColor(Theme.plateInk)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .accessibilityIdentifier("translate.output")
-                    }
-                    Button("Translate to English") {
-                        status = "Translating…"
-                        configuration = TranslationSession.Configuration(
-                            target: Locale.Language(identifier: "en")
-                        )
-                    }
-                    .accessibilityIdentifier("translate.run")
-                    .disabled(model.pageProbe.text.isEmpty)
-                    if model.pageProbe.text.isEmpty {
-                        Text("This page has no text to translate.")
-                            .font(.system(size: 13))
-                            .foregroundColor(Theme.plateMuted)
-                    }
+                if #available(iOS 18.0, *) {
+                    TranslatePanel(text: model.pageProbe.text)
+                } else {
+                    Text("Translating a page needs iOS 18 or newer on this device.")
+                        .font(.system(size: 15))
+                        .foregroundColor(Theme.plateInk)
+                        .multilineTextAlignment(.center)
+                        .padding(24)
+                        .accessibilityIdentifier("translate.output")
                 }
-                .padding(24)
             }
         }
-        .modifierIfAvailable(configuration: $configuration,
-                             source: model.pageProbe.text,
-                             output: $output,
-                             status: $status)
     }
 }
 
-private extension View {
-    @ViewBuilder
-    func modifierIfAvailable(configuration: Binding<TranslationSession.Configuration?>,
-                             source: String,
-                             output: Binding<String>,
-                             status: Binding<String>) -> some View {
-        if #available(iOS 18.0, *) {
-            self.modifier(TranslationRunner(configuration: configuration,
-                                            source: source,
-                                            output: output,
-                                            status: status))
-        } else {
-            self
-        }
-    }
-}
-
-#if canImport(Translation)
+/// Apple's on-device translator. Everything that names its types lives behind
+/// the availability check above, so the app still builds for older systems.
 @available(iOS 18.0, *)
-private struct TranslationRunner: ViewModifier {
-    @Binding var configuration: TranslationSession.Configuration?
-    let source: String
-    @Binding var output: String
-    @Binding var status: String
+private struct TranslatePanel: View {
+    let text: String
+    @State private var output = ""
+    @State private var status = "Translate the page's text into English."
+    @State private var configuration: TranslationSession.Configuration?
 
-    func body(content: Content) -> some View {
-        content.translationTask(configuration) { session in
+    var body: some View {
+        VStack(spacing: 14) {
+            ScrollView {
+                Text(output.isEmpty ? status : output)
+                    .font(.system(size: 15))
+                    .foregroundColor(Theme.plateInk)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("translate.output")
+            }
+            Button("Translate to English") {
+                status = "Translating…"
+                configuration = TranslationSession.Configuration(
+                    target: Locale.Language(identifier: "en")
+                )
+            }
+            .accessibilityIdentifier("translate.run")
+            .disabled(text.isEmpty)
+            if text.isEmpty {
+                Text("This page has no text to translate.")
+                    .font(.system(size: 13))
+                    .foregroundColor(Theme.plateMuted)
+            }
+        }
+        .padding(24)
+        .translationTask(configuration) { session in
             do {
                 try await session.prepareTranslation()
-                let response = try await session.translate(source)
+                let response = try await session.translate(text)
                 output = response.targetText
                 status = ""
             } catch {
@@ -426,7 +413,6 @@ private struct TranslationRunner: ViewModifier {
         }
     }
 }
-#endif
 
 /// The card the voice search shows while the microphone is open.
 struct VoiceSearchCard: View {
