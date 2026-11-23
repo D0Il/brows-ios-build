@@ -462,7 +462,23 @@ jobs:
           echo "device: $DEVICE"
           xcrun simctl bootstatus "$DEVICE" -b
           echo "only: $ONLY_TEST"
+          RC=0
           xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN" \
             -destination "id=$DEVICE" \
-            -only-testing:"BrowsUITests/BrowsUITests/$ONLY_TEST"
+            -resultBundlePath single.xcresult \
+            -only-testing:"BrowsUITests/BrowsUITests/$ONLY_TEST" || RC=$?
+          # A focused rerun keeps the same evidence the shards do: the result
+          # bundle and the app log (BROWS-ZOOM lines included).
+          xcrun simctl spawn "$DEVICE" log show --last 5m --predicate 'process == "Brows"' > single-sim.log || true
+          grep -a "BROWS-ZOOM" single-sim.log | tail -40 || true
+          exit $RC
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-single
+          path: |
+            ios/Brows/single.xcresult
+            ios/Brows/single-sim.log
+          if-no-files-found: ignore
