@@ -51,7 +51,15 @@ struct BrowserView: View {
             // A panel arrives over the page it belongs to: a fade with a tiny rise
             // in scale, never a slide from the side (there is no navigation stack
             // to slide with). Reduce Motion collapses it to one frame in `Motion`.
-            .transition(.opacity.combined(with: .scale(scale: 0.985, anchor: .center)))
+            //
+            // Removal is deliberate and instant. A fading full-screen pane is still
+            // on screen and still takes taps, so tapping Done and then the dock's
+            // menu button delivered the second tap to the ghost of the first panel
+            // (`testRailAndMenuPanels`, both devices, run 45483923747).
+            .transition(.asymmetric(
+                insertion: .opacity.combined(with: .scale(scale: 0.985, anchor: .center)),
+                removal: .identity
+            ))
             .zIndex(2)
             .onAppear { model.refreshPanelBackdrop() }
     }
@@ -117,7 +125,7 @@ struct BrowserView: View {
                     FindBar()
                         .padding(.bottom, model.settings.addressBarBottom ? 70 : 8)
                 }
-                .transition(.opacity)
+                .transition(.asymmetric(insertion: .opacity, removal: .identity))
             }
         }
         .animation(Motion.panel, value: anyPanelOpen)
@@ -145,16 +153,22 @@ struct BrowserView: View {
             Group {
                 if model.showingVoice {
                     VoiceSearchCard().environmentObject(model)
+                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .center)), removal: .identity))
                 } else if let dialog = model.pendingScriptDialog {
                     ScriptDialogCard(dialog: dialog).environmentObject(model)
+                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .center)), removal: .identity))
                 } else if let notice = model.pendingLinkNotice {
                     LinkNoticeCard(notice: notice).environmentObject(model)
+                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .center)), removal: .identity))
                 } else if let auth = model.pendingHTTPAuth {
                     HTTPAuthCard(auth: auth).environmentObject(model)
+                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .center)), removal: .identity))
                 } else if let pending = model.pendingCredential {
                     CredentialSaveOverlay(pending: pending).environmentObject(model)
+                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .center)), removal: .identity))
                 } else if let notice = model.pageNotice {
                     PageNoticeCard(notice: notice).environmentObject(model)
+                        .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .center)), removal: .identity))
                 }
             }
             .animation(Motion.card, value: anyCardOpen)
@@ -573,6 +587,7 @@ struct BottomRail: View {
                 backdropOffset: CGSize(width: 0, height: model.settings.addressBarBottom ? -shift : shift)
             )
             .environmentObject(model)
+            .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.98, anchor: .bottom)), removal: .identity))
             .frame(height: CGFloat(model.suggestions.count) * 52 + 8)
         }
     }

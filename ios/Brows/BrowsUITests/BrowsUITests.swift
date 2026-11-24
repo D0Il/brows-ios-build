@@ -1532,7 +1532,9 @@ final class BrowsUITests: XCTestCase {
         )
     }
 
-    /// A favourite chip is a real link, not a label.
+    /// A saved bookmark is a real link: it navigates from the bookmarks sheet.
+    /// (The dock carried favourite chips until the floating-capsule dock; the star
+    /// and this sheet are the phone's route to the same list.)
     func testBookmarkFromMenuNavigates() {
         let app = makeApp()
         // With an expected line the helper re-submits when the simulator drops the
