@@ -1,5 +1,5 @@
 <!-- IN-FLIGHT:BEGIN -->
-Last updated 2026-11-24 (iOS: **run 45469961189 on mirror `9f09a3c` is fully green** — build, captures (38 PNGs), Accessibility and all eight shards; 105 test executions, 0 failures. That commit fixes the address pill losing typed text: a start-page load rewrote the focused field to the model's empty address. Google sign-in and the physical-iPhone install remain unverified).
+Last updated 2026-11-24 (iOS: an audit for the user's "animated, sleek" bar found the app had **no motion and no haptics at all**; both are now built — panels/cards fade in, dismissals are instant so they cannot eat the next tap, four haptic moments, Reduce Motion respected. Run 45483923747 exposed the tap-eating dismissal in `testRailAndMenuPanels` on both devices; `8ffed9a` fixes it and 45490498774 is the matrix. Google sign-in and the physical-iPhone install remain unverified).
 
 - **Swift runs here.** `npm run swift:check` parses 27 app + 2 test files, 5 design rules and the
   Foundation-only logic (16 address cases) on Windows. Parse is not typecheck: it passed while

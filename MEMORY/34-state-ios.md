@@ -1091,3 +1091,38 @@ edge).
   the app presents a Safari user agent with a real popup window, which is the published route real
   browsers use, but a signed-in Google session has not been observed here. Installing the ad-hoc
   signed ipa on a physical iPhone, and Keychain writes on that hardware, remain on the user's side.
+
+## 2026-11-24 — the audit the user asked for: motion and haptics were missing entirely
+
+- **What "is it animated?" turned out to mean.** A search of every iOS source for
+  `withAnimation`, `.animation(`, `.transition(`, `matchedGeometryEffect`, springs and haptics found
+  exactly two `.transition(.opacity)` calls and nothing else: no animated state change anywhere, no
+  press animation, no haptics. Every panel (menu, tabs, bookmarks, history, workspaces, site info,
+  downloads, passwords, settings, content blockers), every card and the completions list appeared and
+  disappeared as a hard cut. This was never recorded as a gap because no earlier pass had asked the
+  question.
+- **Also checked, and already present:** edge-swipe back/forward
+  (`allowsBackForwardNavigationGestures = true` at both web-view creation sites), link previews, and
+  pull-to-refresh. Those are not gaps.
+- **Favourite chips do not exist in the phone app.** They were in the first dock (tests
+  `testBookmarkChipNavigates`, identifier `bookmark.chip`), and the floating-capsule dock removed them
+  with a comment that says so (`BrowserView.swift`, BottomRail doc). The star and the Bookmarks sheet
+  are the phone's route to the list. Memory lines 11/24/163 of this file still described the old
+  arrangement; this section is the correction. The test's own doc comment still called the row "a
+  favourite chip" and was corrected in `8ffed9a`.
+- **Built: `Motion` in `Theme.swift`** (`panel` spring 0.34/0.92, `card` spring 0.30/0.90, `press`
+  ease-out 0.12), all three collapsing to one frame under Reduce Motion. Panels fade and rise from
+  `0.985` scale; cards from `0.96`; the completions card from `0.98`; the rail's press wash fades.
+  One animation value per layer (`anyPanelOpen`, `anyCardOpen`) on the view that owns the conditionals,
+  and the card group carries its own because an overlay is applied after the view it decorates.
+- **Built: `Haptics.swift`** — a light impact on new/closed tab, a selection tick on choosing a tab and
+  on toggling the bookmark. Four call sites in `BrowserModel`, no other control buzzes.
+- **The first run caught a real defect, not a flake.** Run **45483923747** on `d218bc7`: build-app,
+  build-tests, captures, Accessibility, iPad shards 1/2/3 green; **iPhone shard 4 and iPad shard 4
+  failed `testRailAndMenuPanels`** — `menu did not reopen` at `BrowsUITests.swift:95`. The test taps
+  Done and then the dock's menu button; a panel that is fading out is still on screen and still takes
+  taps, so the second tap landed on the ghost of the first panel. That dead zone would have hit a real
+  thumb, not just the test.
+- **Fix (`8ffed9a`):** every panel, card, find bar and completions card uses
+  `.transition(.asymmetric(insertion: …, removal: .identity))` — the arrival animates, the dismissal is
+  instant, so nothing invisible can eat the next tap. Run **45490498774** is the matrix on that commit.
