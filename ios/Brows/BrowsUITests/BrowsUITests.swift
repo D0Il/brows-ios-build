@@ -592,9 +592,22 @@ final class BrowsUITests: XCTestCase {
     @discardableResult
     private func focusAddressPill(_ field: XCUIElement, in app: XCUIApplication) -> Bool {
         for _ in 0..<4 {
+            // A keyboard from the previous submission can still be leaving when the
+            // next tap lands. The dismissal swallows that tap, and the old keyboard
+            // then satisfies the wait below, so the text goes nowhere. Let it go
+            // first (it stays if the pill already has focus, and the tap is then a
+            // no-op that keeps it).
+            let keyboard = app.keyboards.firstMatch
+            if keyboard.exists {
+                let gone = XCTNSPredicateExpectation(
+                    predicate: NSPredicate(format: "exists == false"),
+                    object: keyboard
+                )
+                _ = XCTWaiter().wait(for: [gone], timeout: 4)
+            }
             field.tap()
-            // A keyboard can already be up for another surface; focus reaches the
-            // pill a beat after it appears, and typing into that gap is dropped.
+            // Focus reaches the pill a beat after the keyboard appears; typing into
+            // that gap is dropped.
             if app.keyboards.firstMatch.waitForExistence(timeout: 8) {
                 Thread.sleep(forTimeInterval: 0.4)
                 return true
