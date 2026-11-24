@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 import WebKit
 
 /// Hosts the WKWebView that belongs to one tab. Web views live in the model so
@@ -85,7 +84,7 @@ struct WebViewContainer: UIViewRepresentable {
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "browsProbe")
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, UIDocumentPickerDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
         weak var model: BrowserModel?
         let tabId: UUID
         var observation: KVOObservation?
@@ -94,7 +93,6 @@ struct WebViewContainer: UIViewRepresentable {
         private var downloadIds: [ObjectIdentifier: UUID] = [:]
         private var destinations: [ObjectIdentifier: URL] = [:]
         private var progressObservations: [ObjectIdentifier: KVOObservation] = [:]
-        private var uploadCompletion: (([URL]?) -> Void)?
 
         init(model: BrowserModel, tabId: UUID) {
             self.model = model
@@ -379,48 +377,6 @@ struct WebViewContainer: UIViewRepresentable {
 
         private static func host(for webView: WKWebView) -> String {
             webView.url?.host ?? ""
-        }
-
-        // MARK: File uploads
-
-        /// A page's `<input type="file">` asks its host for a picker. With no
-        /// host answer the control is dead: the tap does nothing, no sheet
-        /// appears, and the page's form can never be completed. WebKit hands
-        /// this delegate the request and waits for the URLs the person chose.
-        func webView(_ webView: WKWebView,
-                     runOpenPanelWith parameters: WKOpenPanelParameters,
-                     initiatedByFrame frame: WKFrameInfo,
-                     completionHandler: @escaping ([URL]?) -> Void) {
-            guard let presenter = Self.topPresenter(from: webView) else {
-                completionHandler(nil)
-                return
-            }
-            uploadCompletion = completionHandler
-            // `asCopy` hands WebKit a temporary copy it is allowed to read, which
-            // is what a file input needs; the original stays where it belongs.
-            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.item], asCopy: true)
-            picker.allowsMultipleSelection = parameters.allowsMultipleSelection
-            picker.delegate = self
-            presenter.present(picker, animated: true)
-        }
-
-        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            uploadCompletion?(urls)
-            uploadCompletion = nil
-        }
-
-        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-            uploadCompletion?(nil)
-            uploadCompletion = nil
-        }
-
-        /// The browser draws its panels as overlays, but a system sheet may
-        /// already be up (the passwords import, for one), and presenting onto a
-        /// controller that is itself presenting is refused.
-        private static func topPresenter(from view: UIView) -> UIViewController? {
-            var controller = view.window?.rootViewController
-            while let presented = controller?.presentedViewController { controller = presented }
-            return controller
         }
 
         // MARK: WKUIDelegate
