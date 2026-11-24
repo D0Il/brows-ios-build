@@ -49,6 +49,9 @@ final class BrowsUITests: XCTestCase {
             scrolls += 1
         }
         XCTAssertTrue(row.exists, "\(identifier) missing from the menu")
+        // A tap that lands while the list is still decelerating only stops the
+        // scroll; let it settle first.
+        if scrolls > 0 { Thread.sleep(forTimeInterval: 0.6) }
         return row
     }
 
@@ -1605,7 +1608,12 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(probe.waitForExistence(timeout: 10))
         let first = probe.label
         XCTAssertTrue(first.contains("Refresh"), "page probe did not report the fixture: \(first)")
-        app.webViews.firstMatch.swipeDown()
+        // A short flick only bounces the page; the refresh control needs a real
+        // pull from near the top to past the middle.
+        let page = app.webViews.firstMatch
+        page.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15))
+            .press(forDuration: 0.1,
+                   thenDragTo: page.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
         let changed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label != %@", first), object: probe)
         XCTAssertEqual(XCTWaiter().wait(for: [changed], timeout: 25), .completed,
                        "pull to refresh did not load the page again: \(probe.label)")
