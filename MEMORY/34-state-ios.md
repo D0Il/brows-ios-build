@@ -1126,3 +1126,15 @@ edge).
 - **Fix (`8ffed9a`):** every panel, card, find bar and completions card uses
   `.transition(.asymmetric(insertion: …, removal: .identity))` — the arrival animates, the dismissal is
   instant, so nothing invisible can eat the next tap. Run **45490498774** is the matrix on that commit.
+- **Green matrix: run 45490498774 on `8ffed9a`** (2026-11-24T21:22:49Z → 23:04:59Z). All twelve
+  jobs success, none cancelled: build-app, build-tests, captures, Accessibility (AX5, Reduce Motion,
+  VoiceOver), iPhone shards 1–4, iPad shards 1–4. Read from the run's own log: **105 `Test Case …
+  passed` events, 54 distinct methods (51 UI × two devices + 3 accessibility), 0 failed, 0 skipped**;
+  `Executed` lines 12/13/14 methods per shard and 3 for accessibility; **38 capture PNGs**
+  (19 surfaces × light/dark). This is the record for the motion pass: the app that had no animation
+  at all now fades its panels and cards in, keeps every dismissal instant so the next tap always
+  lands, and ticks on the four actions named above.
+- **The signed build for the phone is `releases/Brows-ios-45490498774.ipa`** (3.0 MB, downloaded from
+  that run's `Brows-ipa` artifact). Same limits as before: it is ad-hoc signed with
+  `Brows.entitlements`, so installing it on a physical iPhone needs the user's own signing identity,
+  and no physical device has run this app yet.
