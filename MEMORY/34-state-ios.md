@@ -797,9 +797,13 @@ run: `docs/parity/ios/after/` (36), previous set renamed `docs/parity/ios/before
 `compare-{notice,passwords,siteinfo,suggest,downloads}.png`. Source commit `6a5a3e0` here /
 `a9fb02c` in the mirror; `diff -r ios/Brows .freebuff/tmp/ios-build-repo/ios/Brows` is empty.
 
-**Still open, named:** the passwords saved row is a grouped form, not the desktop's table (recorded
-bound); bookmark folders have no iOS counterpart; the address field scrolls its text under the
-selection handles while editing (unchanged, not addressed here).
+**Still open, named at the time:** the passwords saved row is a grouped form, not the desktop's table
+(recorded bound). Bookmark folders, listed here as having no iOS counterpart, were added on 2026-11-21
+(`Bookmark.folder`, folder-grouped `BookmarksSheet`, mirror `73b8342`, run 44926585565), and the
+address field no longer holds a selection while editing: `AddressField.armReplacement` leaves a caret
+at the host and `FittingTextField.refit` shrinks the value to the pill, so nothing scrolls under a
+handle (run 45232984438's `pill` pair, caret after the scheme). Both items are closed and this
+sentence no longer claims they are open.
 
 ## 2026-11-21 — the popups are glass, done against the desktop's own recipe
 
@@ -1002,3 +1006,68 @@ edge).
   SUCCEEDED`, 34 capture PNGs (17 sheets × light/dark), wall 18:02:30 → 18:22:06 = **19.6 min**
   (shards queued for macOS slots; captures started 3.5 min late). `brows-launch.png` inspected: the
   capsule floats over the concrete page with the white address pill inside it.
+
+## 2026-11-24 — page tools, the voice card, and popups that ask after an await
+
+- **Seven page tools are in the app**: desktop site, darken pages, consent-banner hiding, pull to
+  refresh, translate, voice search, QR scan, plus save-as-PDF. Menu identifiers are
+  `menu.desktop-site`, `menu.darken-web-pages`, `menu.translate-page`, `menu.scan-a-code`,
+  `menu.voice-search`; the page probe's label is `desktop|mobile|dark|light|banners|title`
+  (`debug.page`).
+- **Two real bugs, found by inspecting the built JavaScript rather than the Swift source.**
+  1. Selectors written with `\"` inside a Swift string lost their escapes and produced invalid
+     JavaScript ("A JavaScript exception occurred"), so the probe read nothing and every
+     page-tool test saw a blank report. Unquoted CSS identifiers (`[class*=cookie-banner i]`)
+     fixed it; run 45304520225 showed real probe labels again.
+  2. `addScriptMessageHandler` was registered twice (`webView(for:)` and the container), which
+     crashed the app with SIGABRT in the runner's `.ips`. The handler is now removed before being
+     re-added, and the probe user script is installed once per web view.
+- **Voice search opened two system alerts before its card.** `SFSpeechRecognizer.requestAuthorization`
+  and the microphone prompt fired on the menu tap; while a system alert is up XCUITest cannot read
+  the app ("Unable to monitor event loop"), so the card was never observed (run 45309338839, two
+  shards). `Dictation.permission` now reads the status without asking, the card opens first and
+  offers `voice.start`, and the prompts belong to that button. Run 45386787960:
+  `testVoiceSearchOpensTheMicrophoneCard` passed on iPhone in 16 s.
+- **Popups.** `configuration.preferences.javaScriptCanOpenWindowsAutomatically = true` because
+  WebKit refuses a window request made after an async hop before `createWebViewWith` is called —
+  the path Google and Notion sign-in use. A popup whose request URL is nil is refused again:
+  adopting `about:blank` made a refused scheme create a tab (run 45376259178, iPad 3). The
+  features-popup test now scrolls the page until its button clears the dock; the button is the
+  page's last control and the tap was landing on the dock (run 45386787960: passes in 44 s).
+- **Start page.** If `StartPage.write` fails, the tab loads the same HTML inline instead of starting
+  no load at all and leaving the progress bar up forever.
+- **Test-only repairs.** Refused-popup tab-count tap retried after the notice's dismissal;
+  `menuRow` (which scrolls and retries) used by the desktop-site test; the address pill settles
+  0.4 s after a keyboard appears and retries 4× before typing. These were interaction misses on
+  loaded runners, not app behaviour.
+- **Runs.** Mirror commits `fdd217f` → `41ac64c` → `ea0d90c`. Run 45386787960 (on `41ac64c`) had
+  every page-tool test green: voice, features popup, refused popup, dark pages, translate, scan,
+  cookie banner, desktop site. Its red shards were unrelated: iPhone 1 lost address-pill focus and
+  iPad 3 could not start a download on the first attempt (it recovered on retry) and later missed
+  the desktop-site menu row. `gh run rerun --failed` cleared the HTTP-auth focus miss and the
+  download; the two interaction misses are what `ea0d90c` addresses. Run 45400873379 is the
+  matrix on that commit.
+
+## 2026-11-24 — the address pill's keystrokes were erased by the page, not by the harness
+
+- **Run 45408366570 on mirror `5dc4163`** (the shard-1 keyboard pre-wait) finished:
+  build-app, build-tests, captures, Accessibility (AX5, Reduce Motion, VoiceOver), iPhone shards
+  1/3/4 and iPad shards 1/2/4 all green. **iPad shard 1 — the shard that had failed on
+  `testAddressPillCompletesFromHistory` — passed**, so the keyboard pre-wait did its job there.
+  iPhone shard 2 failed with the same symptom in another test, `testDarkPagesDarkenThePage`:
+  `XCTAssertEqual failed: ("Optional("SEARCH")") is not equal to ("Optional("http://localhost:8000/article.html")")`.
+  iPad shard 3 was cancelled by macOS capacity for the second run in a row.
+- **The timeline rules out the keyboard race.** iPhone shard 2, 17:55:47–17:55:58: pill tapped at
+  13.88 s, keyboard up by 16.72 s, `Type` at 17.82 s, and by 18.82 s the field was back on its
+  placeholder while the keyboard stayed up. The older iPad failure on run 45400873379
+  (13:17:43–13:17:56, before the pre-wait existed) has the identical shape: tapped, keyboard up,
+  typed, pill still `SEARCH`. A keyboard that came up for the tap was present in both.
+- **Cause.** `AddressField.updateUIView` copied the model's `addressText` into the field whenever the
+  two differed. `BrowserModel.update` already refuses to publish a navigation URL while
+  `isEditingAddress`, but that flag reaches SwiftUI a frame later; a start-page load finishing in
+  that gap published the start page's empty address, and the field was rewritten mid-word.
+- **Fix (`9f09a3c`).** While the field is first responder its text is left alone. Submitting and
+  accepting a suggestion resign it first (`textFieldShouldReturn`, `openSuggestion`), so the new URL
+  still lands. `npm run swift:check` clean (29 app + 2 test files, 5 standards, 16 address cases).
+- **Targeted proof dispatched on `9f09a3c`:** run 45460578466 (iPhone,
+  `testDarkPagesDarkenThePage`) and 45460609314 (iPad, `testAddressPillCompletesFromHistory`).

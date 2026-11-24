@@ -1,152 +1,48 @@
 <!-- IN-FLIGHT:BEGIN -->
-Last updated 2026-11-21 16:10 UTC (iOS: the extensions "deviation" struck as a platform fact; settings engine row moving to the desktop select).
+Last updated 2026-11-24 (iOS: the address pill lost typed text to a start-page load rewriting the focused field; `9f09a3c` keeps keystrokes while the field is first responder. Run **45408366570** on mirror `5dc4163` is green on build, captures, Accessibility and seven shards including the iPad address-pill shard; its iPhone shard 2 exposed the pill wipe, and that is what `9f09a3c` fixes. The last fully green matrix is still **45232984438** on `579ddc8`: scroll edge and Reduce Transparency, 38 captures).
 
-- **Swift runs here.** `npm run swift:check` parses 28 app files + the UI test, 5 design rules and the
-  Foundation-only logic (`AddressResolver`, 16 cases) on Windows. Parse is not typecheck: it passed
-  while `browsGlass` was missing and CI failed.
-- **iOS is Apple's Liquid Glass.** `Theme.browsGlass(cornerRadius:)` is iOS 26's
-  `.glassEffect(.regular, in:)`; `GlassPane` is only the pre-26 fallback. All ten sheets clear the
-  platform fill and carry the glass; cards use `browsGlassBackground`; rail, pill and top tab too.
-- **Glass on a control eats its tap.** `.glassEffect` inside `GlassCircleButtonStyle` /
-  `CompactControlStyle` (even non-hit-testing) made `rail.menu` dead (44566830763, 44571964757,
-  44579489323: "menu did not open"). Plates restored -> green. Glass lives on panes/cards/rail/pill.
-- **Named window reopens after its popup closed.** Green 44545329527; red 44548334284 on `2b0b83a`;
-  fix restored in `0f1f5b5`. `testNamedWindowReopensAfterItsPopupIsClosed` + `named-fresh` fixture.
-- **Record `44684721575` on `20103c6`:** 37 tests, 0 failures, 1045.211 s, 34 captures, all
-  inspected. Paired against rendered desktop surfaces (`port/site` + `chrome://brows-surface`) with a
-  seeded profile (3 visits, 4 bookmarks + folder, the build's extensions). Verdicts and file names:
-  `47-ios-desktop-pairs.md`; captures `docs/parity/desktop/`, pairs `docs/parity/pairs/`; drivers
-  `tools/oneoff/shoot-desktop-{surfaces,app}.mjs`, `tools/oneoff/pair-desktop-ios.py`. Fixed:
-  `fdd9b1e` plates/ink in dark; `ea0e802` settings cards; `20103c6` 14x14 checkbox + site-info rules.
-  History now renders: the delegate is set (`webui_app_menu_control.cc:626`) and `getHistory('')`
-  returned 3; the panel was throwing on `new Date(BigInt)` because `last_visit_ms` is int64 -
-  `tools/oneoff/fix_surface_int64.py` converts it and `resources.pak` was rebuilt, so
-  `history-{light,dark}.png` show three rows (proven). Downloads and passwords stay bounds with
-  proved the same shape of bug in both: the panels read process-local views, and now fall back to
-  `HistoryService::QueryDownloads` / `PasswordStoreInterface::GetAutofillableLogins`
-  (`tools/oneoff/fix_surface_persisted.py`), so the seeded download and saved login both render.
-- **The ipa is signed now.** CI used to zip the device build unsigned (no keychain group, -34018);
-  it ad-hoc signs with `Brows.entitlements` and asserts it. `releases/Brows-ios-44821441476.ipa`.
-  Device install still needs a signing identity; keychain on hardware unproven.
-- **Five capture defects closed.** Alerts were glass (page text showed through), plate buttons had
-  no rim on a white sheet, suggestions clipped their last row, the downloads size line sat under
-  the icon. Fixed and re-captured (`docs/parity/ios/after/`); open: passwords form, folders, pill scroll.
-- **Two trees.** The captures come from `5fbd41c` in the build mirror `D0Il/brows-ios-build`
-  (`.freebuff/tmp/ios-build-repo`), which holds only `ios/Brows/**` + the workflow. This project repo
-  is the source of truth; the app code was committed there as `c296977`, and the parity pass is
-  built from `fdd9b1e`. The mirror holds only the app + workflow, so its `fdd9b1e` tree must equal
-  this repo's `ios/Brows` tree (`diff -r`), and HEAD is the commit carrying this block.
-- **Open, named bounds:** none of the seven pairing surfaces is bounded by missing content any more;
-  the
-  bookmark list has folder tabs on desktop vs a flat phone list; settings' engine row is a segmented
-  control vs a `<select>`; rail/pill/omnibox/suggestions
-  are native views and their WebUI hosts never commit headless; no loading state in the set.
-  Simulator bounds: hardware install/Keychain, Mail, real OAuth, glass over a photograph.
-- **Not a deviation: extensions.** iOS is WebKit-only (App Store 2.5.6), so the phone has no
-  Chromium extensions at all; the panel states that and its blocker row is a WebKit content-rule
-  list. Drawing the desktop's `Enabled` + `⋯` extension row there would fake a feature the platform
-  forbids, so that bound is struck rather than "fixed", and it is not a parity gap to close in any
-  later pass. The menu row and the panel now name what exists — `Content blockers`, shield icon —
-  instead of a puzzle-piece `Extensions` entry that opened on "there are no extensions".
+- **Swift runs here.** `npm run swift:check` parses 27 app + 2 test files, 5 design rules and the
+  Foundation-only logic (16 address cases) on Windows. Parse is not typecheck: it passed while
+  `browsGlass` was missing and CI failed.
+- **iOS is Apple's Liquid Glass.** `Theme.browsGlass` is iOS 26 `.glassEffect`; `GlassPane` is the
+  pre-26 fallback and the rail/pill/card pane. Plates are nearly opaque in dark; the rail band
+  stays the desktop's light tint, so its controls use fixed `Theme.ink`.
+- **Glass on a control eats its tap.** `.glassEffect` inside a button style made `rail.menu` dead
+  (44566830763, 44571964757, 44579489323). Plates live on panes, never inside controls.
+- **Platform audit (this pass).** Run 45095272714 on `0e9de70` certified 86/86 suite results
+  (iPhone 12/10/10/11, iPad 12/10/10/11), 3/3 accessibility, 34 captures. Opening all 34 found
+  three paint defects (dark plates at .30 → .90 of #22262d, a bookmarks footer band, a focused pill
+  showing `http:/`), fixed in `3ca6716`, `cb7cae5`, `ab08d4a`. The per-image pass over the next
+  runs then caught the resting dock: the pill read `http:…` because hidden arrows still reserved
+  96 pt, and the site badge drew DuckDuckGo's 404 disc for localhost. `9da689c` spends only the
+  arrows it shows and loads icons on HTTP 200 only (letter or lock otherwise); `e783985` draws the
+  tab chip as the white rail pane with fixed ink (system glass flipped it against the opposite
+  appearance), closes the star's slot while typing, and `FittingTextField` fits the whole URL.
+  Run **45192965756** on `e783985` is the proof: 34/34 captures, every shard and accessibility green.
+  One of the last two code-settable gaps was the scroll edge: `WKWebView.hideScrollEdgeEffects()` now
+  hides all four edges at both web views, and the new `scrolled` pair (run **45226264832** on
+  `125dc8c`, 36 captures) shows the article running to the status bar with no pocket or band. Reduce
+  Transparency, the other (and last), is stated once in `GlassPane.opaqueChrome`: when the accessibility
+  setting (or the capture-only `-BrowsReduceTransparency`) is on, the pane drops its page snapshot
+  and paints solid, so the chip and dock never veil the article. Run **45232984438** on `579ddc8`
+  is the proof — 38 captures, all eight shards and accessibility green (two jobs via
+  `gh run rerun --failed`: iPad 2's cold-launch flake, iPhone 4 dropped by the queue). That work is
+  committed here as **7299ef4**; `579ddc8` is the mirror commit the run was dispatched on. Nothing is
+  in flight: the backlog's three remaining rows need a physical device, an App Store submission, or a
+  printer. Run histories before this pass: `37-platform-audit-runs.md`.
+- **Two trees.** Captures come from `D0Il/brows-ios-build` (`.freebuff/tmp/ios-build-repo`), which
+  holds only `ios/Brows/**` + the workflow. This repo is the source of truth; the mirror's tree
+  must equal `ios/Brows` (`diff -r`), and HEAD carries this block.
+- **Open, named bounds:** hardware install/Keychain, Mail, real OAuth, print panel, and a
+  physical-device pass. Extensions are a platform fact, not a deviation: WebKit
+  only (App Store 2.5.6), so the phone has content blockers, never Chromium extensions.
 - **Standards:** Apple Liquid Glass for panes; white plates, dark ink on controls; no fake chrome;
   private mode coherent, no sync. Dated passes: `34-state-ios.md`.
 <!-- IN-FLIGHT:END -->
 
 
 
-## 2026-11-15 — moved out of IN-FLIGHT (dated snapshot, newest first)
-
-- **2026-11-15 21:1x — what the republished 156 build carries, and the extension loss (detail for the
-  IN-FLIGHT entry above, all measured on the running browser).**
-  The tab-search chevron can only run tab search: `TabSearchOnlyButtonController` on the
-  `kActionTabSearch` button in `chrome/browser/ui/views/tabs/shared/tab_strip_combo_button.cc`,
-  because that button's action view interface re-installs its own pressed callback on every action
-  update, so a bound callback alone was not authoritative. Measured 2→2 and 3→3 tabs with a pinned
-  tab, and `ShowTabSearch` → `ShowTabSearchBubble` in the log.
-  `UseStringsJs()` was added to `webui_toolbar_ui.cc`, `omnibox_everywhere_ui.cc`,
-  `omnibox_popup_ui.cc` and `tab_search_ui.cc`: `strings.m.js` is served only when it is set
-  (`content/browser/webui/web_ui_data_source_impl.cc:567`), and without it every one of those pages
-  died on `No data. Did you remember to include strings.js?` — that is why `toolbar-app` never
-  upgraded and the band looked empty. Measured after: `toolbar-app` mounted with 12 children and
-  `#locationBar` at `[8,4,1721,32]` (1209 px in the smaller window). The two `strings.m.js` script
-  tags are `type="module"` (as classic scripts they threw `Cannot use import statement outside a
-  module`), and `brows_surface.ts` no longer dies on `browsSurfaceChrome.send is not a function`.
-  `scripts\publish-site.ps1` fix: the 20:2x run wrote the feed, printed `uploading in parts`, never
-  uploaded, and died before the `brows-site` deploy — under `$ErrorActionPreference = 'Stop'`,
-  PowerShell 5.1 turns wrangler's stderr into a terminating `NativeCommandError`, so the temp-Worker
-  step threw and the `finally` cleanup masked it; R2 kept the previous installer (`83b547c2…`,
-  688,826,880 B) while the feed advertised that old sha. Both npx calls now run with `Continue` and
-  only their exit codes decide success (`PARSE_ERRORS=0`).
-  Extension loss: at **01:38** the profile's `Extension State` was rewritten and `path`/`location`
-  were dropped from `Secure Preferences`, after which Chromium's `extension_garbage_collector`
-  deleted `Default\Extensions` (folder mtime 01:38:13). All 7 real extensions existed in full in
-  `%APPDATA%\Opera GX Stable\Default\Extensions` and were copied back by ID (Tampermonkey 5.5.1,
-  Video Downloader Professional 2.1.7, AdBlock 6.53.0, BTRoblox 3.7.1, Video Download Helper
-  10.7.1.2, Video Speed Controller 0.11.1, one 3.4.0); they are **not registered** — Chromium only
-  adopts folders it has metadata for, no prefs backup exists, and a launch flag is not a durable
-  mechanism (the unquoted `--load-extension` list broke both launchers; both were restored to their
-  original `--source-shortcut-location=…` argument).
-
-
-- **Tab-search popup was a 39 px sliver, not a taste complaint — fixed 2026-11-14 (commit
-  `1b92f7ceb8`, published installer sha `86ea151a4f8838c8…`).** Measured on the installed build
-  with `tools/oneoff/check_tab_search.py`: the chevron *did* open the Brows surface
-  (`chrome://brows-surface.top-chrome/?surface=tab-search`) and its accessibility tree did hold
-  the four real tabs, but the bubble window itself measured **344x39** — only the search field.
-  Cause: `brows_surface.ts` only sent `browsResize` from the workspace (line 128) and folder
-  (line 2368) surfaces; tab search never did, so the fixed bubble kept its creation size and clipped
-  every row and the footer. Fix: `resizeTabSearchSurface()` sends `browsResize [344, height]` after
-  the rows, the empty state and the recently-closed section are laid out. Re-measured: bubble
-  **344x270**, capture shows the search field, four rows with favicon/title/host, per-row close, and
-  `4 of 4 tabs · ↑↓ move · Enter switch · Esc close`. Probe notes: `band_uia.ps1` takes
-  `-Band -ProcId` (PowerShell reserves `$Pid`); the bubble is its own HWND, so it must be captured
-  separately from the main window.
-
-- **Media control on the playing tab — DONE and measured 2026-11-14 (installed `chrome.dll
-e994754b29c8a6c8`, commit `f51996641c`, published installer
-`97953416202e49c57706ec1edb97bece6d509076ab016ec32bafee811c7a281b`).**
-  `tools/oneoff/check_media_button.py` → `CHECK_EXIT=0`: strip has no media control, exactly one
-  media button, inside the playing tab, opens `MediaDialogView` on click. `tools/oneoff/measure_tab_glyphs.py`
-  on a real PrintWindow capture: speaker ink `y 14..23 h=10 c=18.5`, note ink `y 14..23 h=10 c=18.5`,
-  close ink `y 15..22 h=8 c=18.5` — same height and centre line, nothing clipped.
-  The icon must be passed an explicit size: `ImageModel::FromVectorIcon` defaults `icon_size = 0`
-  (native canvas, `ui/base/models/image_model.h:89`), which painted the 24-unit glyph at 24 px into
-  a 16 px box — that was the glyph overflowing and clipping at the bottom.
-  `brows_music_note.icon` is generated by `tools/oneoff/make_music_icon.py` from upstream
-  `queue_music.icon`'s own note subpath (Material's music note), scaled to 10 px of ink and centred;
-  the three list lines are dropped. Hand-written paths read as stray strokes at 16 px — do not
-  hand-draw this glyph again.
-  Runtime notes: a page only plays if the window is visible, so the capture/check scripts launch with
-  `--disable-features=CalculateNativeWinOcclusion --disable-backgrounding-occluded-windows
-  --disable-renderer-backgrounding`; `Page.setWebLifecycleState` **crashes** this build — never use it.
-  UIA rects for this window come back in client coordinates; post clicks with them as-is.
-
-- **Earlier framing of the same work (kept for the trail).**
-  The strip's WebUI media button must not exist; the control is a music-note button on the tab that
-  is playing, left of that tab's Close, with the tab's existing speaker (audio) indicator untouched.
-  In tree: `views::ImageButton` child of `Tab` (`tab.h`/`tab.cc`: `media_button_`,
-  `media_item_observation_`, `UpdateMediaButtonVisibility`, `MediaButtonPressed`), unpinned tab with
-  an active media session only, opens `MediaDialogView`.
-  `webui_media_toolbar_button.cc` sends `should_be_shown=false` from `UpdateState()` — a no-op
-  `Show()` alone was not enough (measured: button still painted at 1157,40 34x34).
-  First runtime pass on installed `chrome.dll 4c875381…` found no tab button: the tab sampled
-  visibility only from its constructor, when `MediaNotificationService` does not exist yet (created
-  on demand), so no observation ever started. Fixed by re-checking from `OnTabDataChanged` and
-  observing the manager the first time it appears. Rebuild + single pass pending.
-
-- **Pinned tab favicon — verified 2026-11-14.** Blank pinned tabs came from the width guard in
-  `tab.cc` (`GetMinimumInactiveWidth()` is 92 px under glass); now skipped when `data().pinned`.
-  Installed `chrome.dll 4c875381…`, one visible pass: pinned tab `31,0 64x38` paints 157 distinct
-  colours where a blank pane paints 1 (`verify_visual_pass.py`).
-
-- **Pin survives an immediate close — verified 2026-11-14** on installed `chrome.dll 968f733d…`:
-  `probe_pin_persist.py` → `CHECK_EXIT=0`, `tab0 pinned after restore: True`. Pin 0.58 s before a crash kill was lost:
-  session file byte-identical at pin time, and `SessionServiceBase::SetPinnedState` (only writer of
-  `kCommandSetPinnedState`) has **no caller anywhere** in `chrome/`, so pins reached disk only via
-  the clean-exit full-session build. Fix: `SetPinnedState` now calls `FlushPendingCommands()`
-  straight after `ScheduleCommand`; the earlier `BrowserTabStripController::OnTabPinnedStateChanged`
-  flush was removed (measured: it ran before anything was recorded and wrote nothing).
-  Probe: `probe_pin_persist.py`.
+Earlier 2026-11-15 detail: [36-state-2026-11-15.md](36-state-2026-11-15.md).
 
 ## 2026-11-14 — moved out of IN-FLIGHT (dated snapshot, newest first)
 
