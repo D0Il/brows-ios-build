@@ -358,6 +358,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     @Published var showingVoice = false
     @Published var voiceStatus = ""
     @Published var voiceTranscript = ""
+    @Published var voiceListening = false
     lazy var dictation = Dictation()
 
     private var webViews: [UUID: WKWebView] = [:]
@@ -711,19 +712,39 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         showingTranslate = true
     }
 
+    /// Opens the voice card. The system's permission questions are not asked
+    /// here: being answered by two alerts for tapping one menu row is jarring,
+    /// and while a system alert is up the browser's own controls are unreachable.
+    /// The card says what it needs and starts the microphone from its own button.
     func startVoiceSearch() {
-        voiceStatus = "Preparing the microphone…"
         voiceTranscript = ""
+        voiceListening = false
         dictation.onStatus = { [weak self] text in self?.voiceStatus = text }
         dictation.onTranscript = { [weak self] text in self?.voiceTranscript = text }
-        dictation.start()
+        dictation.onListening = { [weak self] listening in self?.voiceListening = listening }
+        switch dictation.permission {
+        case .ready:
+            voiceStatus = "Ready to listen."
+        case .ask:
+            voiceStatus = "Brows needs the microphone and speech recognition to hear what you say."
+        case .refused:
+            voiceStatus = "Speech recognition is turned off for Brows. Turn it on in Settings."
+        }
         showingVoice = true
+    }
+
+    /// Starts the microphone from the card's own button, which is where the
+    /// system's permission questions belong.
+    func beginVoiceListening() {
+        voiceStatus = "Preparing the microphone…"
+        dictation.start()
     }
 
     func stopVoiceSearch() {
         dictation.finish()
         showingVoice = false
     }
+
 
     func useDictation() {
         let text = voiceTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -764,6 +785,10 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        // A page may ask for a window after an async step — Google and Notion
+        // sign-in both do — and WebKit refuses those before it ever reaches the
+        // popup delegate unless this is on. Popups still become ordinary tabs.
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
         if tab?.isPrivate == true {
             configuration.websiteDataStore = .nonPersistent()
         }

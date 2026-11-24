@@ -151,8 +151,22 @@ final class ClosureRefreshControl: UIRefreshControl {
 final class Dictation {
     var onStatus: ((String) -> Void)?
     var onTranscript: ((String) -> Void)?
+    var onListening: ((Bool) -> Void)?
     private(set) var listening = false
     private(set) var transcript = ""
+
+    /// What the system currently allows, read without asking. The card offers a
+    /// button instead of dropping two system alerts on a tap that only asked to
+    /// open the voice search.
+    enum Permission: Equatable { case ready, ask, refused }
+    var permission: Permission {
+        switch SFSpeechRecognizer.authorizationStatus() {
+        case .authorized: return .ready
+        case .notDetermined: return .ask
+        default: return .refused
+        }
+    }
+    var canListen: Bool { permission != .refused }
 
     private let recogniser = SFSpeechRecognizer()
     private let engine = AVAudioEngine()
@@ -205,6 +219,7 @@ final class Dictation {
             try engine.start()
             started = true
             listening = true
+            onListening?(true)
             say("Listening…")
 
             task = recogniser?.recognitionTask(with: request) { [weak self] result, error in
@@ -236,6 +251,7 @@ final class Dictation {
         request = nil
         task = nil
         listening = false
+        onListening?(false)
         if !transcript.isEmpty { say("Heard: \(transcript)") }
     }
 }
@@ -454,6 +470,12 @@ struct VoiceSearchCard: View {
                     model.stopVoiceSearch()
                 }
                 .accessibilityIdentifier("voice.cancel")
+                if !model.voiceListening && model.dictation.canListen {
+                    Button("Start listening") {
+                        model.beginVoiceListening()
+                    }
+                    .accessibilityIdentifier("voice.start")
+                }
                 Button("Use it") {
                     model.useDictation()
                 }

@@ -1063,9 +1063,16 @@ final class BrowsUITests: XCTestCase {
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
         app.webViews.buttons["Open popup with features"].tap()
+        // The page writes its own verdict — 'opened' only when window.open gave it
+        // a window — so a failure says whether the browser refused it or the tab
+        // opened and did not load.
+        let verdict = app.webViews.staticTexts["popup-result"]
+        if verdict.waitForExistence(timeout: 3) {
+            print("BROWS-POPUP-VERDICT: \(verdict.label)")
+        }
 
         XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
-                      "window.open with features did not open the page")
+                      "window.open with features did not open the page; the page said \(verdict.exists ? verdict.label : "nothing") ")
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
                       "a feature popup did not open exactly one tab")
@@ -1678,6 +1685,7 @@ final class BrowsUITests: XCTestCase {
         app.swipeUp()
         menuRow("menu.voice-search", in: app).tap()
         XCTAssertTrue(app.staticTexts["voice.status"].waitForExistence(timeout: 15), "voice card missing")
+        XCTAssertTrue(app.buttons["voice.start"].exists, "voice card cannot start listening")
         XCTAssertTrue(app.buttons["voice.cancel"].exists, "voice card cannot be dismissed")
     }
 

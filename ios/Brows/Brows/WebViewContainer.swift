@@ -380,7 +380,12 @@ struct WebViewContainer: UIViewRepresentable {
                      createWebViewWith configuration: WKWebViewConfiguration,
                      for navigationAction: WKNavigationAction,
                      windowFeatures: WKWindowFeatures) -> WKWebView? {
-            guard let url = navigationAction.request.url, let model else { return nil }
+            guard let model else { return nil }
+            // A window may be requested before it has an address: OAuth and share
+            // flows call `window.open('', name)` and then navigate the window they
+            // were handed. A missing URL must still get a real web view, or the
+            // page reads its popup as blocked and the sign-in stops there.
+            let url = navigationAction.request.url ?? URL(string: "about:blank")!
             // The page's window request is routed by the same rules as a typed
             // address (`AddressResolver`, Foundation only, executed on Windows too).
             switch AddressResolver.popup(url) {
