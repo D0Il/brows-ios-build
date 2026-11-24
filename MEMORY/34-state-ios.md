@@ -1071,3 +1071,23 @@ edge).
   still lands. `npm run swift:check` clean (29 app + 2 test files, 5 standards, 16 address cases).
 - **Targeted proof dispatched on `9f09a3c`:** run 45460578466 (iPhone,
   `testDarkPagesDarkenThePage`) and 45460609314 (iPad, `testAddressPillCompletesFromHistory`).
+
+## 2026-11-24 — full matrix green on `9f09a3c` (address pill keeps typed text)
+
+- **Run 45469961189 on mirror `9f09a3c`** — started 19:24:56 UTC, finished 20:14:33 UTC. Every job
+  success, nothing cancelled: build-app, build-tests, captures, Accessibility (AX5, Reduce Motion,
+  VoiceOver), iPhone shards 1/4, 2/4, 3/4, 4/4 and iPad shards 1/4, 2/4, 3/4, 4/4.
+- **105 test executions passed, 0 failed, 0 skipped:** 51 UI methods on iPhone + the same 51 on
+  iPad + 3 accessibility tests. `Executed` lines per device: 14 / 12 / 12 / 13; accessibility 3.
+- **Captures: 38 PNGs** (19 sheets × light and dark) in artifact `Brows-simulator` (14961037182).
+- **Targeted proof on the same commit, before the matrix:** run 45460578466 (iPhone,
+  `testDarkPagesDarkenThePage`) and run 45460609314 (iPad, `testAddressPillCompletesFromHistory`)
+  both `ui-test-single` success. Those are the two tests that exposed the pill wipe.
+- **The fix itself:** `AddressField.updateUIView` no longer writes the model's address into the field
+  while the field is first responder. The model's own `!isEditingAddress` guard remains as the first
+  line of defence, but SwiftUI delivers that flag a frame late, and a start-page load landing in the
+  gap reset the field mid-word.
+- **NOT done, remaining:** Google sign-in is still unverified — Google blocks automated sessions and
+  the app presents a Safari user agent with a real popup window, which is the published route real
+  browsers use, but a signed-in Google session has not been observed here. Installing the ad-hoc
+  signed ipa on a physical iPhone, and Keychain writes on that hardware, remain on the user's side.

@@ -1,5 +1,5 @@
 <!-- IN-FLIGHT:BEGIN -->
-Last updated 2026-11-24 (iOS: the address pill lost typed text to a start-page load rewriting the focused field; `9f09a3c` keeps keystrokes while the field is first responder. Run **45408366570** on mirror `5dc4163` is green on build, captures, Accessibility and seven shards including the iPad address-pill shard; its iPhone shard 2 exposed the pill wipe, and that is what `9f09a3c` fixes. The last fully green matrix is still **45232984438** on `579ddc8`: scroll edge and Reduce Transparency, 38 captures).
+Last updated 2026-11-24 (iOS: **run 45469961189 on mirror `9f09a3c` is fully green** — build, captures (38 PNGs), Accessibility and all eight shards; 105 test executions, 0 failures. That commit fixes the address pill losing typed text: a start-page load rewrote the focused field to the model's empty address. Google sign-in and the physical-iPhone install remain unverified).
 
 - **Swift runs here.** `npm run swift:check` parses 27 app + 2 test files, 5 design rules and the
   Foundation-only logic (16 address cases) on Windows. Parse is not typecheck: it passed while
