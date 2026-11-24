@@ -49,9 +49,9 @@ enum PageEnhancements {
       var selectors = [
         "#onetrust-banner-sdk", "#onetrust-consent-sdk", "#CybotCookiebotDialog",
         ".qc-cmp2-container", ".cc-window", ".cookie-consent", ".cookie-banner",
-        "#cookie-banner", "#cookie-notice", "[class*=\"cookie-banner\" i]",
-        "[id*=\"cookie-banner\" i]", "[class*=\"consent-banner\" i]",
-        "[id*=\"consent-banner\" i]"
+        "#cookie-banner", "#cookie-notice", "[class*=cookie-banner i]",
+        "[id*=cookie-banner i]", "[class*=consent-banner i]",
+        "[id*=consent-banner i]"
       ];
       var hidden = 0;
       selectors.forEach(function(selector){
@@ -87,9 +87,9 @@ enum PageEnhancements {
         var selectors = [
           "#onetrust-banner-sdk", "#onetrust-consent-sdk", "#CybotCookiebotDialog",
           ".qc-cmp2-container", ".cc-window", ".cookie-consent", ".cookie-banner",
-          "#cookie-banner", "#cookie-notice", "[class*=\"cookie-banner\" i]",
-          "[id*=\"cookie-banner\" i]", "[class*=\"consent-banner\" i]",
-          "[id*=\"consent-banner\" i]"
+          "#cookie-banner", "#cookie-notice", "[class*=cookie-banner i]",
+          "[id*=cookie-banner i]", "[class*=consent-banner i]",
+          "[id*=consent-banner i]"
         ];
         var count = 0;
         selectors.forEach(function(selector){

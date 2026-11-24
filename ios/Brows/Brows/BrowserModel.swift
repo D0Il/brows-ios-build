@@ -628,23 +628,31 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         }
     }
 
-    /// Ask the active page what it is, and publish the answer for the probes and
-    /// for the translate card.
+    /// Ask the visible page what it is and publish the answer. When the page's
+    /// own JavaScript refuses the read, the browser still reports what it knows
+    /// itself — the name it sent, the title, and whether this tab is darkened —
+    /// so a page can never leave the browser blind.
     func refreshPageState() {
         guard let tab = activeTab, let webView = webViews[tab.id] else { return }
-        webView.evaluateJavaScript(PageEnhancements.probeJS) { [weak self] result, error in
+        webView.evaluateJavaScript(PageEnhancements.probeJS) { [weak self] result, _ in
             guard let self else { return }
-            guard let json = result as? String else {
-                // Diagnostic: the tests read the probe label, so a failed read has
-                // to say why instead of leaving the default.
-                let reason = (error as NSError?)?.localizedDescription ?? (result.map { "type \(type(of: $0))" } ?? "nil")
-                DispatchQueue.main.async {
-                    self.pageProbe.title = "JSERR " + reason
+            DispatchQueue.main.async {
+                if let json = result as? String {
+                    self.applyProbe(json, tabId: tab.id)
+                } else {
+                    self.applyBrowserProbe(webView: webView, tabId: tab.id)
                 }
-                return
             }
-            DispatchQueue.main.async { self.applyProbe(json, tabId: tab.id) }
         }
+    }
+
+    private func applyBrowserProbe(webView: WKWebView, tabId: UUID) {
+        guard let tab = tabs.first(where: { $0.id == tabId }), activeTab?.id == tabId else { return }
+        var probe = PageProbe()
+        probe.userAgent = webView.customUserAgent ?? BrowserIdentity.userAgent
+        probe.title = webView.title ?? ""
+        probe.filter = tab.darkPages ? "invert(1) hue-rotate(180deg)" : ""
+        if probe != pageProbe { pageProbe = probe }
     }
 
     /// Take the page's own report. Only the visible tab may publish it, so a
