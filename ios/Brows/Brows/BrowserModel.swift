@@ -632,8 +632,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// for the translate card.
     func refreshPageState() {
         guard let tab = activeTab, let webView = webViews[tab.id] else { return }
-        webView.evaluateJavaScript(PageEnhancements.probeJS) { [weak self] result, _ in
-            guard let self, let json = result as? String else { return }
+        webView.evaluateJavaScript(PageEnhancements.probeJS) { [weak self] result, error in
+            guard let self else { return }
+            guard let json = result as? String else {
+                // Diagnostic: the tests read the probe label, so a failed read has
+                // to say why instead of leaving the default.
+                let reason = (error as NSError?)?.localizedDescription ?? (result.map { "type \(type(of: $0))" } ?? "nil")
+                DispatchQueue.main.async {
+                    self.pageProbe.title = "JSERR " + reason
+                }
+                return
+            }
             DispatchQueue.main.async { self.applyProbe(json, tabId: tab.id) }
         }
     }
