@@ -1062,17 +1062,24 @@ final class BrowsUITests: XCTestCase {
         let app = makeApp()
         open("http://localhost:8000/links.html", in: app, expect: "Links")
 
-        app.webViews.buttons["Open popup with features"].tap()
-        // The page writes its own verdict — 'opened' only when window.open gave it
-        // a window — so a failure says whether the browser refused it or the tab
-        // opened and did not load.
-        let verdict = app.webViews.staticTexts["popup-result"]
-        if verdict.waitForExistence(timeout: 3) {
-            print("BROWS-POPUP-VERDICT: \(verdict.label)")
+        let page = app.webViews.firstMatch
+        let button = page.buttons["Open popup with features"]
+        XCTAssertTrue(button.waitForExistence(timeout: 10), "the feature popup button is missing")
+        // The button is the page's last control, and the floating dock covers the
+        // bottom of the page until it is scrolled. A tap the dock covers never
+        // reaches the page, so bring the button above the dock first.
+        let clearOfDock = app.windows.firstMatch.frame.maxY - 120
+        var scrolls = 0
+        while button.frame.maxY > clearOfDock && scrolls < 4 {
+            page.swipeUp()
+            scrolls += 1
         }
+        XCTAssertLessThanOrEqual(button.frame.maxY, clearOfDock,
+                                 "the feature popup button stays under the dock")
+        button.tap()
 
         XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
-                      "window.open with features did not open the page; the page said \(verdict.exists ? verdict.label : "nothing") ")
+                      "window.open with features did not open the page")
         app.buttons["rail.tabs"].tap()
         XCTAssertTrue(app.staticTexts["2 open"].waitForExistence(timeout: 10),
                       "a feature popup did not open exactly one tab")
@@ -1439,6 +1446,11 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(app.webViews.staticTexts["Links"].waitForExistence(timeout: 10),
                       "a refused popup replaced the page")
         app.buttons["rail.tabs"].tap()
+        // The notice has only just gone, and its dismissal can swallow the first
+        // tap on the dock. Asking again is the same user action, not a looser check.
+        if !app.staticTexts["1 open"].waitForExistence(timeout: 5) {
+            app.buttons["rail.tabs"].tap()
+        }
         XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10),
                       "a refused popup created a tab")
         app.buttons["Done"].tap()

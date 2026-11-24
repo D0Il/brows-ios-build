@@ -59,6 +59,11 @@ struct WebViewContainer: UIViewRepresentable {
             if url == BrowserModel.home {
                 if let start = StartPage.write(bookmarks: model.bookmarks) {
                     webView.loadFileURL(start, allowingReadAccessTo: start.deletingLastPathComponent())
+                } else {
+                    // A temporary-folder failure must not leave the new tab blank
+                    // with a load that never starts and a progress bar that never
+                    // clears; the page itself is still there.
+                    webView.loadHTMLString(StartPage.html(bookmarks: model.bookmarks), baseURL: nil)
                 }
             } else {
                 webView.load(URLRequest(url: url))
@@ -380,12 +385,7 @@ struct WebViewContainer: UIViewRepresentable {
                      createWebViewWith configuration: WKWebViewConfiguration,
                      for navigationAction: WKNavigationAction,
                      windowFeatures: WKWindowFeatures) -> WKWebView? {
-            guard let model else { return nil }
-            // A window may be requested before it has an address: OAuth and share
-            // flows call `window.open('', name)` and then navigate the window they
-            // were handed. A missing URL must still get a real web view, or the
-            // page reads its popup as blocked and the sign-in stops there.
-            let url = navigationAction.request.url ?? URL(string: "about:blank")!
+            guard let url = navigationAction.request.url, let model else { return nil }
             // The page's window request is routed by the same rules as a typed
             // address (`AddressResolver`, Foundation only, executed on Windows too).
             switch AddressResolver.popup(url) {
