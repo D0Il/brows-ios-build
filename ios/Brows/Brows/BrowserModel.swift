@@ -1046,6 +1046,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     // MARK: Tabs
 
     func newTab(_ url: URL? = nil, private isPrivate: Bool = false) {
+        Haptics.opened()
         isEditingAddress = false
         let tab = Tab(url: url ?? BrowserModel.home, workspaceId: activeWorkspaceId, isPrivate: isPrivate)
         tabs.append(tab)
@@ -1055,6 +1056,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func select(_ tab: Tab) {
+        Haptics.picked()
         isEditingAddress = false
         activeTabId = tab.id
         activeWorkspaceId = tab.workspaceId
@@ -1063,6 +1065,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     }
 
     func close(_ tab: Tab) {
+        Haptics.opened()
         if let webView = webViews[tab.id] {
             webView.stopLoading()
             webView.navigationDelegate = nil
@@ -1220,6 +1223,7 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
 
     func toggleBookmark() {
         guard let url = currentURL() else { return }
+        Haptics.picked()
         let value = url.absoluteString
         if let index = bookmarks.firstIndex(where: { $0.url == value }) {
             bookmarks.remove(at: index)

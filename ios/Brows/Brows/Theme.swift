@@ -8,6 +8,32 @@ import CoreImage
 //   chrome/browser/ui/views/tabs/common/horizontal_tab_style_views.cc:361 (tab glass)
 // The desktop rail is not a flat tint and not a blurred material: it is a cool
 // white pane at a clarity alpha, a white ramp over it, and a corner sheen.
+/// The app's motion, kept to two curves and one press fade so every surface
+/// moves like one product. The panels are conditionals over the page, not
+/// presentations, so without an animation a menu would appear as a hard cut;
+/// with this it rises into place.
+///
+/// Reduce Motion turns every curve into a single frame. The state still changes
+/// — the accessibility suite runs in that mode and reads the same panels — only
+/// the travel is gone.
+enum Motion {
+    static var panel: Animation {
+        UIAccessibility.isReduceMotionEnabled
+            ? .linear(duration: 0.01)
+            : .spring(response: 0.34, dampingFraction: 0.92)
+    }
+
+    static var card: Animation {
+        UIAccessibility.isReduceMotionEnabled
+            ? .linear(duration: 0.01)
+            : .spring(response: 0.3, dampingFraction: 0.9)
+    }
+
+    static var press: Animation {
+        .easeOut(duration: UIAccessibility.isReduceMotionEnabled ? 0.01 : 0.12)
+    }
+}
+
 enum Theme {
     static let ink = Color(red: 0.055, green: 0.075, blue: 0.11)
     static let muted = Color(red: 0.408, green: 0.443, blue: 0.498) // #68717f
@@ -498,6 +524,9 @@ struct GlassCircleButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: bubbleRadius, style: .continuous)
                     .fill(Color.white.opacity(configuration.isPressed ? 0.20 : 0.001))
             )
+            // The wash fades rather than switching on the frame the finger lands,
+            // so a press reads as contact instead of a flicker.
+            .animation(Motion.press, value: configuration.isPressed)
     }
 }
 

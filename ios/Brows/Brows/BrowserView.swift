@@ -5,6 +5,25 @@ struct BrowserView: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.scenePhase) private var scenePhase
 
+    /// Which layer is up, as one value per layer. SwiftUI animates a transition
+    /// only when the change that inserts or removes the view is animated, and
+    /// every panel here is a plain conditional over the page rather than a
+    /// presentation. These two values animate every open and close without
+    /// animating layout: the dock's own re-flow stays instant, because a tap
+    /// that lands during that re-flow is delivered to a view being replaced.
+    private var anyPanelOpen: Bool {
+        model.showingTabSwitcher || model.showingBookmarks || model.showingHistory
+            || model.showingMenu || model.showingWorkspaces || model.showingSiteInfo
+            || model.showingDownloads || model.showingPasswords || model.showingExtensions
+            || model.showingSettings
+    }
+
+    /// The cards over the page: one at a time, all owned by the model.
+    private var anyCardOpen: Bool {
+        model.showingVoice || model.pendingScriptDialog != nil || model.pendingLinkNotice != nil
+            || model.pendingHTTPAuth != nil || model.pendingCredential != nil || model.pageNotice != nil
+    }
+
 
 
     /// A desktop-style popup: the panel itself, over the page, with the close
@@ -29,7 +48,10 @@ struct BrowserView: View {
             // The app has no iOS-blue accent: Done and every other control in a
             // panel uses the desktop's ink, never the system tint.
             .tint(Theme.panelInk)
-            .transition(.opacity)
+            // A panel arrives over the page it belongs to: a fade with a tiny rise
+            // in scale, never a slide from the side (there is no navigation stack
+            // to slide with). Reduce Motion collapses it to one frame in `Motion`.
+            .transition(.opacity.combined(with: .scale(scale: 0.985, anchor: .center)))
             .zIndex(2)
             .onAppear { model.refreshPanelBackdrop() }
     }
@@ -98,6 +120,8 @@ struct BrowserView: View {
                 .transition(.opacity)
             }
         }
+        .animation(Motion.panel, value: anyPanelOpen)
+        .animation(Motion.card, value: model.showingFind)
         .sheet(item: $model.readerContent) { content in
             ReaderSheet(content: content).environmentObject(model)
         }
@@ -114,19 +138,26 @@ struct BrowserView: View {
             // Both credential surfaces live in the browser's own hierarchy, never in
             // a sheet: a sheet that dismisses can swallow the tap that follows it.
             // Exactly one of them exists at a time.
-            if model.showingVoice {
-                VoiceSearchCard().environmentObject(model)
-            } else if let dialog = model.pendingScriptDialog {
-                ScriptDialogCard(dialog: dialog).environmentObject(model)
-            } else if let notice = model.pendingLinkNotice {
-                LinkNoticeCard(notice: notice).environmentObject(model)
-            } else if let auth = model.pendingHTTPAuth {
-                HTTPAuthCard(auth: auth).environmentObject(model)
-            } else if let pending = model.pendingCredential {
-                CredentialSaveOverlay(pending: pending).environmentObject(model)
-            } else if let notice = model.pageNotice {
-                PageNoticeCard(notice: notice).environmentObject(model)
+            //
+            // The animation sits on this group, not with the panel's: an overlay is
+            // applied after the view it decorates, so a modifier earlier in the
+            // chain would not animate a card inserted here.
+            Group {
+                if model.showingVoice {
+                    VoiceSearchCard().environmentObject(model)
+                } else if let dialog = model.pendingScriptDialog {
+                    ScriptDialogCard(dialog: dialog).environmentObject(model)
+                } else if let notice = model.pendingLinkNotice {
+                    LinkNoticeCard(notice: notice).environmentObject(model)
+                } else if let auth = model.pendingHTTPAuth {
+                    HTTPAuthCard(auth: auth).environmentObject(model)
+                } else if let pending = model.pendingCredential {
+                    CredentialSaveOverlay(pending: pending).environmentObject(model)
+                } else if let notice = model.pageNotice {
+                    PageNoticeCard(notice: notice).environmentObject(model)
+                }
             }
+            .animation(Motion.card, value: anyCardOpen)
         }
         .onChange(of: model.showingMenu) { open in
             if !open {
@@ -529,6 +560,10 @@ struct BottomRail: View {
                 completions.offset(y: CGFloat(model.suggestions.count) * 52 + 16)
             }
         }
+        // Only the appearance and disappearance of the card is animated; rows
+        // arriving while the user types keep the card anchored, and the dock's
+        // layout is never animated.
+        .animation(Motion.card, value: model.suggestions.isEmpty)
     }
 
     @ViewBuilder private var completions: some View {
