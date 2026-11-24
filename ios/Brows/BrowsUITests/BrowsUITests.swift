@@ -591,9 +591,14 @@ final class BrowsUITests: XCTestCase {
     /// arrives the test still fails.
     @discardableResult
     private func focusAddressPill(_ field: XCUIElement, in app: XCUIApplication) -> Bool {
-        for _ in 0..<3 {
+        for _ in 0..<4 {
             field.tap()
-            if app.keyboards.firstMatch.waitForExistence(timeout: 8) { return true }
+            // A keyboard can already be up for another surface; focus reaches the
+            // pill a beat after it appears, and typing into that gap is dropped.
+            if app.keyboards.firstMatch.waitForExistence(timeout: 8) {
+                Thread.sleep(forTimeInterval: 0.4)
+                return true
+            }
         }
         XCTFail("the address pill never took keyboard focus: pill=\(field.value ?? "nil")")
         return false
@@ -1645,11 +1650,7 @@ final class BrowsUITests: XCTestCase {
         let probe = app.staticTexts["debug.page"]
         XCTAssertTrue(probe.waitForExistence(timeout: 10))
         XCTAssertFalse(probe.label.hasPrefix("desktop|"), "started on the desktop name: \(probe.label)")
-        app.buttons["rail.menu"].tap()
-        app.swipeUp()
-        let row = app.buttons["menu.desktop-site"]
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "desktop row missing")
-        row.tap()
+        menuRow("menu.desktop-site", in: app).tap()
         let desktop = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label BEGINSWITH 'desktop|'"), object: probe)
         XCTAssertEqual(XCTWaiter().wait(for: [desktop], timeout: 30), .completed,
                        "the page never saw the desktop name: \(probe.label)")
