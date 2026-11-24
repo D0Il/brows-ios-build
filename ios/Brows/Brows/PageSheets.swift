@@ -21,11 +21,11 @@ struct ReaderSheet: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 14) {
                             Text(content.title)
-                                .font(.system(size: 26, weight: .bold, design: .serif))
+                                .scaledFont(26, .bold, design: .serif)
                                 .foregroundColor(Color(white: 0.1))
                             Divider()
                             Text(content.text)
-                                .font(.system(size: size, design: .serif))
+                                .scaledFont(size, design: .serif)
                                 .lineSpacing(5)
                                 .foregroundColor(Color(white: 0.12))
                         }
@@ -129,13 +129,13 @@ struct FindBar: View {
         HStack(spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 12, weight: .semibold))
+                    .scaledFont(12, .semibold)
                     .foregroundColor(Theme.muted)
 
                 TextField("", text: $model.findQuery, prompt: Text("Find in page").foregroundColor(Theme.fieldPlaceholder))
                     .textFieldStyle(.plain)
                     .accessibilityLabel("Find in page")
-                    .font(.system(size: 14))
+                    .scaledFont(14)
                     .foregroundColor(Theme.ink)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
@@ -145,7 +145,7 @@ struct FindBar: View {
                     }
 
                 Text(model.findState.total == 0 ? "0 of 0" : "\(model.findState.current) of \(model.findState.total)")
-                    .font(.system(size: 10, weight: .medium))
+                    .scaledFont(10, .medium)
                     .foregroundColor(Theme.muted)
             }
             .padding(.horizontal, 9)

@@ -6,6 +6,7 @@ struct SettingsSheet: View {
     @Environment(\.panelDismiss) private var dismiss
 
     @State private var cleared = false
+    @State private var confirmingClear = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -29,10 +30,10 @@ struct SettingsSheet: View {
                             // not a segmented control.
                             VStack(alignment: .leading, spacing: 5) {
                                 Text("Search engine")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .scaledFont(13, .medium)
                                     .foregroundColor(Theme.panelInk)
                                 Text("Used by the pill when you type words")
-                                    .font(.system(size: 10))
+                                    .scaledFont(10)
                                     .foregroundColor(Theme.panelMuted)
                                 Menu {
                                     ForEach(SearchEngine.allCases) { engine in
@@ -44,11 +45,11 @@ struct SettingsSheet: View {
                                 } label: {
                                     HStack(spacing: 6) {
                                         Text(model.settings.searchEngine.name)
-                                            .font(.system(size: 12))
+                                            .scaledFont(12)
                                             .foregroundColor(Theme.panelInk)
                                         Spacer(minLength: 0)
                                         Image(systemName: "chevron.down")
-                                            .font(.system(size: 9, weight: .semibold))
+                                            .scaledFont(9, .semibold)
                                             .foregroundColor(Theme.panelMuted)
                                     }
                                     .padding(.horizontal, 10)
@@ -85,11 +86,11 @@ struct SettingsSheet: View {
 
                         section("Data") {
                             Button {
-                                model.clearWebsiteData { cleared = true }
+                                confirmingClear = true
                             } label: {
                                 HStack {
                                     Text("Clear history, cookies and site data")
-                                        .font(.system(size: 13, weight: .medium))
+                                        .scaledFont(13, .medium)
                                         .foregroundColor(Theme.panelInk)
                                     Spacer(minLength: 0)
                                 }
@@ -99,7 +100,7 @@ struct SettingsSheet: View {
                             .buttonStyle(.plain)
                             if cleared {
                                 Text("Cleared.")
-                                    .font(.system(size: 11))
+                                    .scaledFont(11)
                                     .foregroundColor(Theme.panelMuted)
                             }
                         }
@@ -114,6 +115,18 @@ struct SettingsSheet: View {
                 }
             }
         }
+        .confirmationDialog(
+            "Delete history, cookies and site data?",
+            isPresented: $confirmingClear,
+            titleVisibility: .visible
+        ) {
+            Button("Clear everything", role: .destructive) {
+                model.clearWebsiteData { cleared = true }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This erases every visited page and every site's stored data on this device. It cannot be undone.")
+        }
     }
 
     /// `.settings-group` in `brows_surface.css`: a card of `rgba(plate,.59)`, a `.74` rim, radius 14,
@@ -122,7 +135,7 @@ struct SettingsSheet: View {
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 9) {
             Text(title)
-                .font(.system(size: 13, weight: .bold))
+                .scaledFont(13, .bold)
                 .foregroundColor(Theme.panelInk)
             content()
         }
@@ -136,11 +149,11 @@ struct SettingsSheet: View {
     private func infoRow(_ title: String, _ value: String) -> some View {
         HStack {
             Text(title)
-                .font(.system(size: 13))
+                .scaledFont(13)
                 .foregroundColor(Theme.panelMuted)
             Spacer(minLength: 12)
             Text(value)
-                .font(.system(size: 13, weight: .medium))
+                .scaledFont(13, .medium)
                 .foregroundColor(Theme.panelInk)
         }
         .padding(.vertical, 6)
@@ -162,10 +175,10 @@ struct ToggleRow: View {
         Toggle(isOn: $isOn) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 13, weight: .medium))
+                    .scaledFont(13, .medium)
                     .foregroundColor(Theme.panelInk)
                 Text(subtitle)
-                    .font(.system(size: 10))
+                    .scaledFont(10)
                     .foregroundColor(Theme.panelMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -185,7 +198,7 @@ struct DesktopCheckboxStyle: ToggleStyle {
                 .overlay(RoundedRectangle(cornerRadius: 3).stroke(configuration.isOn ? Theme.toggleTint : Theme.glassStroke, lineWidth: 1))
                 .overlay(
                     Image(systemName: "checkmark")
-                        .font(.system(size: 8, weight: .bold))
+                        .scaledFont(8, .bold)
                         .foregroundColor(.white)
                         .opacity(configuration.isOn ? 1 : 0)
                 )

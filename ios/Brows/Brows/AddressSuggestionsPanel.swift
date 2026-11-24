@@ -20,16 +20,16 @@ struct AddressSuggestionsPanel: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: suggestion.source == .bookmark ? "bookmark" : "clock")
-                            .font(.system(size: 12, weight: .semibold))
+                            .scaledFont(12, .semibold)
                             .foregroundColor(Theme.panelMuted)
                             .frame(width: 18)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(suggestion.title)
-                                .font(.system(size: 14, weight: .medium))
+                                .scaledFont(14, .medium)
                                 .foregroundColor(Theme.panelInk)
                                 .lineLimit(1)
                             Text(suggestion.detail)
-                                .font(.system(size: 11))
+                                .scaledFont(11)
                                 .foregroundColor(Theme.panelMuted)
                                 .lineLimit(1)
                         }

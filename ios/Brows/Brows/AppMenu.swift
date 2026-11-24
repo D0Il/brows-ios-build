@@ -72,7 +72,7 @@ struct AppMenu: View {
     private var zoomRow: some View {
         HStack(spacing: 10) {
             Text("Zoom")
-                .font(.system(size: 15, weight: .medium))
+                .scaledFont(15, .medium)
                 .foregroundColor(Theme.panelInk)
                 .frame(width: 70, alignment: .leading)
 
@@ -86,7 +86,7 @@ struct AppMenu: View {
             // row at all three centres and only + firing.
             Button(action: { model.adjustZoom(by: -0.1) }) {
                 Image(systemName: "minus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(16, .semibold)
                     .foregroundColor(Theme.plateInk)
                     .frame(width: 36, height: 36)
                     .contentShape(Rectangle())
@@ -96,7 +96,7 @@ struct AppMenu: View {
             .accessibilityIdentifier("menu.zoom.out")
             Button(action: { model.resetZoom() }) {
                 Text("\(Int(((model.activeTab?.zoom ?? 1) * 100).rounded()))%")
-                    .font(.system(size: 12, weight: .semibold))
+                    .scaledFont(12, .semibold)
                     .foregroundColor(Theme.plateInk)
                     .frame(width: 36, height: 36)
                     .contentShape(Rectangle())
@@ -107,7 +107,7 @@ struct AppMenu: View {
             .accessibilityIdentifier("menu.zoom.reset")
             Button(action: { model.adjustZoom(by: 0.1) }) {
                 Image(systemName: "plus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(16, .semibold)
                     .foregroundColor(Theme.plateInk)
                     .frame(width: 36, height: 36)
                     .contentShape(Rectangle())
@@ -128,16 +128,16 @@ struct AppMenu: View {
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: symbol)
-                    .font(.system(size: 15))
+                    .scaledFont(15)
                     .foregroundColor(Theme.panelMuted)
                     .frame(width: 22)
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .scaledFont(15, .medium)
                     .foregroundColor(Theme.panelInk)
                 Spacer(minLength: 0)
                 if isOn {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 13, weight: .semibold))
+                        .scaledFont(13, .semibold)
                         .foregroundColor(Theme.panelMuted)
                 }
             }
@@ -156,11 +156,11 @@ struct AppMenu: View {
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: symbol)
-                    .font(.system(size: 15))
+                    .scaledFont(15)
                     .foregroundColor(Theme.panelMuted)
                     .frame(width: 22)
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .scaledFont(15, .medium)
                     .foregroundColor(Theme.panelInk)
                 Spacer(minLength: 0)
             }

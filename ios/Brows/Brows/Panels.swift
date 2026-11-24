@@ -7,6 +7,8 @@ struct WorkspacesSheet: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.panelDismiss) private var dismiss
     @State private var newName = ""
+    @State private var pendingDelete: Workspace?
+    @State private var confirmingDelete = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -48,6 +50,19 @@ struct WorkspacesSheet: View {
                 .padding(16)
             }
         }
+        .confirmationDialog(
+            "Delete this workspace?",
+            isPresented: $confirmingDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete workspace", role: .destructive) {
+                if let workspace = pendingDelete { model.deleteWorkspace(workspace) }
+                pendingDelete = nil
+            }
+            Button("Cancel", role: .cancel) { pendingDelete = nil }
+        } message: {
+            Text("Its tabs move to another workspace. Nothing you have open is closed.")
+        }
     }
 
     private func workspaceRow(_ workspace: Workspace) -> some View {
@@ -60,7 +75,7 @@ struct WorkspacesSheet: View {
         } label: {
             HStack(spacing: 12) {
                 Text(workspace.initials)
-                    .font(.system(size: 11, weight: .bold))
+                    .scaledFont(11, .bold)
                     .tracking(1)
                     .foregroundColor(Theme.panelMuted)
                     .frame(width: 34, height: 34)
@@ -68,10 +83,10 @@ struct WorkspacesSheet: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workspace.name)
-                        .font(.system(size: 15, weight: .semibold))
+                        .scaledFont(15, .semibold)
                         .foregroundColor(active ? Theme.panelInk : Theme.panelInk)
                     Text("\(count) tab\(count == 1 ? "" : "s")")
-                        .font(.system(size: 11))
+                        .scaledFont(11)
                         .foregroundColor(active ? Theme.panelMuted : Theme.panelMuted)
                 }
 
@@ -79,7 +94,7 @@ struct WorkspacesSheet: View {
 
                 if active {
                     Text("CURRENT")
-                        .font(.system(size: 8, weight: .bold))
+                        .scaledFont(8, .bold)
                         .tracking(1)
                         .foregroundColor(active ? Theme.panelMuted : Theme.panelMuted)
                 }
@@ -97,7 +112,8 @@ struct WorkspacesSheet: View {
         .accessibilityIdentifier("workspace.row.\(workspace.initials)")
         .contextMenu {
             Button("Delete workspace", role: .destructive) {
-                model.deleteWorkspace(workspace)
+                pendingDelete = workspace
+                confirmingDelete = true
             }
         }
     }
@@ -109,6 +125,7 @@ struct HistorySheet: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.panelDismiss) private var dismiss
     @State private var query = ""
+    @State private var confirmingClear = false
 
     private var entries: [HistoryEntry] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -137,7 +154,14 @@ struct HistorySheet: View {
     var body: some View {
         VStack(spacing: 0) {
             PanelBar(title: "History") {
-                Button("Done") { dismiss() }
+                HStack(spacing: 8) {
+                    if !model.history.isEmpty {
+                        Button("Clear") { confirmingClear = true }
+                            .scaledFont(13, .semibold)
+                            .foregroundColor(Theme.panelMuted)
+                    }
+                    Button("Done") { dismiss() }
+                }
             }
             ZStack {
                 VStack(spacing: 10) {
@@ -156,7 +180,7 @@ struct HistorySheet: View {
 
                     if entries.isEmpty {
                         Text(model.history.isEmpty ? "Nothing in history yet." : "No matches.")
-                            .font(.system(size: 13))
+                            .scaledFont(13)
                             .foregroundColor(Theme.panelMuted)
                             .padding(.top, 20)
                         Spacer(minLength: 0)
@@ -168,7 +192,7 @@ struct HistorySheet: View {
                                     let items = bucket.1
                                     VStack(alignment: .leading, spacing: 6) {
                                         Text(day.uppercased())
-                                            .font(.system(size: 10, weight: .semibold))
+                                            .scaledFont(10, .semibold)
                                             .tracking(1.2)
                                             .foregroundColor(Theme.panelMuted)
                                         ForEach(items) { entry in
@@ -185,23 +209,33 @@ struct HistorySheet: View {
                 .padding(.top, 8)
             }
         }
+        .confirmationDialog(
+            "Clear all history?",
+            isPresented: $confirmingClear,
+            titleVisibility: .visible
+        ) {
+            Button("Clear history", role: .destructive) { model.clearHistory() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Every visited page on this device is removed. It cannot be undone.")
+        }
     }
 
     private func row(_ entry: HistoryEntry) -> some View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(entry.title)
-                    .font(.system(size: 14, weight: .medium))
+                    .scaledFont(14, .medium)
                     .foregroundColor(Theme.panelInk)
                     .lineLimit(1)
                 Text(entry.url)
-                    .font(.system(size: 10))
+                    .scaledFont(10)
                     .foregroundColor(Theme.panelMuted)
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
             Text(entry.workspace.uppercased())
-                .font(.system(size: 8, weight: .semibold))
+                .scaledFont(8, .semibold)
                 .tracking(0.8)
                 .foregroundColor(Theme.panelMuted)
         }

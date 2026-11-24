@@ -37,11 +37,11 @@ struct ScriptDialogCard: View {
             // The page's host, in the same muted line the credential card uses, so
             // a dialog is always attributable to the site that raised it.
             Text(dialog.host.isEmpty ? "This page" : dialog.host)
-                .font(.system(size: 12, weight: .semibold))
+                .scaledFont(12, .semibold)
                 .foregroundColor(Theme.panelMuted)
 
             Text(dialog.message.isEmpty ? "This page has a message." : dialog.message)
-                .font(.system(size: 15))
+                .scaledFont(15)
                 .foregroundColor(Theme.panelInk)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("dialog.message")
@@ -61,7 +61,7 @@ struct ScriptDialogCard: View {
                 model.finishScriptDialog(dialog.kind == .prompt ? .text(text) : .ok)
             } label: {
                 Text("OK")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(14, .semibold)
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -73,7 +73,7 @@ struct ScriptDialogCard: View {
             // An alert has nothing to cancel: dismissing it is its only answer.
             if dialog.kind != .alert {
                 Button("Cancel") { model.finishScriptDialog(.cancel) }
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(13, .semibold)
                     .foregroundColor(Theme.panelMuted)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)

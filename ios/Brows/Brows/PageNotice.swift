@@ -33,11 +33,11 @@ struct PageNoticeCard: View {
             GlassPane(cornerRadius: 18, plate: true, backdrop: model.panelBackdrop)
             VStack(alignment: .leading, spacing: 14) {
             Text(notice.title)
-                .font(.system(size: 12, weight: .semibold))
+                .scaledFont(12, .semibold)
                 .foregroundColor(Theme.panelMuted)
 
             Text(notice.message)
-                .font(.system(size: 15))
+                .scaledFont(15)
                 .foregroundColor(Theme.panelInk)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("notice.message")
@@ -46,7 +46,7 @@ struct PageNoticeCard: View {
                 model.pageNotice = nil
             } label: {
                 Text("OK")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(14, .semibold)
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)

@@ -196,13 +196,13 @@ struct BrowserView: View {
                 // Test-only probe: the two download directories by file count, so a
                 // relaunch can prove a private file was swept and a normal one stayed.
                 Text("downloads")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("audit.downloadfiles")
                     .accessibilityLabel("private \(BrowserModel.downloadFileCount(private: true)) normal \(BrowserModel.downloadFileCount(private: false))")
                 if !model.contrastAudit.isEmpty {
                     Text("audit")
-                        .font(.system(size: 1))
+                        .scaledFont(1)
                         .opacity(0.01)
                         .accessibilityIdentifier("audit.contrast")
                         .accessibilityLabel(model.contrastAudit)
@@ -210,24 +210,24 @@ struct BrowserView: View {
                 // Test-only probe: proves the saved list and the Keychain row agree
                 // across a relaunch without exposing any password.
                 Text("credentials")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.credentials")
                     .accessibilityLabel("\(model.credentials.count)")
                 Text("credentialstate")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.credentialstate")
                     .accessibilityLabel(model.credentialDebug)
                 // A link that vanishes and a link that was handed off look the
                 // same from inside the page, so the tests read this instead.
                 Text("history")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.history")
                     .accessibilityLabel("\(model.history.count)|\(model.history.first?.title ?? "-")")
                 Text("lastroute")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.lastroute")
                     .accessibilityLabel(model.lastRoute)
@@ -235,7 +235,7 @@ struct BrowserView: View {
                 // means a sheet sits over the page between taps. The model's tab
                 // list is the same fact with nothing in front of the page.
                 Text("tabs")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.tabs")
                     .accessibilityLabel("\(model.tabs.count)|\(model.activeTab?.url?.absoluteString ?? "-")")
@@ -243,7 +243,7 @@ struct BrowserView: View {
                 // filter, visible consent banners, title. The page tools are proved
                 // through this, not through a picture of a button.
                 Text("page")
-                    .font(.system(size: 1))
+                    .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.page")
                     .accessibilityLabel(model.pageProbe.label)
@@ -282,13 +282,13 @@ struct TopStrip: View {
                 // text on a white chip, and `GlassPane` is the pane the rest of
                 // the chrome already uses.
                 Text(model.activeTab?.title ?? "New Tab")
-                    .font(.system(size: 11, weight: .medium))
+                    .scaledFont(11, .medium)
                     .lineLimit(1)
                     .foregroundColor(Theme.ink)
 
                 if model.activeTab?.isPrivate == true {
                     Text("PRIVATE")
-                        .font(.system(size: 8, weight: .bold))
+                        .scaledFont(8, .bold)
                         .tracking(1)
                         .foregroundColor(Theme.muted)
                 }
@@ -438,7 +438,7 @@ struct BottomRail: View {
                     model.reloadOrStop()
                 } label: {
                     Image(systemName: model.activeTab?.isLoading == true ? "xmark" : "arrow.clockwise")
-                        .font(.system(size: 13, weight: .semibold))
+                        .scaledFont(13, .semibold)
                         .foregroundColor(Theme.ink)
                 }
                 .buttonStyle(.plain)
@@ -462,7 +462,7 @@ struct BottomRail: View {
                     model.toggleBookmark()
                 } label: {
                     Image(systemName: model.isBookmarked(model.currentURL()) ? "star.fill" : "star")
-                        .font(.system(size: 14, weight: .semibold))
+                        .scaledFont(14, .semibold)
                         .foregroundColor(Theme.ink)
                 }
                 .buttonStyle(.plain)
@@ -521,7 +521,7 @@ struct BottomRail: View {
             } label: {
                 HStack(spacing: 3) {
                     Image(systemName: "square.on.square")
-                    Text("\(model.tabs.count)").font(.system(size: 12, weight: .bold))
+                    Text("\(model.tabs.count)").scaledFont(12, .bold)
                 }
             }
             .buttonStyle(GlassCircleButtonStyle(glyph: Theme.ink))

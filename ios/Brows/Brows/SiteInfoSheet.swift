@@ -44,7 +44,7 @@ struct SiteInfoSheet: View {
                                 model.loadSiteInfo()
                             } label: {
                                 Text(model.isBlockingCurrentSite() ? "Turn off blocking on this site" : "Turn on blocking on this site")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .scaledFont(14, .semibold)
                                     .foregroundColor(Theme.plateInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
@@ -56,7 +56,7 @@ struct SiteInfoSheet: View {
                                 model.clearSiteData(for: info.host)
                             } label: {
                                 Text("Clear data for \(info.host)")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .scaledFont(14, .semibold)
                                     .foregroundColor(Theme.plateInk)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
@@ -65,7 +65,7 @@ struct SiteInfoSheet: View {
                             .buttonStyle(.plain)
                         } else {
                             Text("No page loaded.")
-                                .font(.system(size: 13))
+                                .scaledFont(13)
                                 .foregroundColor(Theme.panelMuted)
                                 .padding(.top, 24)
                         }
@@ -82,17 +82,17 @@ struct SiteInfoSheet: View {
             ZStack {
                 Circle().fill(Theme.rowFill)
                 Image(systemName: info.scheme == "https:" ? "lock.fill" : "exclamationmark.triangle")
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledFont(15, .semibold)
                     .foregroundColor(Theme.panelMuted)
             }
             .frame(width: 42, height: 42)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(info.host)
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(16, .semibold)
                     .foregroundColor(Theme.panelInk)
                 Text(info.scheme == "https:" ? "Connection is encrypted" : "Connection is not encrypted")
-                    .font(.system(size: 11))
+                    .scaledFont(11)
                     .foregroundColor(Theme.panelMuted)
             }
             Spacer(minLength: 0)
@@ -107,7 +107,7 @@ struct SiteInfoSheet: View {
     private func group(_ title: String, rows: [(String, String)], first: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(title)
-                .font(.system(size: 9.5, weight: .semibold))
+                .scaledFont(9.5, .semibold)
                 .tracking(0.57)
                 .foregroundColor(Theme.panelMuted)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,12 +117,12 @@ struct SiteInfoSheet: View {
             ForEach(rows, id: \.0) { pair in
                 HStack(spacing: 10) {
                     Text(pair.0)
-                        .font(.system(size: 11.5))
+                        .scaledFont(11.5)
                         .foregroundColor(Theme.panelInk)
                         .lineLimit(1)
                     Spacer(minLength: 0)
                     Text(pair.1)
-                        .font(.system(size: 10.5))
+                        .scaledFont(10.5)
                         .foregroundColor(Theme.panelMuted)
                         .lineLimit(1)
                 }

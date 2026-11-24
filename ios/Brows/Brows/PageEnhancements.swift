@@ -333,7 +333,7 @@ struct CodeScannerSheet: View {
                 VStack(spacing: 16) {
                     if !found.isEmpty {
                         Text(found)
-                            .font(.system(size: 15, weight: .medium))
+                            .scaledFont(15, .medium)
                             .foregroundColor(Theme.plateInk)
                             .multilineTextAlignment(.center)
                             .accessibilityIdentifier("scan.result")
@@ -351,11 +351,11 @@ struct CodeScannerSheet: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .frame(height: 320)
                         Text(message)
-                            .font(.system(size: 14))
+                            .scaledFont(14)
                             .foregroundColor(Theme.plateMuted)
                     } else {
                         Text("This device has no camera, so a code cannot be scanned here.")
-                            .font(.system(size: 15, weight: .medium))
+                            .scaledFont(15, .medium)
                             .foregroundColor(Theme.plateInk)
                             .multilineTextAlignment(.center)
                             .accessibilityIdentifier("scan.unavailable")
@@ -387,7 +387,7 @@ struct TranslateSheet: View {
                     TranslatePanel(text: model.pageProbe.text)
                 } else {
                     Text("Translating a page needs iOS 18 or newer on this device.")
-                        .font(.system(size: 15))
+                        .scaledFont(15)
                         .foregroundColor(Theme.plateInk)
                         .multilineTextAlignment(.center)
                         .padding(24)
@@ -411,7 +411,7 @@ private struct TranslatePanel: View {
         VStack(spacing: 14) {
             ScrollView {
                 Text(output.isEmpty ? status : output)
-                    .font(.system(size: 15))
+                    .scaledFont(15)
                     .foregroundColor(Theme.plateInk)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("translate.output")
@@ -426,7 +426,7 @@ private struct TranslatePanel: View {
             .disabled(text.isEmpty)
             if text.isEmpty {
                 Text("This page has no text to translate.")
-                    .font(.system(size: 13))
+                    .scaledFont(13)
                     .foregroundColor(Theme.plateMuted)
             }
         }
@@ -451,16 +451,16 @@ struct VoiceSearchCard: View {
     var body: some View {
         VStack(spacing: 12) {
             Text("Voice search")
-                .font(.system(size: 17, weight: .semibold))
+                .scaledFont(17, .semibold)
                 .foregroundColor(Theme.plateInk)
             Text(model.voiceStatus)
-                .font(.system(size: 14))
+                .scaledFont(14)
                 .foregroundColor(Theme.plateMuted)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier("voice.status")
             if !model.voiceTranscript.isEmpty {
                 Text(model.voiceTranscript)
-                    .font(.system(size: 15))
+                    .scaledFont(15)
                     .foregroundColor(Theme.plateInk)
                     .multilineTextAlignment(.center)
                     .accessibilityIdentifier("voice.transcript")
@@ -483,7 +483,7 @@ struct VoiceSearchCard: View {
                 .disabled(model.voiceTranscript.isEmpty)
             }
             .buttonStyle(.plain)
-            .font(.system(size: 15, weight: .semibold))
+            .scaledFont(15, .semibold)
             .foregroundColor(Theme.panelInk)
         }
         .padding(18)

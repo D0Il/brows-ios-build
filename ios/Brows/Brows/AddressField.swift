@@ -182,7 +182,13 @@ struct AddressField: UIViewRepresentable {
 /// width here, so every pass renders it the same way. 10 pt is the floor;
 /// below that the tail is truncated, and the host still leads the URL.
 final class FittingTextField: UITextField {
-    private let baseFontSize: CGFloat = 15
+    /// The pill's type follows the system text size the way the rest of the
+    /// chrome does now, capped at 1.35 for the same reason: the field is 15 pt
+    /// at the default and its row is measured for that.
+    private var baseFontSize: CGFloat {
+        let scaled = UIFontMetrics(forTextStyle: .body).scaledValue(for: 15)
+        return (min(max(scaled, 15), 15 * 1.35) * 2).rounded() / 2
+    }
     private let floorFontSize: CGFloat = 10
 
     override func layoutSubviews() {

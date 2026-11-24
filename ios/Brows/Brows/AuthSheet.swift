@@ -25,15 +25,15 @@ struct CredentialSaveOverlay: View {
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Save password?")
-                        .font(.system(size: 17, weight: .semibold))
+                        .scaledFont(17, .semibold)
                         .foregroundColor(Theme.panelInk)
                     Text(pending.username.isEmpty ? pending.host : "\(pending.username) on \(pending.host)")
-                        .font(.system(size: 12))
+                        .scaledFont(12)
                         .foregroundColor(Theme.panelMuted)
                 }
 
                 Text(message)
-                    .font(.system(size: 13))
+                    .scaledFont(13)
                     .foregroundColor(Theme.panelMuted)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -55,7 +55,7 @@ struct CredentialSaveOverlay: View {
                 }
 
                 Button("Not now") { model.discardPendingCredential() }
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(13, .semibold)
                     .foregroundColor(Theme.panelMuted)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
@@ -88,7 +88,7 @@ struct CredentialSaveOverlay: View {
     private func action(_ title: String, id: String, run: @escaping () -> Void) -> some View {
         Button(action: run) {
             Text(title)
-                .font(.system(size: 14, weight: .semibold))
+                .scaledFont(14, .semibold)
                 .foregroundColor(Theme.panelInk)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -136,11 +136,11 @@ struct HTTPAuthCard: View {
             VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(auth.host)
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(17, .semibold)
                     .foregroundColor(Theme.panelInk)
                 Spacer(minLength: 8)
                 Button("Cancel") { model.cancelHTTPAuth() }
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(13, .semibold)
                     .foregroundColor(Theme.panelMuted)
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("auth.cancel")
@@ -149,13 +149,13 @@ struct HTTPAuthCard: View {
             Text(auth.realm.isEmpty
                  ? "The server requires a username and password."
                  : "The server's “\(auth.realm)” area requires a username and password.")
-                .font(.system(size: 12))
+                .scaledFont(12)
                 .foregroundColor(Theme.panelMuted)
                 .fixedSize(horizontal: false, vertical: true)
 
             if auth.failed {
                 Text("That username and password were not accepted.")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(12, .medium)
                     .foregroundColor(Theme.panelInk)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -171,7 +171,7 @@ struct HTTPAuthCard: View {
 
             if auth.isPrivate {
                 Text("Private tab: these credentials are used for this session and are not saved.")
-                    .font(.system(size: 11))
+                    .scaledFont(11)
                     .foregroundColor(Theme.panelMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -181,7 +181,7 @@ struct HTTPAuthCard: View {
                 model.submitHTTPAuth(username: username, password: password)
             } label: {
                 Text("Sign in")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(14, .semibold)
                     .foregroundColor(incomplete ? Theme.fieldPlaceholder : Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)

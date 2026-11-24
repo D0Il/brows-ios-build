@@ -474,7 +474,7 @@ struct PanelBar<Leading: View, Trailing: View>: View {
     var body: some View {
         ZStack {
             Text(title)
-                .font(.system(size: 17, weight: .semibold))
+                .scaledFont(17, .semibold)
                 .foregroundColor(Theme.panelInk)
                 .accessibilityIdentifier("panel.title")
             HStack(spacing: 8) {
@@ -510,7 +510,7 @@ struct GlassCircleButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 16, weight: .semibold))
+            .scaledFont(16, .semibold)
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
             // The plate is nearly transparent, so without an explicit shape the
@@ -601,5 +601,38 @@ struct GlassLayer: View {
         Color.clear
             .browsGlass(cornerRadius: cornerRadius)
             .allowsHitTesting(false)
+    }
+}
+
+/// Type that follows the system's text-size setting.
+///
+/// The chrome is measured against the desktop at the default size, where
+/// `UIFontMetrics` returns the same number and this is an exact identity. Above
+/// it the type grows, capped at 1.35: the plates and rows are drawn for the
+/// default, and the accessibility sizes would push a 10 pt caption out of a
+/// 34 pt field before the layout had been re-tuned for them.
+struct ScaledFont: ViewModifier {
+    @Environment(\.sizeCategory) private var sizeCategory
+    let size: CGFloat
+    var weight: Font.Weight = .regular
+    var design: Font.Design = .default
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: resolved, weight: weight, design: design))
+    }
+
+    private var resolved: CGFloat {
+        // Reading the environment value is what makes this view re-render when
+        // the setting changes; the metrics object reads the live category.
+        _ = sizeCategory
+        let scaled = UIFontMetrics(forTextStyle: .body).scaledValue(for: size)
+        let capped = min(max(scaled, size), size * 1.35)
+        return (capped * 2).rounded() / 2
+    }
+}
+
+extension View {
+    func scaledFont(_ size: CGFloat, _ weight: Font.Weight = .regular, design: Font.Design = .default) -> some View {
+        modifier(ScaledFont(size: size, weight: weight, design: design))
     }
 }

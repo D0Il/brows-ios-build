@@ -26,7 +26,7 @@ struct SiteBadge: View {
                 SiteIcon(host: host)
             } else {
                 Image(systemName: "lock.fill")
-                    .font(.system(size: 10, weight: .semibold))
+                    .scaledFont(10, .semibold)
                     .foregroundColor(Theme.ink)
             }
         }
@@ -53,7 +53,7 @@ struct SiteIcon: View {
                     .clipShape(Circle())
             } else {
                 Text(String(host.prefix(1)).uppercased())
-                    .font(.system(size: 11, weight: .bold))
+                    .scaledFont(11, .bold)
                     // The badge sits in the address pill, whose pane is the
                     // light rail band in both appearances; adaptive white ink
                     // vanished in dark mode (pill-dark).

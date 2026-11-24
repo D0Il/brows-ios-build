@@ -16,7 +16,7 @@ struct DownloadsSheet: View {
             ZStack {
                 if model.downloads.isEmpty {
                     Text("Nothing downloaded yet.")
-                        .font(.system(size: 13))
+                        .scaledFont(13)
                         .foregroundColor(Theme.panelMuted)
                 } else {
                     ScrollView {
@@ -36,16 +36,16 @@ struct DownloadsSheet: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
                 Image(systemName: item.failed ? "exclamationmark.triangle" : "arrow.down.circle")
-                    .font(.system(size: 18, weight: .regular))
+                    .scaledFont(18, .regular)
                     .foregroundColor(Theme.panelMuted)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.filename)
-                        .font(.system(size: 14, weight: .medium))
+                        .scaledFont(14, .medium)
                         .foregroundColor(Theme.panelInk)
                         .lineLimit(1)
                     Text(item.source)
-                        .font(.system(size: 10))
+                        .scaledFont(10)
                         .foregroundColor(Theme.panelMuted)
                         .lineLimit(1)
                 }
@@ -55,7 +55,7 @@ struct DownloadsSheet: View {
                 if item.finished, let path = item.localPath {
                     ShareLink(item: URL(fileURLWithPath: path)) {
                         Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 14, weight: .semibold))
+                            .scaledFont(14, .semibold)
                             .foregroundColor(Theme.panelMuted)
                     }
                     .buttonStyle(.plain)
@@ -64,14 +64,14 @@ struct DownloadsSheet: View {
 
                 if item.failed {
                     Button("Retry") { model.retryDownload(item) }
-                        .font(.system(size: 11, weight: .semibold))
+                        .scaledFont(11, .semibold)
                         .foregroundColor(Theme.panelMuted)
                         .buttonStyle(.plain)
                 }
 
                 if !item.finished && !item.failed {
                     Button("Cancel") { model.cancelDownload(item.id) }
-                        .font(.system(size: 11, weight: .semibold))
+                        .scaledFont(11, .semibold)
                         .foregroundColor(Theme.panelMuted)
                         .buttonStyle(.plain)
                 }
@@ -80,7 +80,7 @@ struct DownloadsSheet: View {
                     model.removeDownload(item.id)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
+                        .scaledFont(16)
                         .foregroundColor(Theme.panelMuted)
                 }
                 .buttonStyle(.plain)
@@ -91,11 +91,11 @@ struct DownloadsSheet: View {
                     .tint(Theme.panelInk)
             } else if item.failed {
                 Text("Failed")
-                    .font(.system(size: 10, weight: .medium))
+                    .scaledFont(10, .medium)
                     .foregroundColor(Theme.panelMuted)
             } else {
                 Text("\(ByteCountFormatter.string(fromByteCount: Int64(fileSize(item.localPath)), countStyle: .file)) saved")
-                    .font(.system(size: 10))
+                    .scaledFont(10)
                     .foregroundColor(Theme.panelMuted)
                     // Align with the filename, not the card's edge (capture
                     // downloads-dark: "23 bytes saved" sat under the icon).

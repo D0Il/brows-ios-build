@@ -38,7 +38,7 @@ struct TabSwitcher: View {
 
                     HStack {
                         Text(query.isEmpty ? "\(model.tabs.count) open" : "\(results.count) of \(model.tabs.count) tabs")
-                            .font(.system(size: 11, weight: .medium))
+                            .scaledFont(11, .medium)
                             .foregroundColor(Theme.panelMuted)
                         Spacer(minLength: 0)
                     }
@@ -55,7 +55,7 @@ struct TabSwitcher: View {
                         if query.isEmpty && !model.recentlyClosed.isEmpty {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("RECENTLY CLOSED")
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .scaledFont(10, .semibold)
                                     .tracking(1.2)
                                     .foregroundColor(Theme.panelMuted)
                                     .padding(.top, 8)
@@ -67,15 +67,15 @@ struct TabSwitcher: View {
                                     } label: {
                                         HStack(spacing: 10) {
                                             Image(systemName: "arrow.uturn.backward")
-                                                .font(.system(size: 12, weight: .semibold))
+                                                .scaledFont(12, .semibold)
                                                 .foregroundColor(Theme.panelMuted)
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text(closed.title)
-                                                    .font(.system(size: 13, weight: .medium))
+                                                    .scaledFont(13, .medium)
                                                     .foregroundColor(Theme.panelInk)
                                                     .lineLimit(1)
                                                 Text(closed.url)
-                                                    .font(.system(size: 10))
+                                                    .scaledFont(10)
                                                     .foregroundColor(Theme.panelMuted)
                                                     .lineLimit(1)
                                             }
@@ -113,7 +113,7 @@ struct TabSwitcher: View {
                 // white in the light sheet, so the weight is what names the tab
                 // you are on.
                 titleText(tab)
-                    .font(.system(size: 13, weight: active ? .bold : .semibold))
+                    .scaledFont(13, active ? .bold : .semibold)
                     .lineLimit(2)
                     .foregroundColor(primary)
                 Spacer(minLength: 0)
@@ -121,7 +121,7 @@ struct TabSwitcher: View {
                     model.close(tab)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 15))
+                        .scaledFont(15)
                         .foregroundColor(secondary)
                 }
                 .buttonStyle(.plain)
@@ -130,7 +130,7 @@ struct TabSwitcher: View {
             }
 
             Text(tab.url?.host ?? "New Tab")
-                .font(.system(size: 11))
+                .scaledFont(11)
                 .foregroundColor(secondary)
                 .lineLimit(1)
 
@@ -139,19 +139,19 @@ struct TabSwitcher: View {
             HStack(spacing: 5) {
                 if let position = results.firstIndex(where: { $0.id == tab.id }) {
                     Text("\(position + 1)")
-                        .font(.system(size: 8, weight: .bold))
+                        .scaledFont(8, .bold)
                         .foregroundColor(secondary)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
                         .background(Capsule().fill(Theme.rowFill))
                 }
                 Text(model.workspaceName(for: tab).uppercased())
-                    .font(.system(size: 8, weight: .semibold))
+                    .scaledFont(8, .semibold)
                     .tracking(0.8)
                     .foregroundColor(secondary)
                 if tab.isPrivate {
                     Text("PRIVATE")
-                        .font(.system(size: 8, weight: .bold))
+                        .scaledFont(8, .bold)
                         .tracking(0.8)
                         .foregroundColor(secondary)
                 }
@@ -195,9 +195,9 @@ struct TabSwitcher: View {
         } label: {
             VStack(spacing: 6) {
                 Image(systemName: "plus")
-                    .font(.system(size: 20, weight: .semibold))
+                    .scaledFont(20, .semibold)
                 Text("New Tab")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(12, .medium)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 118)

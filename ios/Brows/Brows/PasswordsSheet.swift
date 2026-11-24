@@ -14,6 +14,8 @@ struct PasswordsSheet: View {
     @State private var showingImport = false
     @State private var importText = ""
     @State private var status: String?
+    @State private var pendingDelete: Credential?
+    @State private var confirmingDelete = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,7 +28,7 @@ struct PasswordsSheet: View {
                         addForm
                         if let status {
                             Text(status)
-                                .font(.system(size: 11))
+                                .scaledFont(11)
                                 .foregroundColor(Theme.panelMuted)
                         }
                         list
@@ -39,12 +41,25 @@ struct PasswordsSheet: View {
                 importSheet
             }
         }
+        .confirmationDialog(
+            "Delete this saved password?",
+            isPresented: $confirmingDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let credential = pendingDelete { model.deleteCredential(credential) }
+                pendingDelete = nil
+            }
+            Button("Cancel", role: .cancel) { pendingDelete = nil }
+        } message: {
+            Text("It is removed from the Keychain. The site will ask you to sign in again.")
+        }
     }
 
     private var addForm: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("ADD PASSWORD")
-                .font(.system(size: 10, weight: .semibold))
+                .scaledFont(10, .semibold)
                 .tracking(1.2)
                 .foregroundColor(Theme.panelMuted)
 
@@ -61,7 +76,7 @@ struct PasswordsSheet: View {
                 }
             } label: {
                 Text("Save")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(14, .semibold)
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
@@ -76,19 +91,19 @@ struct PasswordsSheet: View {
     private var list: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("SAVED")
-                .font(.system(size: 10, weight: .semibold))
+                .scaledFont(10, .semibold)
                 .tracking(1.2)
                 .foregroundColor(Theme.panelMuted)
 
             if let error = model.credentialError {
                 Text(error)
-                    .font(.system(size: 11))
+                    .scaledFont(11)
                     .foregroundColor(Theme.panelMuted)
             }
 
             if model.credentials.isEmpty {
                 Text("No passwords saved.")
-                    .font(.system(size: 12))
+                    .scaledFont(12)
                     .foregroundColor(Theme.panelMuted)
             }
 
@@ -96,11 +111,11 @@ struct PasswordsSheet: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text(credential.host)
-                            .font(.system(size: 14, weight: .medium))
+                            .scaledFont(14, .medium)
                             .foregroundColor(Theme.panelInk)
                         Spacer(minLength: 8)
                         Text(credential.username)
-                            .font(.system(size: 11))
+                            .scaledFont(11)
                             .foregroundColor(Theme.panelMuted)
                             .lineLimit(1)
                     }
@@ -115,7 +130,7 @@ struct PasswordsSheet: View {
                         }
                         if revealed.contains(credential.id) {
                             Text(model.secret(for: credential) ?? "—")
-                                .font(.system(size: 11, design: .monospaced))
+                                .scaledFont(11, design: .monospaced)
                                 .foregroundColor(Theme.panelMuted)
                                 .lineLimit(1)
                         }
@@ -131,10 +146,11 @@ struct PasswordsSheet: View {
                             }
                         }
                         Button("Delete", role: .destructive) {
-                            model.deleteCredential(credential)
+                            pendingDelete = credential
+                            confirmingDelete = true
                         }
                     }
-                    .font(.system(size: 11, weight: .semibold))
+                    .scaledFont(11, .semibold)
                     .foregroundColor(Theme.panelMuted)
                     .buttonStyle(.plain)
                 }
@@ -151,7 +167,7 @@ struct PasswordsSheet: View {
                 status = "Exported \(model.credentials.count) entries to the clipboard as JSON."
             } label: {
                 Text("Export")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(13, .semibold)
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
@@ -163,7 +179,7 @@ struct PasswordsSheet: View {
                 showingImport = true
             } label: {
                 Text("Import")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(13, .semibold)
                     .foregroundColor(Theme.panelInk)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
@@ -179,12 +195,12 @@ struct PasswordsSheet: View {
                 GlassPane(cornerRadius: 0, plate: true).ignoresSafeArea()
                 VStack(spacing: 10) {
                     Text("Paste the JSON exported from Brows' Passwords panel.")
-                        .font(.system(size: 12))
+                        .scaledFont(12)
                         .foregroundColor(Theme.panelMuted)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     TextEditor(text: $importText)
-                        .font(.system(size: 12, design: .monospaced))
+                        .scaledFont(12, design: .monospaced)
                         .padding(8)
                         .background(RoundedRectangle(cornerRadius: 12).fill(Theme.rowFill))
 
@@ -195,7 +211,7 @@ struct PasswordsSheet: View {
                         showingImport = false
                     } label: {
                         Text("Import")
-                            .font(.system(size: 14, weight: .semibold))
+                            .scaledFont(14, .semibold)
                             .foregroundColor(Theme.panelInk)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 11)

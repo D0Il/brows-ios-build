@@ -17,7 +17,7 @@ struct BookmarksSheet: View {
                     Section {
                         HStack {
                             Text("Folder")
-                                .font(.system(size: 13, weight: .medium))
+                                .scaledFont(13, .medium)
                                 .foregroundColor(Theme.panelInk)
                             Spacer(minLength: 12)
                             Menu {
@@ -30,10 +30,10 @@ struct BookmarksSheet: View {
                             } label: {
                                 HStack(spacing: 5) {
                                     Text(model.newBookmarkFolder)
-                                        .font(.system(size: 12))
+                                        .scaledFont(12)
                                         .foregroundColor(Theme.panelInk)
                                     Image(systemName: "chevron.down")
-                                        .font(.system(size: 9, weight: .semibold))
+                                        .scaledFont(9, .semibold)
                                         .foregroundColor(Theme.panelMuted)
                                 }
                             }
@@ -48,7 +48,7 @@ struct BookmarksSheet: View {
                         // 45095272714). A plain row in the section keeps the
                         // hint on the pane.
                         Text("New bookmarks are filed here.")
-                            .font(.system(size: 12))
+                            .scaledFont(12)
                             .foregroundColor(Theme.panelMuted)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
@@ -56,7 +56,7 @@ struct BookmarksSheet: View {
 
                     if model.bookmarks.isEmpty {
                         Text("No bookmarks yet. Tap the star in the address pill to save a page.")
-                            .font(.system(size: 13))
+                            .scaledFont(13)
                             .foregroundColor(Theme.panelMuted)
                             .listRowBackground(Color.clear)
                     }
@@ -72,10 +72,10 @@ struct BookmarksSheet: View {
                                     } label: {
                                         VStack(alignment: .leading, spacing: 3) {
                                             Text(bookmark.title)
-                                                .font(.system(size: 14, weight: .medium))
+                                                .scaledFont(14, .medium)
                                                 .foregroundColor(Theme.panelInk)
                                             Text(bookmark.url)
-                                                .font(.system(size: 11))
+                                                .scaledFont(11)
                                                 .foregroundColor(Theme.panelMuted)
                                                 .lineLimit(1)
                                         }
