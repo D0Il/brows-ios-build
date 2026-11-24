@@ -74,7 +74,16 @@ struct AddressField: UIViewRepresentable {
 
     func updateUIView(_ field: UITextField, context: Context) {
         context.coordinator.parent = self
-        if field.text != text {
+        // A focused field owns its text. The model already refuses to publish a
+        // navigation URL while the address is being edited, but that flag reaches
+        // SwiftUI a frame later, and a start-page load finishing in that gap reset
+        // this field to the model's empty address in the middle of typing: runs
+        // 45400873379 (iPad, testAddressPillCompletesFromHistory) and 45408366570
+        // (iPhone, testDarkPagesDarkenThePage) both read the pill back on its
+        // "SEARCH" placeholder after typing a full URL. Keystrokes win while the
+        // field is first responder; submitting or accepting a suggestion resigns
+        // it first, so the new URL still lands.
+        if field.text != text, !field.isFirstResponder {
             field.text = text
         }
         (field as? FittingTextField)?.refit()
