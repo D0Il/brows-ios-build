@@ -2208,8 +2208,7 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["Delete this saved password?"].waitForExistence(timeout: 8),
             "Delete did not ask first"
         )
-        print("PASSWORD-DIALOG-TREE
-\(app.debugDescription)")
+        print("PASSWORD-DIALOG-TREE " + app.debugDescription)
         app.buttons["Cancel"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["example.com"].exists, "Cancel still deleted the password")
 
