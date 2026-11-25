@@ -418,10 +418,9 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         for _ in 0..<3 {
             guard focusAddressPill(field, in: app) else { return }
-            field.typeText(text)
-            if (field.value as? String) == text { break }
+            if typeIntoPill(text, in: app) { break }
         }
-        XCTAssertEqual(field.value as? String, text, "address pill did not take the typed text")
+        XCTAssertEqual(field.value as? String, text, "address pill did not take the typed text: \(appTrace(app))")
         field.typeText("\n")
         let keyboard = app.keyboards.firstMatch
         if keyboard.waitForExistence(timeout: 3) {
@@ -438,8 +437,7 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         for _ in 0..<3 {
             guard focusAddressPill(field, in: app) else { return }
-            field.typeText(url)
-            if (field.value as? String) == url { break }
+            if typeIntoPill(url, in: app) { break }
             print("PILL-DEBUG typed \(url) but the field reads \(field.value ?? "nil"): \(appTrace(app))")
         }
         XCTAssertEqual(
@@ -615,10 +613,27 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 15))
         for _ in 0..<3 {
             guard focusAddressPill(field, in: app) else { return }
-            field.typeText(text)
-            if (field.value as? String) == text { return }
+            if typeIntoPill(text, in: app) { return }
         }
-        XCTFail("the pill would not replace its text with \(text): \(field.value ?? "nil") - the URL grew instead")
+        XCTFail("the pill would not replace its text with \(text): \(field.value ?? "nil") - \(appTrace(app))")
+    }
+
+    /// Sends the text and waits for the field to report it. XCTest injects the
+    /// keys and returns before the app has processed them; the app's main thread
+    /// was measured blocked for 1.6–4.2 s while the keyboard came up (run
+    /// 45635875780, `STALL` in `-BrowsAddressTrace`), and an immediate read then
+    /// returned the pre-typing value — the placeholder the three sightings
+    /// recorded. This waits for the app's own result instead of reading once.
+    private func typeIntoPill(_ text: String, in app: XCUIApplication) -> Bool {
+        let field = app.textFields["rail.address"]
+        field.typeText(text)
+        let took = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", text),
+            object: field
+        )
+        if XCTWaiter().wait(for: [took], timeout: 12) == .completed { return true }
+        print("TYPE-DEBUG wanted \(text), field reads \(field.value ?? "nil"): \(appTrace(app))")
+        return false
     }
 
     /// Taps the pill and waits until the field itself reports it is first
