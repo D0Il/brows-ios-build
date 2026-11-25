@@ -1162,19 +1162,21 @@ final class BrowsUITests: XCTestCase {
         return (priv, norm)
     }
 
+    /// Both callers arrive straight from a submission, so the menu tap has two ways
+    /// to be lost: the dock re-lays itself out when the load moves the back control,
+    /// and a keyboard still leaving from the address field swallows the touch (the
+    /// hazard `focusAddressPill` names). One tap and a 10 s wait is what failed on
+    /// iPad shard 3 of run 45532569919 — "menu did not open", row never appeared —
+    /// while every other menu journey in the suite goes through `menuRow`, which
+    /// retries the tap and scrolls. Use that instead of a second copy of the race.
     private func openDownloads(in app: XCUIApplication) {
-        app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10), "menu did not open")
-        app.staticTexts["Downloads"].tap()
+        menuRow("menu.downloads", in: app).tap()
+        XCTAssertTrue(app.staticTexts["Downloads"].waitForExistence(timeout: 10),
+                      "the downloads panel did not open from its menu row")
     }
 
     private func newPrivateTab(in app: XCUIApplication) {
-        app.buttons["rail.menu"].tap()
-        XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10), "menu did not open")
-        app.swipeUp()
-        let row = app.staticTexts["New private tab"]
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "no New private tab row")
-        row.tap()
+        menuRow("menu.new-private-tab", in: app).tap()
         XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10), "no private tab badge")
     }
 
