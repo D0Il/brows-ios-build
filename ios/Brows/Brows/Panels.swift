@@ -55,7 +55,7 @@ struct WorkspacesSheet: View {
             isPresented: $confirmingDelete,
             titleVisibility: .visible
         ) {
-            Button("Delete workspace", role: .destructive) {
+            Button("Delete", role: .destructive) {
                 if let workspace = pendingDelete { model.deleteWorkspace(workspace) }
                 pendingDelete = nil
             }

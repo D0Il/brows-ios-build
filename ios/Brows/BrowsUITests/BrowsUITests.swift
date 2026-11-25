@@ -1584,7 +1584,14 @@ final class BrowsUITests: XCTestCase {
         let delete = app.buttons["Delete workspace"]
         XCTAssertTrue(delete.waitForExistence(timeout: 10), "delete action missing")
         delete.tap()
-        XCTAssertFalse(row.waitForExistence(timeout: 4), "workspace still listed after delete")
+
+        // Deleting asks first: the row must still be there until the question is
+        // answered, and only then disappear.
+        let confirm = app.buttons["Delete"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5), "delete did not ask for confirmation")
+        XCTAssertTrue(row.exists, "the workspace vanished before the confirmation was answered")
+        confirm.tap()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 8), "workspace still listed after delete")
     }
 
     /// Turning the bar-position setting off moves the rail to the top.
