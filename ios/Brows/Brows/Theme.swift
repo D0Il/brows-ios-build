@@ -643,12 +643,30 @@ struct ScaledFont: ViewModifier {
     /// category is passed in rather than read from `UITraitCollection.current`,
     /// which is not the environment SwiftUI hands the modifier.
     static func size(_ base: CGFloat, category: ContentSizeCategory) -> CGFloat {
-        let traits = UITraitCollection(
-            preferredContentSizeCategory: UIContentSizeCategory(rawValue: category.rawValue)
-        )
+        let traits = UITraitCollection(preferredContentSizeCategory: uiCategory(category))
         let scaled = UIFontMetrics(forTextStyle: .body).scaledValue(for: base, compatibleWith: traits)
         let capped = min(max(scaled, base), base * 1.35)
         return (capped * 2).rounded() / 2
+    }
+
+    /// SwiftUI's category is its own enum; `UIFontMetrics` takes UIKit's. The
+    /// names line up one for one, and the default is the desktop's own size.
+    private static func uiCategory(_ category: ContentSizeCategory) -> UIContentSizeCategory {
+        switch category {
+        case .extraSmall: return .extraSmall
+        case .small: return .small
+        case .medium: return .medium
+        case .large: return .large
+        case .extraLarge: return .extraLarge
+        case .extraExtraLarge: return .extraExtraLarge
+        case .extraExtraExtraLarge: return .extraExtraExtraLarge
+        case .accessibilityMedium: return .accessibilityMedium
+        case .accessibilityLarge: return .accessibilityLarge
+        case .accessibilityExtraLarge: return .accessibilityExtraLarge
+        case .accessibilityExtraExtraLarge: return .accessibilityExtraExtraLarge
+        case .accessibilityExtraExtraExtraLarge: return .accessibilityExtraExtraExtraLarge
+        @unknown default: return .large
+        }
     }
 }
 
