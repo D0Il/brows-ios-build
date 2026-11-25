@@ -720,6 +720,57 @@ final class BrowsUITests: XCTestCase {
         app.webViews.staticTexts[text].waitForExistence(timeout: timeout)
     }
 
+    /// The rail's own tab count. A fixture can replace a popup's first page on a
+    /// timer: `links.html` re-opens its named window 1.8 s after the click, which
+    /// navigates the popup from `article.html` to `other.html`. Waiting for that
+    /// first page is a race against the page's own timer. On a loaded iPad the
+    /// popup's first paint landed after the navigation, so the text was never in a
+    /// snapshot even though the tab, its badge and the popup route were (runs
+    /// 45646011526 and 45658539518). The tab the app created is the durable fact.
+    private func waitForOpenTabs(_ minimum: Int, in app: XCUIApplication,
+                                 timeout: TimeInterval = 20) -> Int {
+        let rail = app.buttons["rail.tabs"]
+        let deadline = Date().addingTimeInterval(timeout)
+        var count = Self.openTabCount(rail)
+        while count < minimum && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+            count = Self.openTabCount(rail)
+        }
+        return count
+    }
+
+    private static func openTabCount(_ rail: XCUIElement) -> Int {
+        guard let value = rail.value as? String,
+              let first = value.split(separator: " ").first else { return 0 }
+        return Int(first) ?? 0
+    }
+
+    /// Either page the named-window fixture can be showing, whichever the popup
+    /// has painted. Returns nil if neither ever appears, so a blank popup fails
+    /// rather than being counted as opened.
+    private func waitForPopupPage(_ pages: [String], in app: XCUIApplication,
+                                  timeout: TimeInterval = 45) -> String? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            for page in pages where app.webViews.staticTexts[page].exists {
+                return page
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        return nil
+    }
+
+    /// The app's own popup facts, for a failure message. The two sightings of the
+    /// named popup left "did not open" with nothing behind it; these make the next
+    /// one say whether the tab appeared and which route produced it.
+    private func popupState(_ app: XCUIApplication) -> String {
+        let route = app.staticTexts["debug.lastroute"]
+        let tabs = app.staticTexts["debug.tabs"]
+        return "rail says \(app.buttons["rail.tabs"].value.map { "\($0)" } ?? "?"), "
+            + "route \(route.exists ? route.label : "none"), "
+            + "tabs \(tabs.exists ? tabs.label : "none")"
+    }
+
     private func waitUntilGone(_ element: XCUIElement, app: XCUIApplication? = nil) {
         let gone = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "exists == false"),
@@ -1337,8 +1388,17 @@ final class BrowsUITests: XCTestCase {
 
         open("http://localhost:8000/links.html", in: app, expect: "Links")
         app.webViews.buttons["Open named window again"].tap()
-        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
-                      "the named popup did not open from the private tab")
+        // The fixture navigates its named window away from `article.html` 1.8 s
+        // after the click. Wait for the tab the app created and the popup route,
+        // then for whichever page the popup has painted, instead of a page the
+        // fixture itself replaces.
+        let popupTabs = waitForOpenTabs(2, in: app)
+        XCTAssertGreaterThanOrEqual(popupTabs, 2,
+                      "the named popup did not open a tab from the private page (\(popupState(app)))")
+        XCTAssertEqual(app.staticTexts["debug.lastroute"].label, "popup localhost",
+                      "the private named popup did not come through the popup path (\(popupState(app)))")
+        XCTAssertNotNil(waitForPopupPage(["The shape of a browser", "Other page"], in: app),
+                      "the private named popup opened a tab but never painted a page (\(popupState(app)))")
         XCTAssertTrue(app.staticTexts["PRIVATE"].waitForExistence(timeout: 10),
                       "the popup opened from a private tab is not marked private")
 
@@ -1377,8 +1437,15 @@ final class BrowsUITests: XCTestCase {
         // the way an SSO flow or a chat widget reuses its own window. The page writes
         // `same-window` only if both calls reached the same window.
         app.webViews.buttons["Open named window again"].tap()
-        XCTAssertTrue(waitForPopupText("The shape of a browser", in: app),
-                      "the named window did not open")
+        // `article.html` is on screen only until the page's own 1.8 s timer
+        // navigates the named window to `other.html`. Wait for the tab and the
+        // popup route the app produced, then for whichever page it painted.
+        XCTAssertEqual(waitForOpenTabs(2, in: app), 2,
+                      "the named window did not open exactly one tab (\(popupState(app)))")
+        XCTAssertEqual(app.staticTexts["debug.lastroute"].label, "popup localhost",
+                      "the named window did not come through the popup path (\(popupState(app)))")
+        XCTAssertNotNil(waitForPopupPage(["The shape of a browser", "Other page"], in: app),
+                      "the named window opened a tab but never painted a page (\(popupState(app)))")
 
         // Back to the opener to read its verdict; only the active tab is mounted.
         app.buttons["rail.tabs"].tap()
