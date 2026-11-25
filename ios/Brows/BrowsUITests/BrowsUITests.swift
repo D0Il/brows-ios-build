@@ -430,6 +430,33 @@ final class BrowsUITests: XCTestCase {
         }
     }
 
+    /// Puts `url` in the pill and submits it, without assuming a page loads: the
+    /// rejected-address and typed-scheme cases end somewhere other than a page,
+    /// and the stress pass types while a load is still in flight.
+    private func submitPill(_ url: String, in app: XCUIApplication) {
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+        for _ in 0..<3 {
+            guard focusAddressPill(field, in: app) else { return }
+            field.typeText(url)
+            if (field.value as? String) == url { break }
+            print("PILL-DEBUG typed \(url) but the field reads \(field.value ?? "nil"): \(appTrace(app))")
+        }
+        XCTAssertEqual(
+            field.value as? String, url,
+            "address pill did not replace the current URL: \(appTrace(app))"
+        )
+        field.typeText("\n")
+        // The simulator occasionally drops the synthetic hardware Return. The
+        // keyboard's Go key runs the same UITextFieldDelegate callback, so press
+        // it when the field still holds focus instead of failing the navigation.
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.waitForExistence(timeout: 3) {
+            let go = keyboard.buttons["Go"]
+            if go.exists { go.tap() }
+        }
+    }
+
     private func open(_ url: String, in app: XCUIApplication, expect text: String? = nil) {
         let field = app.textFields["rail.address"]
         XCTAssertTrue(field.waitForExistence(timeout: 15))
@@ -456,26 +483,7 @@ final class BrowsUITests: XCTestCase {
             return
         }
 
-        func submit() {
-            // Tapping the pill selects the whole URL, so typing must replace it. On
-            // a loaded runner the tap can land before the selection settles and the
-            // URL grows into a half-typed mess; re-tapping is the real fix.
-            for _ in 0..<3 {
-                guard focusAddressPill(field, in: app) else { return }
-                field.typeText(url)
-                if (field.value as? String) == url { break }
-            }
-            XCTAssertEqual(field.value as? String, url, "address pill did not replace the current URL")
-            field.typeText("\n")
-            // The simulator occasionally drops the synthetic hardware Return. The
-            // keyboard's Go key runs the same UITextFieldDelegate callback, so press
-            // it when the field still holds focus instead of failing the navigation.
-            let keyboard = app.keyboards.firstMatch
-            if keyboard.waitForExistence(timeout: 3) {
-                let go = keyboard.buttons["Go"]
-                if go.exists { go.tap() }
-            }
-        }
+        func submit() { submitPill(url, in: app) }
 
         submit()
         XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 25))
@@ -492,6 +500,37 @@ final class BrowsUITests: XCTestCase {
                 )
             }
         }
+    }
+
+    /// The pill must take typing at the instant a page starts loading, not only
+    /// once the dock has settled. Three runs failed before the page arrived with
+    /// the pill still reading its placeholder (45400873379, 45408366570,
+    /// 45520613696), so this forces that state on purpose: submit an address, then
+    /// immediately tap the pill and type the next one, six times. The app traces
+    /// its own focus and main-thread events (`-BrowsAddressTrace`); a missed tap
+    /// fails as a missed tap with that trace attached, never as an empty field.
+    func testPillTakesTypingTheMomentThePageLoads() {
+        let app = makeApp(extra: ["-BrowsAddressTrace"])
+        let field = app.textFields["rail.address"]
+        XCTAssertTrue(field.waitForExistence(timeout: 15))
+
+        let article = "http://localhost:8000/article.html"
+        let other = "http://localhost:8000/other.html"
+        for iteration in 0..<6 {
+            let first = iteration % 2 == 0 ? article : other
+            let second = iteration % 2 == 0 ? other : article
+            let expected = iteration % 2 == 0 ? "Other page" : "The shape of a browser"
+            submitPill(first, in: app)
+            // Deliberately no wait for the load: this tap lands while it runs.
+            submitPill(second, in: app)
+            print("PILL-STRESS \(iteration) value=\(field.value ?? "nil")")
+            print("PILL-TRACE \(iteration) \(appTrace(app))")
+            XCTAssertTrue(
+                app.webViews.staticTexts[expected].waitForExistence(timeout: 30),
+                "iteration \(iteration): the typed address did not become the page (\(appTrace(app)))"
+            )
+        }
+        XCTAssertTrue(app.textFields["rail.address"].exists, "the dock did not survive the pass")
     }
 
     /// A 401 Basic challenge is answered by the app's own sheet, not WebKit's blank
@@ -582,39 +621,48 @@ final class BrowsUITests: XCTestCase {
         XCTFail("the pill would not replace its text with \(text): \(field.value ?? "nil") - the URL grew instead")
     }
 
-    /// A synthetic tap on the pill can be swallowed while the simulator is still
-    /// settling: the app's focus state never flips and XCTest's typeText then
-    /// fails before a keyboard exists (run 45046850662: three type attempts with
-    /// `rail.address` still holding its placeholder). A tap is asynchronous, so
-    /// wait for the keyboard after it and tap again if the touch was lost. This
-    /// guards the precondition for typing, not an assertion; if focus never
-    /// arrives the test still fails.
+    /// Taps the pill and waits until the field itself reports it is first
+    /// responder. The old version waited for a keyboard and then slept 0.4 s;
+    /// that is a delay, not a synchronization — the keyboard can be on screen
+    /// while the field never took focus (run 45046850662, and the three
+    /// placeholder sightings). `debug.addressfocus` is set by the field in
+    /// `becomeFirstResponder`/`armReplacement`, so the wait is on the fact typing
+    /// needs. When four taps all miss, this fails here, naming the pill, instead
+    /// of surfacing later as an empty address field.
     @discardableResult
     private func focusAddressPill(_ field: XCUIElement, in app: XCUIApplication) -> Bool {
-        for _ in 0..<4 {
+        let probe = app.staticTexts["debug.addressfocus"]
+        _ = probe.waitForExistence(timeout: 5)
+        for attempt in 0..<4 {
             // A keyboard from the previous submission can still be leaving when the
-            // next tap lands. The dismissal swallows that tap, and the old keyboard
-            // then satisfies the wait below, so the text goes nowhere. Let it go
-            // first (it stays if the pill already has focus, and the tap is then a
-            // no-op that keeps it).
+            // next tap lands. The dismissal covers the dock, so that tap never
+            // reaches the field. Wait for it to go; it stays if the pill already
+            // has focus, and the tap is then a no-op that keeps it.
             let keyboard = app.keyboards.firstMatch
             if keyboard.exists {
                 let gone = XCTNSPredicateExpectation(
                     predicate: NSPredicate(format: "exists == false"),
                     object: keyboard
                 )
-                _ = XCTWaiter().wait(for: [gone], timeout: 4)
+                _ = XCTWaiter().wait(for: [gone], timeout: 6)
             }
             field.tap()
-            // Focus reaches the pill a beat after the keyboard appears; typing into
-            // that gap is dropped.
-            if app.keyboards.firstMatch.waitForExistence(timeout: 8) {
-                Thread.sleep(forTimeInterval: 0.4)
-                return true
-            }
+            let focused = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "label BEGINSWITH %@", "focused=1"),
+                object: probe
+            )
+            if XCTWaiter().wait(for: [focused], timeout: 8) == .completed { return true }
+            print("FOCUS-DEBUG attempt \(attempt) missed the pill: \(appTrace(app)) value=\(field.value ?? "nil") keyboards=\(app.keyboards.count)")
         }
-        XCTFail("the address pill never took keyboard focus: pill=\(field.value ?? "nil")")
+        XCTFail("the address pill never took keyboard focus after four taps: \(appTrace(app))")
         return false
+    }
+
+    /// The app's own record of the pill, when the run asked for it
+    /// (`-BrowsAddressTrace`).
+    private func appTrace(_ app: XCUIApplication) -> String {
+        let trace = app.staticTexts["debug.addresstrace"]
+        return trace.exists ? trace.label : "trace off"
     }
 
     private func waitUntilHittable(_ element: XCUIElement, timeout: TimeInterval = 10) {

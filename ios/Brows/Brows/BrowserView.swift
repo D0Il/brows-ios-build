@@ -4,6 +4,9 @@ import UIKit
 struct BrowserView: View {
     @EnvironmentObject var model: BrowserModel
     @Environment(\.scenePhase) private var scenePhase
+    /// Observed only for the two probe texts below: `focus` changes on a focus
+    /// transition, never on every redraw.
+    @ObservedObject private var trace = AddressTrace.shared
 
     /// Which layer is up, as one value per layer. SwiftUI animates a transition
     /// only when the change that inserts or removes the view is animated, and
@@ -242,11 +245,27 @@ struct BrowserView: View {
                 // What the page says it is: mobile or desktop name, light or dark
                 // filter, visible consent banners, title. The page tools are proved
                 // through this, not through a picture of a button.
+                // (The address-pill probes are above this group's own texts.)
                 Text("page")
                     .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.page")
                     .accessibilityLabel(model.pageProbe.label)
+                // The pill's own state: typing needs this field to be first
+                // responder, so the tests wait for that fact instead of sleeping
+                // and hoping. `focused=1` is set by the field, not by the tap.
+                Text("addressfocus")
+                    .scaledFont(1)
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.addressfocus")
+                    .accessibilityLabel(trace.focus)
+                if AddressTrace.enabled {
+                    Text("addresstrace")
+                        .scaledFont(1)
+                        .opacity(0.01)
+                        .accessibilityIdentifier("debug.addresstrace")
+                        .accessibilityLabel(trace.summary)
+                }
             }
         }
     }

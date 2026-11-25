@@ -27,6 +27,7 @@
     "testWorkspaceSwitch",
     "testKeyboardDoesNotCoverTheDock",
     "testDarkPagesDarkenThePage",
+    "testPillTakesTypingTheMomentThePageLoads",
     "testTranslatePageOpensOnThePagesText"
   ],
   "3": [

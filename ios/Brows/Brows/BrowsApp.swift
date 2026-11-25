@@ -4,6 +4,13 @@ import SwiftUI
 struct BrowsApp: App {
     @StateObject private var model = BrowserModel()
 
+    init() {
+        // Test-only, and inert without `-BrowsAddressTrace`: records the pill's
+        // focus events and how late the main queue ran, so a swallowed tap names
+        // its mechanism instead of looking like a dropped keystroke.
+        AddressTrace.shared.startWatchdog()
+    }
+
     var body: some Scene {
         WindowGroup {
             BrowserView()

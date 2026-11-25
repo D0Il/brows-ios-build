@@ -35,6 +35,10 @@ struct AddressField: UIViewRepresentable {
         // vanished (capture pill-dark). Shrink to fit instead, and the whole URL
         // remains visible inside the pill.
 
+        let instance = AddressField.nextInstance()
+        field.tag = instance
+        AddressTrace.shared.mark("make#\(instance)")
+
         field.textColor = UIColor(Theme.ink)
         field.tintColor = UIColor(Theme.ink)
         field.attributedPlaceholder = NSAttributedString(
@@ -83,8 +87,19 @@ struct AddressField: UIViewRepresentable {
         // "SEARCH" placeholder after typing a full URL. Keystrokes win while the
         // field is first responder; submitting or accepting a suggestion resigns
         // it first, so the new URL still lands.
-        if field.text != text, !field.isFirstResponder {
-            field.text = text
+        if field.text != text {
+            if field.isFirstResponder {
+                // Marked once per distinct model value: a mark on every redraw
+                // would feed its own re-render.
+                if context.coordinator.lastKeptModel != text {
+                    context.coordinator.lastKeptModel = text
+                    AddressTrace.shared.mark("keep#\(field.tag) model=\(text.count)ch")
+                }
+            } else {
+                AddressTrace.shared.mark("apply#\(field.tag) \(text.count)ch")
+                context.coordinator.lastKeptModel = text
+                field.text = text
+            }
         }
         (field as? FittingTextField)?.refit()
     }
@@ -93,9 +108,20 @@ struct AddressField: UIViewRepresentable {
         Coordinator(self)
     }
 
+    /// Distinguishes one field from the next in the trace: a rebuilt field is a
+    /// new number, which is how a lost first responder is told apart from a lost
+    /// keystroke.
+    private static var instanceCount = 0
+    private static func nextInstance() -> Int {
+        instanceCount += 1
+        return instanceCount
+    }
+
     final class Coordinator: NSObject, UITextFieldDelegate {
         var parent: AddressField
         weak var field: UITextField?
+        /// The model value already reported as kept during editing.
+        var lastKeptModel: String?
         /// The next keystroke replaces the URL, the effect the desktop omnibox gets
         /// from its select-all, without iOS's out-of-pill selection handles.
         private var replacesWholeValue = false
@@ -108,13 +134,15 @@ struct AddressField: UIViewRepresentable {
         /// responder, because that is the case where the caret used to sit mid-URL.
         @objc func selectAllText() {
             guard let field else { return }
+            AddressTrace.shared.mark("tap#\(field.tag) focused=\(field.isFirstResponder ? 1 : 0)")
             // Focus before the model tells anything to snapshot or redraw: a
             // snapshot of a loading page can hold the main runloop for seconds, and
             // the keyboard never came up when that publish happened on this tap
             // (run 44878550611 failed six tests on "rail.address" never taking
             // keyboard focus).
             if !field.isFirstResponder {
-                field.becomeFirstResponder()
+                let took = field.becomeFirstResponder()
+                AddressTrace.shared.mark("become#\(field.tag) \(took ? 1 : 0)")
             }
             parent.onFocus()
             armReplacement(in: field)
@@ -133,11 +161,13 @@ struct AddressField: UIViewRepresentable {
                 ?? field.beginningOfDocument
             field.selectedTextRange = field.textRange(from: start, to: start)
             replacesWholeValue = true
+            AddressTrace.shared.mark("arm#\(field.tag) at=\(offset)")
         }
 
         func textField(_ textField: UITextField,
                        shouldChangeCharactersIn range: NSRange,
                        replacementString string: String) -> Bool {
+            AddressTrace.shared.mark("key#\(textField.tag) armed=\(replacesWholeValue ? 1 : 0) s=\(string.count)ch")
             guard replacesWholeValue else { return true }
             replacesWholeValue = false
             // Backspace on an armed field clears it, as a selected-all field would.
@@ -151,23 +181,31 @@ struct AddressField: UIViewRepresentable {
 
         @objc func editingChanged(_ field: UITextField) {
             parent.text = field.text ?? ""
+            AddressTrace.shared.setFocus(true, chars: (field.text ?? "").count, gen: field.tag)
             (field as? FittingTextField)?.refit()
         }
 
         func textFieldDidBeginEditing(_ textField: UITextField) {
+            AddressTrace.shared.mark("begin#\(textField.tag)")
             parent.onFocus()
-            DispatchQueue.main.async {
-                self.armReplacement(in: textField)
-            }
+            // Arm in this call rather than on a queued block. A queued re-arm
+            // that ran after typing had started would consume the next
+            // keystroke as a whole-value replacement and wipe what came before
+            // it — the shape the three pill failures had.
+            armReplacement(in: textField)
+            AddressTrace.shared.setFocus(true, chars: (textField.text ?? "").count, gen: textField.tag)
         }
 
         func textFieldDidEndEditing(_ textField: UITextField) {
             replacesWholeValue = false
+            AddressTrace.shared.mark("blur#\(textField.tag) chars=\((textField.text ?? "").count)")
+            AddressTrace.shared.setFocus(false, chars: (textField.text ?? "").count, gen: textField.tag)
             parent.onBlur()
         }
 
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             let value = textField.text ?? ""
+            AddressTrace.shared.mark("go#\(textField.tag) chars=\(value.count)")
             textField.resignFirstResponder()
             parent.onSubmit(value)
             return false
