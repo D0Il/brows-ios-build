@@ -43,6 +43,9 @@ targets:
               - http
               - https
         ITSAppUsesNonExemptEncryption: false
+        NSMicrophoneUsageDescription: Voice search uses the microphone to put what you say into the address field.
+        NSSpeechRecognitionUsageDescription: Voice search turns what you say into words the browser can use.
+        NSCameraUsageDescription: Scanning a code uses the camera to read a QR code or barcode.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.brows.ios
