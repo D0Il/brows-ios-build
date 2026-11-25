@@ -2060,10 +2060,10 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(press.waitForExistence(timeout: 15))
         let before = Int(press.label) ?? 0
 
-        // The site badge is a plain button, not the glass style. Reload is a
+        // The site badge and the pill's reload are plain buttons. The menu is a
         // rail control that carries `GlassCircleButtonStyle`, and a normal tap is
         // the contact the wash exists for.
-        app.buttons["rail.reload"].tap()
+        app.buttons["rail.menu"].tap()
 
         XCTAssertTrue(
             waitForDebug("debug.press", in: app) { (Int($0) ?? 0) > before },
@@ -2208,6 +2208,8 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["Delete this saved password?"].waitForExistence(timeout: 8),
             "Delete did not ask first"
         )
+        print("PASSWORD-DIALOG-TREE
+\(app.debugDescription)")
         app.buttons["Cancel"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["example.com"].exists, "Cancel still deleted the password")
 
