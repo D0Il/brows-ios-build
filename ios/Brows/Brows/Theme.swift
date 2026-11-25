@@ -498,8 +498,8 @@ extension PanelBar where Leading == EmptyView {
 /// no way for a person to see a wash under their finger, so the UI suite asserts
 /// the part that is observable: a real touch enters the style's pressed branch.
 enum PressTrace {
-    private(set) static var presses = 0
-    static func record() { presses += 1 }
+    static var presses: Int { DebugCounters.shared.presses }
+    static func record() { DebugCounters.shared.presses += 1 }
 }
 
 /// toolbar_button.css: every rail control is a glass bubble with an 8px radius, a

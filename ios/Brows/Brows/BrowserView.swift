@@ -7,6 +7,9 @@ struct BrowserView: View {
     /// Observed only for the two probe texts below: `focus` changes on a focus
     /// transition, never on every redraw.
     @ObservedObject private var trace = AddressTrace.shared
+    /// The probe counters must be published: a static read would freeze at the
+    /// value the rail first laid out with.
+    @ObservedObject private var debugCounters = DebugCounters.shared
 
     /// Which layer is up, as one value per layer. SwiftUI animates a transition
     /// only when the change that inserts or removes the view is animated, and
@@ -248,14 +251,14 @@ struct BrowserView: View {
                     .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.haptics")
-                    .accessibilityLabel(Haptics.debugCounts)
+                    .accessibilityLabel(debugCounters.haptics)
                 // A real touch on a railway control enters the style's pressed
                 // branch; the count proves the wash is wired to the finger.
                 Text("press")
                     .scaledFont(1)
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.press")
-                    .accessibilityLabel("\(PressTrace.presses)")
+                    .accessibilityLabel("\(debugCounters.presses)")
                 // The resolved size of the 13 pt chrome token at the current
                 // system text size. 13 at the default setting, larger at AX sizes.
                 TypeProbe()

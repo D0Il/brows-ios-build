@@ -2181,7 +2181,10 @@ final class BrowsUITests: XCTestCase {
             "the password was not saved, so its delete cannot be tested"
         )
 
-        app.buttons["Delete"].firstMatch.tap()
+        let delete = app.buttons["Delete"].firstMatch
+        if !delete.isHittable { app.swipeUp() }
+        waitUntilHittable(delete, timeout: 10)
+        delete.tap()
         let cancel = dialogButton("password.delete.cancel", "Cancel", in: app)
         XCTAssertTrue(cancel.exists, "Delete did not ask first")
         cancel.tap()

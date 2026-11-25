@@ -11,6 +11,16 @@ import UIKit
 /// `prepare()` is called immediately before the event so the Taptic Engine is
 /// already awake on the first tap; on the simulator these are no-ops, which is
 /// why the UI suite is unaffected.
+/// Observable state for the invisible probes. A plain static counter would be
+/// read once when the rail first lays out and never redraw, so the tests would
+/// read a stale zero however many times the action ran.
+final class DebugCounters: ObservableObject {
+    static let shared = DebugCounters()
+    @Published var haptics = "open 0|pick 0"
+    @Published var presses = 0
+    private init() {}
+}
+
 enum Haptics {
     private static let tap = UIImpactFeedbackGenerator(style: .light)
     private static let pick = UISelectionFeedbackGenerator()
@@ -26,12 +36,14 @@ enum Haptics {
 
     static func opened() {
         openedCount += 1
+        DebugCounters.shared.haptics = debugCounts
         tap.prepare()
         tap.impactOccurred(intensity: 0.55)
     }
 
     static func picked() {
         pickedCount += 1
+        DebugCounters.shared.haptics = debugCounts
         pick.prepare()
         pick.selectionChanged()
     }
