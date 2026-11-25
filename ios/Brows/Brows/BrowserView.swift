@@ -242,6 +242,23 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.tabs")
                     .accessibilityLabel("\(model.tabs.count)|\(model.activeTab?.url?.absoluteString ?? "-")")
+                // The haptics cannot be felt on a simulator; the moments that ask
+                // for one can be counted, and that is what the suite asserts.
+                Text("haptics")
+                    .scaledFont(1)
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.haptics")
+                    .accessibilityLabel(Haptics.debugCounts)
+                // A real touch on a railway control enters the style's pressed
+                // branch; the count proves the wash is wired to the finger.
+                Text("press")
+                    .scaledFont(1)
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.press")
+                    .accessibilityLabel("\(PressTrace.presses)")
+                // The resolved size of the 13 pt chrome token at the current
+                // system text size. 13 at the default setting, larger at AX sizes.
+                TypeProbe()
                 // What the page says it is: mobile or desktop name, light or dark
                 // filter, visible consent banners, title. The page tools are proved
                 // through this, not through a picture of a button.
@@ -622,5 +639,19 @@ struct BottomRail: View {
         .contentShape(Rectangle())
         .accessibilityLabel(label)
         .accessibilityIdentifier(id)
+    }
+}
+
+/// Reports the type size the chrome actually resolves for a 13 pt token, at
+/// whatever text size the system is set to.
+private struct TypeProbe: View {
+    @Environment(\.sizeCategory) private var sizeCategory
+
+    var body: some View {
+        Text("type")
+            .scaledFont(1)
+            .opacity(0.01)
+            .accessibilityIdentifier("debug.type")
+            .accessibilityLabel("\(ScaledFont.size(13, category: sizeCategory))")
     }
 }

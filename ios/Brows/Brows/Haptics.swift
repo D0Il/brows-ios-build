@@ -15,12 +15,23 @@ enum Haptics {
     private static let tap = UIImpactFeedbackGenerator(style: .light)
     private static let pick = UISelectionFeedbackGenerator()
 
+    private(set) static var openedCount = 0
+    private(set) static var pickedCount = 0
+
+    /// The Taptic Engine cannot be felt on a simulator, so the observable part of
+    /// the promise is that the four named moments actually ask for a haptic. The
+    /// UI suite reads this through `debug.haptics` and fails if an action that
+    /// should tick does not.
+    static var debugCounts: String { "open \(openedCount)|pick \(pickedCount)" }
+
     static func opened() {
+        openedCount += 1
         tap.prepare()
         tap.impactOccurred(intensity: 0.55)
     }
 
     static func picked() {
+        pickedCount += 1
         pick.prepare()
         pick.selectionChanged()
     }

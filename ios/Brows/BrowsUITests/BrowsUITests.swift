@@ -1902,4 +1902,299 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(popupHeader.label.contains("Safari/"), "popup saw: \(popupHeader.label)")
     }
 
+    // MARK: - Evidence for the register's built rows
+
+    /// The tab count the model reports, without a sheet in front of the page.
+    private func openTabCount(_ app: XCUIApplication) -> Int {
+        Int(app.staticTexts["debug.tabs"].label.split(separator: "|").first ?? "") ?? -1
+    }
+
+    /// Waits on a debug probe's value until the predicate holds, then returns
+    /// whether it ever did. These probes are the app's own state, so the wait is
+    /// not a sleep dressed up.
+    private func waitForDebug(
+        _ identifier: String,
+        in app: XCUIApplication,
+        timeout: TimeInterval = 15,
+        _ predicate: @escaping (String) -> Bool
+    ) -> Bool {
+        let element = app.staticTexts[identifier]
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if element.exists, predicate(element.label) { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return element.exists && predicate(element.label)
+    }
+
+    /// A confirmation-dialog button, by its own identifier when SwiftUI keeps it
+    /// and by its sheet label otherwise. A row's Delete sits behind the dialog, so
+    /// the sheet scope is what keeps the two apart.
+    private func dialogButton(_ identifier: String, _ label: String, in app: XCUIApplication) -> XCUIElement {
+        let byIdentifier = app.buttons[identifier]
+        if byIdentifier.waitForExistence(timeout: 5) { return byIdentifier }
+        let sheetButton = app.sheets.buttons[label]
+        if sheetButton.exists { return sheetButton }
+        return app.buttons[label]
+    }
+
+    /// A private tab is a promise about the history list, not a badge: the pages
+    /// it shows must never appear there, while it is open or after it closes.
+    func testPrivateTabLeavesNoHistory() {
+        let app = makeApp()
+        XCTAssertTrue(app.staticTexts["debug.history"].waitForExistence(timeout: 15))
+        XCTAssertEqual(app.staticTexts["debug.history"].label, "0|-")
+
+        newPrivateTab(in: app)
+        submitAddress("http://localhost:8000/article.html", in: app)
+        XCTAssertTrue(
+            app.webViews.staticTexts["The shape of a browser"].waitForExistence(timeout: 25),
+            "the private tab did not load the page"
+        )
+        XCTAssertEqual(
+            app.staticTexts["debug.history"].label, "0|-",
+            "a private visit was written to history"
+        )
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10), "tab gallery missing")
+        app.buttons["tab.close"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["1 open"].waitForExistence(timeout: 10), "the private tab did not close")
+        app.buttons["Done"].tap()
+        XCTAssertEqual(
+            app.staticTexts["debug.history"].label, "0|-",
+            "closing a private tab released its visit into history"
+        )
+
+        app.buttons["rail.menu"].tap()
+        menuRow("menu.history", in: app).tap()
+        XCTAssertTrue(
+            app.staticTexts["Nothing in history yet."].waitForExistence(timeout: 10),
+            "the History panel listed a private visit"
+        )
+    }
+
+    /// The hardware keyboard drives the browser, not just its text fields: the
+    /// same keys Safari and Chrome answer must open, close, select and find.
+    func testHardwareKeyboardDrivesTheBrowser() {
+        let app = makeApp()
+        XCTAssertTrue(app.buttons["rail.tabs"].waitForExistence(timeout: 15))
+        XCTAssertEqual(openTabCount(app), 1)
+
+        app.typeKey("t", modifierFlags: .command)
+        XCTAssertTrue(
+            waitForDebug("debug.tabs", in: app) { $0.hasPrefix("2|") },
+            "command-T did not open a tab (tabs: \(app.staticTexts["debug.tabs"].label))"
+        )
+
+        app.typeKey("w", modifierFlags: .command)
+        XCTAssertTrue(
+            waitForDebug("debug.tabs", in: app) { $0.hasPrefix("1|") },
+            "command-W did not close the tab (tabs: \(app.staticTexts["debug.tabs"].label))"
+        )
+
+        app.typeKey("f", modifierFlags: .command)
+        let find = app.textFields.matching(
+            NSPredicate(format: "placeholderValue == %@", "Find in page")
+        ).firstMatch
+        XCTAssertTrue(find.waitForExistence(timeout: 10), "command-F did not open Find in page")
+
+        app.typeKey("n", modifierFlags: [.command, .shift])
+        XCTAssertTrue(
+            app.staticTexts["PRIVATE"].waitForExistence(timeout: 10),
+            "shift-command-N did not open a private tab"
+        )
+    }
+
+    /// The chrome token resolves to the desktop's own size at the default text
+    /// size. The accessibility job proves the same token grows at AX5; this is
+    /// the other end of that comparison.
+    func testChromeTypeUsesTheDesktopSizeByDefault() {
+        let app = makeApp()
+        XCTAssertTrue(app.staticTexts["debug.type"].waitForExistence(timeout: 15))
+        XCTAssertEqual(
+            app.staticTexts["debug.type"].label, "13",
+            "the 13 pt chrome token did not resolve to 13 at the default text size"
+        )
+    }
+
+    /// The four haptic moments cannot be felt on a simulator, but the request for
+    /// one is observable: opening, closing and bookmarking must each ask.
+    func testHapticsFireAtTheNamedMoments() {
+        let app = makeApp()
+        XCTAssertTrue(app.staticTexts["debug.haptics"].waitForExistence(timeout: 15))
+        XCTAssertEqual(app.staticTexts["debug.haptics"].label, "open 0|pick 0")
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10), "tab gallery missing")
+        app.buttons["tab.add"].tap()
+        XCTAssertTrue(
+            waitForDebug("debug.haptics", in: app) { $0.contains("open 1") },
+            "opening a tab did not ask for a haptic (\(app.staticTexts["debug.haptics"].label))"
+        )
+        app.buttons["Done"].tap()
+
+        app.buttons["rail.star"].tap()
+        XCTAssertTrue(
+            waitForDebug("debug.haptics", in: app) { $0.contains("pick 1") },
+            "bookmarking did not ask for a selection haptic (\(app.staticTexts["debug.haptics"].label))"
+        )
+
+        app.buttons["rail.tabs"].tap()
+        XCTAssertTrue(app.staticTexts["Tabs"].waitForExistence(timeout: 10), "tab gallery missing")
+        app.buttons["tab.close"].firstMatch.tap()
+        XCTAssertTrue(
+            waitForDebug("debug.haptics", in: app) { $0.contains("open 2") },
+            "closing a tab did not ask for a haptic (\(app.staticTexts["debug.haptics"].label))"
+        )
+    }
+
+    /// A press is the only moment the rail's wash exists, so the count inside the
+    /// button style is what proves a real touch reaches it.
+    func testControlPressEntersThePressedState() {
+        let app = makeApp()
+        let press = app.staticTexts["debug.press"]
+        XCTAssertTrue(press.waitForExistence(timeout: 15))
+        let before = Int(press.label) ?? 0
+
+        app.buttons["rail.siteInfo"].press(forDuration: 1.0)
+
+        XCTAssertTrue(
+            waitForDebug("debug.press", in: app) { (Int($0) ?? 0) > before },
+            "a real touch never entered the control's pressed state (count \(press.label), was \(before))"
+        )
+    }
+
+    /// The share action hands the finished file to the system share sheet; the
+    /// sheet itself is the proof, not the button's presence.
+    func testShareSheetPresentsTheDownload() {
+        let app = makeApp()
+        XCTAssertEqual(
+            startDownload("http://localhost:8000/sample.bin", in: app, rows: 1), 1,
+            "no finished download to share"
+        )
+
+        let share = app.buttons["download.share"].firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout: 10), "the finished download has no share action")
+        share.tap()
+
+        let activity = app.otherElements["ActivityListView"]
+        let copy = app.buttons["Copy"]
+        let deadline = Date().addingTimeInterval(20)
+        while Date() < deadline && !activity.exists && !copy.exists {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        XCTAssertTrue(
+            activity.exists || copy.exists || app.buttons["Save to Files"].exists,
+            "the share action did not present the system share sheet"
+        )
+    }
+
+    /// Clearing history asks first, and Cancel means cancel: the row is still
+    /// there. Confirming is what removes it.
+    func testHistoryClearAsksFirstAndCancelKeepsIt() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+
+        app.buttons["rail.menu"].tap()
+        menuRow("menu.history", in: app).tap()
+        XCTAssertTrue(
+            app.staticTexts["The shape of a browser"].waitForExistence(timeout: 10),
+            "history did not list the visit"
+        )
+
+        app.buttons["Clear"].tap()
+        let cancel = dialogButton("history.clear.cancel", "Cancel", in: app)
+        XCTAssertTrue(cancel.exists, "Clear did not ask first")
+        cancel.tap()
+        XCTAssertTrue(
+            app.staticTexts["The shape of a browser"].waitForExistence(timeout: 5),
+            "Cancel still cleared history"
+        )
+
+        app.buttons["Clear"].tap()
+        let confirm = dialogButton("history.clear.confirm", "Clear history", in: app)
+        XCTAssertTrue(confirm.exists, "Clear did not ask the second time")
+        confirm.tap()
+        XCTAssertTrue(
+            app.staticTexts["Nothing in history yet."].waitForExistence(timeout: 10),
+            "confirming Clear left history behind"
+        )
+    }
+
+    /// The settings clear-all is the widest destructive action in the app: the
+    /// question comes first, Cancel leaves the history intact, and only the
+    /// confirmed path empties it.
+    func testClearEverythingAsksFirstAndCancelKeepsHistory() {
+        let app = makeApp()
+        open("http://localhost:8000/article.html", in: app, expect: "The shape of a browser")
+        XCTAssertTrue(
+            app.staticTexts["debug.history"].label.hasPrefix("1|"),
+            "the visit was not recorded before the test"
+        )
+
+        app.buttons["rail.menu"].tap()
+        menuRow("menu.settings", in: app).tap()
+        let clear = app.buttons["Clear history, cookies and site data"]
+        XCTAssertTrue(clear.waitForExistence(timeout: 10), "the clear-all row is missing")
+
+        clear.tap()
+        let cancel = dialogButton("settings.clear.cancel", "Cancel", in: app)
+        XCTAssertTrue(cancel.exists, "clearing everything did not ask first")
+        cancel.tap()
+        XCTAssertTrue(
+            app.staticTexts["debug.history"].label.hasPrefix("1|"),
+            "Cancel still cleared history"
+        )
+
+        clear.tap()
+        let confirm = dialogButton("settings.clear.confirm", "Clear everything", in: app)
+        XCTAssertTrue(confirm.exists, "the clear-all question did not appear the second time")
+        confirm.tap()
+        XCTAssertTrue(
+            waitForDebug("debug.history", in: app, timeout: 25) { $0.hasPrefix("0|") },
+            "confirming did not clear the history (\(app.staticTexts["debug.history"].label))"
+        )
+    }
+
+    /// Deleting a saved password asks first; Cancel keeps the credential and the
+    /// confirmed path removes it from the list.
+    func testPasswordDeleteAsksFirst() {
+        let app = makeApp()
+        app.buttons["rail.menu"].tap()
+        menuRow("menu.passwords", in: app).tap()
+        XCTAssertTrue(app.staticTexts["Passwords"].waitForExistence(timeout: 10), "passwords panel missing")
+
+        let site = app.textFields["Site"]
+        XCTAssertTrue(site.waitForExistence(timeout: 5), "no site field")
+        site.tap()
+        site.typeText("example.com")
+        let username = app.textFields["Username"]
+        username.tap()
+        username.typeText("probe")
+        let password = app.secureTextFields["Password"]
+        password.tap()
+        password.typeText("secret")
+        app.buttons["Save"].tap()
+        XCTAssertTrue(
+            app.staticTexts["example.com"].waitForExistence(timeout: 10),
+            "the password was not saved, so its delete cannot be tested"
+        )
+
+        app.buttons["Delete"].firstMatch.tap()
+        let cancel = dialogButton("password.delete.cancel", "Cancel", in: app)
+        XCTAssertTrue(cancel.exists, "Delete did not ask first")
+        cancel.tap()
+        XCTAssertTrue(app.staticTexts["example.com"].exists, "Cancel still deleted the password")
+
+        app.buttons["Delete"].firstMatch.tap()
+        let confirm = dialogButton("password.delete.confirm", "Delete", in: app)
+        XCTAssertTrue(confirm.exists, "the delete question did not appear the second time")
+        confirm.tap()
+        XCTAssertTrue(
+            app.staticTexts["example.com"].waitForNonExistence(timeout: 10),
+            "the confirmed delete did not remove the password"
+        )
+    }
+
 }

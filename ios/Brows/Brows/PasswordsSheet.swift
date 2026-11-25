@@ -50,7 +50,9 @@ struct PasswordsSheet: View {
                 if let credential = pendingDelete { model.deleteCredential(credential) }
                 pendingDelete = nil
             }
+            .accessibilityIdentifier("password.delete.confirm")
             Button("Cancel", role: .cancel) { pendingDelete = nil }
+                .accessibilityIdentifier("password.delete.cancel")
         } message: {
             Text("It is removed from the Keychain. The site will ask you to sign in again.")
         }

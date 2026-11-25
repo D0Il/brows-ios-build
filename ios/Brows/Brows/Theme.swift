@@ -494,6 +494,14 @@ extension PanelBar where Leading == EmptyView {
     }
 }
 
+/// The pressed state of the rail's own button style, counted. A simulator has
+/// no way for a person to see a wash under their finger, so the UI suite asserts
+/// the part that is observable: a real touch enters the style's pressed branch.
+enum PressTrace {
+    private(set) static var presses = 0
+    static func record() { presses += 1 }
+}
+
 /// toolbar_button.css: every rail control is a glass bubble with an 8px radius, a
 /// 1px `rgba(255,255,255,.30)` hairline, the `.18 → .035` lit gradient over
 /// `rgba(247,250,253,.025)`, plus the two insets and two soft drops. The desktop
@@ -527,6 +535,9 @@ struct GlassCircleButtonStyle: ButtonStyle {
             // The wash fades rather than switching on the frame the finger lands,
             // so a press reads as contact instead of a flicker.
             .animation(Motion.press, value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { pressed in
+                if pressed { PressTrace.record() }
+            }
     }
 }
 
@@ -623,10 +634,20 @@ struct ScaledFont: ViewModifier {
 
     private var resolved: CGFloat {
         // Reading the environment value is what makes this view re-render when
-        // the setting changes; the metrics object reads the live category.
-        _ = sizeCategory
-        let scaled = UIFontMetrics(forTextStyle: .body).scaledValue(for: size)
-        let capped = min(max(scaled, size), size * 1.35)
+        // the setting changes, and the same value is what the scaling is computed
+        // from, so the result cannot lag the system setting.
+        ScaledFont.size(size, category: sizeCategory)
+    }
+
+    /// The one place a chrome point size becomes its on-screen size. The
+    /// category is passed in rather than read from `UITraitCollection.current`,
+    /// which is not the environment SwiftUI hands the modifier.
+    static func size(_ base: CGFloat, category: ContentSizeCategory) -> CGFloat {
+        let traits = UITraitCollection(
+            preferredContentSizeCategory: UIContentSizeCategory(rawValue: category.rawValue)
+        )
+        let scaled = UIFontMetrics(forTextStyle: .body).scaledValue(for: base, compatibleWith: traits)
+        let capped = min(max(scaled, base), base * 1.35)
         return (capped * 2).rounded() / 2
     }
 }

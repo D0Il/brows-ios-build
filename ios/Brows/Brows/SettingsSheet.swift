@@ -123,7 +123,9 @@ struct SettingsSheet: View {
             Button("Clear everything", role: .destructive) {
                 model.clearWebsiteData { cleared = true }
             }
+            .accessibilityIdentifier("settings.clear.confirm")
             Button("Cancel", role: .cancel) {}
+                .accessibilityIdentifier("settings.clear.cancel")
         } message: {
             Text("This erases every visited page and every site's stored data on this device. It cannot be undone.")
         }

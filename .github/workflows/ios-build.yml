@@ -22,7 +22,7 @@ on:
         options: [iphone, ipad]
         default: iphone
 
-# The suite is 43 methods in one XCTestCase class, and Xcode's parallel testing
+# The suite is 61 methods in one XCTestCase class, and Xcode's parallel testing
 # distributes by class, so the shards below split it by method instead: one
 # build-for-testing artifact, then four runners per destination running disjoint
 # -only-testing subsets on iPhone and iPad. The plan lives in
@@ -243,7 +243,7 @@ jobs:
       # overlaps the download and the fixture server instead of following them.
       - name: Start the simulator booting
         run: |
-          # The same 43 journeys run on both destinations, so each shard picks
+          # The same 61 journeys run on both destinations, so each shard picks
           # the first device of its family in the newest iOS block. simctl lists
           # devices oldest runtime first. The JSON form costs 20-45 s cold.
           FAMILY="${{ matrix.device }}"

@@ -13,7 +13,9 @@
     "testHistoryListsVisitedPagesAndRemovesOne",
     "testSiteInformationNamesTheHostAndScheme",
     "testPullToRefreshReloadsThePage",
-    "testCookieBannerIsHidden"
+    "testCookieBannerIsHidden",
+    "testHistoryClearAsksFirstAndCancelKeepsIt",
+    "testPrivateTabLeavesNoHistory"
   ],
   "2": [
     "testAddressBarTopSetting",
@@ -28,7 +30,9 @@
     "testKeyboardDoesNotCoverTheDock",
     "testDarkPagesDarkenThePage",
     "testPillTakesTypingTheMomentThePageLoads",
-    "testTranslatePageOpensOnThePagesText"
+    "testTranslatePageOpensOnThePagesText",
+    "testHardwareKeyboardDrivesTheBrowser",
+    "testHapticsFireAtTheNamedMoments"
   ],
   "3": [
     "testAddressPillExplainsAnAddressItCannotOpen",
@@ -42,7 +46,10 @@
     "testStartPageSearchNavigates",
     "testZoomStepsAndResets",
     "testDesktopSiteChangesTheNameThisTabSends",
-    "testVoiceSearchOpensTheMicrophoneCard"
+    "testVoiceSearchOpensTheMicrophoneCard",
+    "testControlPressEntersThePressedState",
+    "testPasswordDeleteAsksFirst",
+    "testShareSheetPresentsTheDownload"
   ],
   "4": [
     "testBookmarkStar",
@@ -57,6 +64,8 @@
     "testSaveAsPDFPresentsTheFile",
     "testLandscapeKeepsTheDockOnScreen",
     "testCodeScannerSaysThisDeviceHasNoCamera",
-    "testBrowserIdentityReachesServerAndPage"
+    "testBrowserIdentityReachesServerAndPage",
+    "testChromeTypeUsesTheDesktopSizeByDefault",
+    "testClearEverythingAsksFirstAndCancelKeepsHistory"
   ]
 }

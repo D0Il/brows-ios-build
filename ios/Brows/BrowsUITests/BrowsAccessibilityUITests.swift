@@ -9,11 +9,11 @@ import UIKit
 /// test asserts its own precondition, so a green result cannot come from the
 /// default configuration.
 ///
-/// The app's type is fixed-point on purpose: it reproduces a desktop rail, not a
-/// system form. The Dynamic Type pass therefore asserts what fixed type still
-/// owes the setting — every rail control and every panel the suite opens stays
-/// on screen, hittable and unclipped at AX5 — rather than pretending the glyphs
-/// scale.
+/// The chrome's type is not fixed-point: `ScaledFont` grows every call site with
+/// the system setting, capped at 1.35 so a 10 pt caption cannot outgrow its
+/// field. The Dynamic Type pass therefore asserts both halves of that promise —
+/// the type does grow (the probe test below), and every rail control and panel
+/// the suite opens still lays out on screen, hittable and unclipped at AX5.
 final class BrowsAccessibilityUITests: XCTestCase {
     private func makeApp() -> XCUIApplication {
         let app = XCUIApplication()
@@ -275,4 +275,21 @@ final class BrowsAccessibilityUITests: XCTestCase {
         XCTAssertTrue(settingsRow.waitForExistence(timeout: 5), "settings row missing")
         XCTAssertTrue(settingsRow.label.contains("Settings"), "the settings row reads '\(settingsRow.label)'")
     }
+    /// The type setting reaches the chrome: the same 13 pt token that the default
+    /// size test reads as 13 resolves larger at AX5, and never past the 1.35 cap.
+    func testTypeScaleFollowsTheSystemTextSize() {
+        XCTAssertEqual(
+            UIApplication.shared.preferredContentSizeCategory,
+            .accessibilityExtraExtraExtraLarge,
+            "the simulator was not at AX5"
+        )
+
+        let app = makeApp()
+        let probe = app.staticTexts["debug.type"]
+        XCTAssertTrue(probe.waitForExistence(timeout: 20), "the type probe is missing")
+        let size = Double(probe.label) ?? 0
+        XCTAssertGreaterThan(size, 13, "the 13 pt chrome token stayed at \(probe.label) pt at AX5")
+        XCTAssertLessThanOrEqual(size, 17.5, "the type grew past its 1.35 cap: \(probe.label) pt")
+    }
+
 }

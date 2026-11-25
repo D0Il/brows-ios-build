@@ -59,7 +59,9 @@ struct WorkspacesSheet: View {
                 if let workspace = pendingDelete { model.deleteWorkspace(workspace) }
                 pendingDelete = nil
             }
+            .accessibilityIdentifier("workspace.delete.confirm")
             Button("Cancel", role: .cancel) { pendingDelete = nil }
+                .accessibilityIdentifier("workspace.delete.cancel")
         } message: {
             Text("Its tabs move to another workspace. Nothing you have open is closed.")
         }
@@ -215,7 +217,9 @@ struct HistorySheet: View {
             titleVisibility: .visible
         ) {
             Button("Clear history", role: .destructive) { model.clearHistory() }
+                .accessibilityIdentifier("history.clear.confirm")
             Button("Cancel", role: .cancel) {}
+                .accessibilityIdentifier("history.clear.cancel")
         } message: {
             Text("Every visited page on this device is removed. It cannot be undone.")
         }
