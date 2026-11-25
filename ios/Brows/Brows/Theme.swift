@@ -521,7 +521,11 @@ struct GlassCircleButtonStyle: ButtonStyle {
     private let drop = Color(red: 24 / 255, green: 31 / 255, blue: 44 / 255)
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        // The style body is re-evaluated exactly when the wash changes, so this
+        // is the moment a touch is inside the control. Recording it off the next
+        // runloop keeps SwiftUI out of a publish-during-update.
+        if configuration.isPressed { PressTrace.record() }
+        return configuration.label
             .scaledFont(16, .semibold)
             .foregroundColor(enabled ? glyph : glyph.opacity(0.4))
             .frame(width: 36, height: 36)
@@ -539,9 +543,6 @@ struct GlassCircleButtonStyle: ButtonStyle {
             // The wash fades rather than switching on the frame the finger lands,
             // so a press reads as contact instead of a flicker.
             .animation(Motion.press, value: configuration.isPressed)
-            .onChange(of: configuration.isPressed) { pressed in
-                if pressed { PressTrace.record() }
-            }
     }
 }
 

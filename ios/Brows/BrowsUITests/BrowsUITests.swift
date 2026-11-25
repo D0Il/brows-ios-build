@@ -1935,6 +1935,8 @@ final class BrowsUITests: XCTestCase {
         if byIdentifier.waitForExistence(timeout: 5) { return byIdentifier }
         let sheetButton = app.sheets.buttons[label]
         if sheetButton.exists { return sheetButton }
+        let popoverButton = app.popovers.buttons[label]
+        if popoverButton.exists { return popoverButton }
         return app.buttons[label]
     }
 
@@ -2012,8 +2014,9 @@ final class BrowsUITests: XCTestCase {
     func testChromeTypeUsesTheDesktopSizeByDefault() {
         let app = makeApp()
         XCTAssertTrue(app.staticTexts["debug.type"].waitForExistence(timeout: 15))
+        let size = Double(app.staticTexts["debug.type"].label) ?? 0
         XCTAssertEqual(
-            app.staticTexts["debug.type"].label, "13",
+            size, 13, accuracy: 0.01,
             "the 13 pt chrome token did not resolve to 13 at the default text size"
         )
     }
@@ -2057,7 +2060,9 @@ final class BrowsUITests: XCTestCase {
         XCTAssertTrue(press.waitForExistence(timeout: 15))
         let before = Int(press.label) ?? 0
 
-        app.buttons["rail.siteInfo"].press(forDuration: 1.0)
+        // The site badge is a plain button, not the glass style. Reload is a
+        // rail control that carries `GlassCircleButtonStyle`.
+        app.buttons["rail.reload"].press(forDuration: 1.0)
 
         XCTAssertTrue(
             waitForDebug("debug.press", in: app) { (Int($0) ?? 0) > before },
@@ -2104,9 +2109,11 @@ final class BrowsUITests: XCTestCase {
         )
 
         app.buttons["Clear"].tap()
-        let cancel = dialogButton("history.clear.cancel", "Cancel", in: app)
-        XCTAssertTrue(cancel.exists, "Clear did not ask first")
-        cancel.tap()
+        XCTAssertTrue(
+            app.staticTexts["Clear all history?"].waitForExistence(timeout: 8),
+            "Clear did not ask first"
+        )
+        app.buttons["Cancel"].firstMatch.tap()
         XCTAssertTrue(
             app.staticTexts["The shape of a browser"].waitForExistence(timeout: 5),
             "Cancel still cleared history"
@@ -2137,11 +2144,17 @@ final class BrowsUITests: XCTestCase {
         menuRow("menu.settings", in: app).tap()
         let clear = app.buttons["Clear history, cookies and site data"]
         XCTAssertTrue(clear.waitForExistence(timeout: 10), "the clear-all row is missing")
+        // The Data section sits below the fold on a phone; a tap on an off-screen
+        // row is delivered to the scroll view, not the button.
+        if !clear.isHittable { app.swipeUp() }
+        waitUntilHittable(clear, timeout: 10)
 
         clear.tap()
-        let cancel = dialogButton("settings.clear.cancel", "Cancel", in: app)
-        XCTAssertTrue(cancel.exists, "clearing everything did not ask first")
-        cancel.tap()
+        XCTAssertTrue(
+            app.staticTexts["Delete history, cookies and site data?"].waitForExistence(timeout: 8),
+            "clearing everything did not ask first"
+        )
+        app.buttons["Cancel"].firstMatch.tap()
         XCTAssertTrue(
             app.staticTexts["debug.history"].label.hasPrefix("1|"),
             "Cancel still cleared history"
@@ -2180,14 +2193,21 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["example.com"].waitForExistence(timeout: 10),
             "the password was not saved, so its delete cannot be tested"
         )
+        // A tap with the keyboard still up is spent dismissing it, not on the row.
+        if app.keyboards.firstMatch.exists {
+            app.staticTexts["SAVED"].tap()
+            _ = app.keyboards.firstMatch.waitForNonExistence(timeout: 5)
+        }
 
         let delete = app.buttons["Delete"].firstMatch
         if !delete.isHittable { app.swipeUp() }
         waitUntilHittable(delete, timeout: 10)
         delete.tap()
-        let cancel = dialogButton("password.delete.cancel", "Cancel", in: app)
-        XCTAssertTrue(cancel.exists, "Delete did not ask first")
-        cancel.tap()
+        XCTAssertTrue(
+            app.staticTexts["Delete this saved password?"].waitForExistence(timeout: 8),
+            "Delete did not ask first"
+        )
+        app.buttons["Cancel"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["example.com"].exists, "Cancel still deleted the password")
 
         app.buttons["Delete"].firstMatch.tap()
