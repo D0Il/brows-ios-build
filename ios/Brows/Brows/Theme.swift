@@ -499,7 +499,11 @@ extension PanelBar where Leading == EmptyView {
 /// the part that is observable: a real touch enters the style's pressed branch.
 enum PressTrace {
     static var presses: Int { DebugCounters.shared.presses }
-    static func record() { DebugCounters.shared.presses += 1 }
+    static func record() {
+        // Deferred: the style body runs inside a view update, and publishing a
+        // change there is the one thing SwiftUI forbids mid-update.
+        DispatchQueue.main.async { DebugCounters.shared.presses += 1 }
+    }
 }
 
 /// toolbar_button.css: every rail control is a glass bubble with an 8px radius, a
