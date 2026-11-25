@@ -2061,8 +2061,9 @@ final class BrowsUITests: XCTestCase {
         let before = Int(press.label) ?? 0
 
         // The site badge is a plain button, not the glass style. Reload is a
-        // rail control that carries `GlassCircleButtonStyle`.
-        app.buttons["rail.reload"].press(forDuration: 1.0)
+        // rail control that carries `GlassCircleButtonStyle`, and a normal tap is
+        // the contact the wash exists for.
+        app.buttons["rail.reload"].tap()
 
         XCTAssertTrue(
             waitForDebug("debug.press", in: app) { (Int($0) ?? 0) > before },
