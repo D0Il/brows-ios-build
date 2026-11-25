@@ -1927,17 +1927,13 @@ final class BrowsUITests: XCTestCase {
         return element.exists && predicate(element.label)
     }
 
-    /// A confirmation-dialog button, by its own identifier when SwiftUI keeps it
-    /// and by its sheet label otherwise. A row's Delete sits behind the dialog, so
-    /// the sheet scope is what keeps the two apart.
-    private func dialogButton(_ identifier: String, _ label: String, in app: XCUIApplication) -> XCUIElement {
-        let byIdentifier = app.buttons[identifier]
-        if byIdentifier.waitForExistence(timeout: 5) { return byIdentifier }
-        let sheetButton = app.sheets.buttons[label]
-        if sheetButton.exists { return sheetButton }
-        let popoverButton = app.popovers.buttons[label]
-        if popoverButton.exists { return popoverButton }
-        return app.buttons[label]
+    /// iOS 26 draws a confirmation dialog as a popover whose only button is the
+    /// destructive one; "Cancel" is the dismiss region around it. That is the
+    /// same answer the old action sheet's Cancel gave, so the tests use it.
+    private func dismissDialog(in app: XCUIApplication) {
+        let region = app.otherElements["PopoverDismissRegion"]
+        XCTAssertTrue(region.waitForExistence(timeout: 5), "the question cannot be dismissed")
+        region.tap()
     }
 
     /// A private tab is a promise about the history list, not a badge: the pages
@@ -2114,15 +2110,15 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["Clear all history?"].waitForExistence(timeout: 8),
             "Clear did not ask first"
         )
-        app.buttons["Cancel"].firstMatch.tap()
+        dismissDialog(in: app)
         XCTAssertTrue(
             app.staticTexts["The shape of a browser"].waitForExistence(timeout: 5),
             "Cancel still cleared history"
         )
 
         app.buttons["Clear"].tap()
-        let confirm = dialogButton("history.clear.confirm", "Clear history", in: app)
-        XCTAssertTrue(confirm.exists, "Clear did not ask the second time")
+        let confirm = app.sheets.buttons["Clear history"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 8), "Clear did not ask the second time")
         confirm.tap()
         XCTAssertTrue(
             app.staticTexts["Nothing in history yet."].waitForExistence(timeout: 10),
@@ -2155,15 +2151,15 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["Delete history, cookies and site data?"].waitForExistence(timeout: 8),
             "clearing everything did not ask first"
         )
-        app.buttons["Cancel"].firstMatch.tap()
+        dismissDialog(in: app)
         XCTAssertTrue(
             app.staticTexts["debug.history"].label.hasPrefix("1|"),
             "Cancel still cleared history"
         )
 
         clear.tap()
-        let confirm = dialogButton("settings.clear.confirm", "Clear everything", in: app)
-        XCTAssertTrue(confirm.exists, "the clear-all question did not appear the second time")
+        let confirm = app.sheets.buttons["Clear everything"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 8), "the clear-all question did not appear the second time")
         confirm.tap()
         XCTAssertTrue(
             waitForDebug("debug.history", in: app, timeout: 25) { $0.hasPrefix("0|") },
@@ -2208,14 +2204,15 @@ final class BrowsUITests: XCTestCase {
             app.staticTexts["Delete this saved password?"].waitForExistence(timeout: 8),
             "Delete did not ask first"
         )
-        print("PASSWORD-DIALOG-TREE " + app.debugDescription)
-        app.buttons["Cancel"].firstMatch.tap()
+        dismissDialog(in: app)
         XCTAssertTrue(app.staticTexts["example.com"].exists, "Cancel still deleted the password")
 
         app.buttons["Delete"].firstMatch.tap()
-        let confirm = dialogButton("password.delete.confirm", "Delete", in: app)
-        XCTAssertTrue(confirm.exists, "the delete question did not appear the second time")
-        confirm.tap()
+        XCTAssertTrue(
+            app.sheets.buttons["Delete"].waitForExistence(timeout: 8),
+            "the delete question did not appear the second time"
+        )
+        app.sheets.buttons["Delete"].firstMatch.tap()
         XCTAssertTrue(
             app.staticTexts["example.com"].waitForNonExistence(timeout: 10),
             "the confirmed delete did not remove the password"
