@@ -7,10 +7,6 @@ import WebKit
 struct WebViewContainer: UIViewRepresentable {
     let tabId: UUID
     @ObservedObject var model: BrowserModel
-    /// The page behind the tab chip. Refreshed here because this is where the
-    /// web view, its load completion and its scroll offset live; the strip only
-    /// reads the blurred result.
-    let chipGlass: ChipGlass?
 
     func makeUIView(context: Context) -> WKWebView {
         // A popup's web view was built by WebKit around the opener's configuration;
@@ -20,15 +16,14 @@ struct WebViewContainer: UIViewRepresentable {
         let webView = model.webView(for: tabId)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
-        context.coordinator.chipGlass = chipGlass
         // The page moves under the chip as it scrolls: retake the chip's blurred
         // backdrop when the offset settles. Observed, not delegated — WebKit keeps
         // its own scroll delegate and the inset behaviour that depends on it.
         context.coordinator.scrollObservation = webView.scrollView.observe(
             \.contentOffset, options: [.new]
-        ) { [weak webView, weak glass = chipGlass] _, _ in
+        ) { [weak webView] _, _ in
             guard let webView else { return }
-            glass?.refresh(from: webView)
+            ChipGlass.shared.refresh(from: webView)
         }
         // The page reports what it is through this channel once its document is
         // ready. Reading it back from the navigation callback raced the load and
@@ -104,7 +99,6 @@ struct WebViewContainer: UIViewRepresentable {
         var observation: KVOObservation?
         var titleObservation: KVOObservation?
         var scrollObservation: KVOObservation?
-        var chipGlass: ChipGlass?
 
         private var downloadIds: [ObjectIdentifier: UUID] = [:]
         private var destinations: [ObjectIdentifier: URL] = [:]
@@ -127,7 +121,7 @@ struct WebViewContainer: UIViewRepresentable {
             model?.pageDidRender()
             model?.pageDidLoad(tabId)
             // The page has painted: the chip's glass can show it.
-            chipGlass?.refresh(from: webView, after: 0.35)
+            ChipGlass.shared.refresh(from: webView, after: 0.35)
             // Capture hook (`-BrowsScrollPage`): the audit's scrolled frame. At
             // rest the article starts below the top strip by its content inset,
             // so only a scrolled page puts text under the strip and shows what

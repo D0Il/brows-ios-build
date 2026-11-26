@@ -706,6 +706,13 @@ extension View {
 /// page. That regression is why the chip was left without a backdrop; nothing
 /// but `TopStrip` observes this object.
 final class ChipGlass: ObservableObject {
+    /// One chip per window. A singleton so the object's owner is nobody's body:
+    /// a `@StateObject` on `BrowserView` would re-evaluate the browser (page and
+    /// rail included) every time a snapshot landed, which is the churn this whole
+    /// design exists to avoid.
+    static let shared = ChipGlass()
+    private init() {}
+
     @Published private(set) var snapshot: UIImage?
     private var pending: DispatchWorkItem?
 

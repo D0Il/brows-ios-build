@@ -10,9 +10,6 @@ struct BrowserView: View {
     /// The probe counters must be published: a static read would freeze at the
     /// value the rail first laid out with.
     @ObservedObject private var debugCounters = DebugCounters.shared
-    /// The page behind the tab chip, published only to `TopStrip`: see `ChipGlass`
-    /// for why this is not a `BrowserModel` value.
-    @StateObject private var chipGlass = ChipGlass()
 
     /// Which layer is up, as one value per layer. SwiftUI animates a transition
     /// only when the change that inserts or removes the view is animated, and
@@ -83,7 +80,7 @@ struct BrowserView: View {
             page.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                TopStrip(chipGlass: chipGlass)
+                TopStrip()
                 if !model.settings.addressBarBottom {
                     BottomRail()
                 }
@@ -305,7 +302,7 @@ struct BrowserView: View {
     @ViewBuilder
     private var page: some View {
         if let tab = model.activeTab {
-            WebViewContainer(tabId: tab.id, model: model, chipGlass: chipGlass)
+            WebViewContainer(tabId: tab.id, model: model)
                 .id(tab.id)
                 .background(Color.black)
         } else {
@@ -318,8 +315,9 @@ struct BrowserView: View {
 /// the PRIVATE badge when the active tab is private, and page progress.
 struct TopStrip: View {
     @EnvironmentObject var model: BrowserModel
-    /// The page behind the chip, blurred. Only this strip observes it.
-    @ObservedObject var chipGlass: ChipGlass
+    /// The page behind the chip, blurred. Only this strip observes it: see
+    /// `ChipGlass` for why the browser and the model must not.
+    @ObservedObject private var chipGlass = ChipGlass.shared
 
     var body: some View {
         HStack(spacing: 8) {
