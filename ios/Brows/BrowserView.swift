@@ -43,6 +43,16 @@ struct BrowserView: View {
         content
             .environmentObject(model)
             .environment(\.panelDismiss, close)
+            // Proves the pane got the page snapshot its glass draws. The probe
+            // lives inside the panel: the browser-level probes are covered while
+            // a panel is up and XCUITest cannot read them.
+            .overlay(alignment: .topLeading) {
+                Text("backdrop")
+                    .scaledFont(1)
+                    .opacity(0.01)
+                    .accessibilityIdentifier("debug.backdrop")
+                    .accessibilityLabel(model.panelBackdrop == nil ? "none" : "set")
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             // A full-screen Liquid Glass layer is far too heavy for a panel and
             // delayed the popup and notice flows (shards 2 and 3, run 44947410477);
@@ -259,15 +269,6 @@ struct BrowserView: View {
                     .opacity(0.01)
                     .accessibilityIdentifier("debug.press")
                     .accessibilityLabel("\(debugCounters.presses)")
-                // Whether the panes over the page got the snapshot their glass
-                // needs. A pane without it falls back to a material that cannot
-                // sample a WKWebView, so the live page shows through sharp under
-                // the 30% plate.
-                Text("backdrop")
-                    .scaledFont(1)
-                    .opacity(0.01)
-                    .accessibilityIdentifier("debug.backdrop")
-                    .accessibilityLabel(model.panelBackdrop == nil ? "none" : "set")
                 // The resolved size of the 13 pt chrome token at the current
                 // system text size. 13 at the default setting, larger at AX sizes.
                 TypeProbe()
