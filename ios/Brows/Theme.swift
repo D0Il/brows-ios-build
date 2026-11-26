@@ -303,7 +303,13 @@ struct GlassPane: View {
                 // not glass: the page behind it must be blurred through the pane.
                 // Under Reduce Transparency there is no pane to see through, so
                 // there is no blur either — see `opaqueChrome`.
-                if !opaqueChrome {
+                // A pane given its own fill cannot also host `BackdropBlur`: that
+                // material is a UIView, and in this ZStack it draws over the tint
+                // instead of under it. The chip measured pixel-identical at .30,
+                // .62 and .92 (runs 45762465464, 45867547477, 45875967088), with
+                // the page reading through all three — the material was the pane,
+                // not the tint. Panes with an explicit alpha are paint only.
+                if !opaqueChrome && paneAlpha == nil {
                     backdropLayer(geo)
                 }
 
