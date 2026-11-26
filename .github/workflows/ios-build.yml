@@ -21,6 +21,10 @@ on:
         type: choice
         options: [iphone, ipad]
         default: iphone
+      captures_only:
+        description: "Only the build and the capture pass (skip shards and accessibility)"
+        type: boolean
+        default: false
 
 # The suite is 61 methods in one XCTestCase class, and Xcode's parallel testing
 # distributes by class, so the shards below split it by method instead: one
@@ -222,7 +226,7 @@ jobs:
 
   ui-test:
     needs: build-tests
-    if: ${{ !github.event.inputs.only_test }}
+    if: ${{ !github.event.inputs.only_test && !github.event.inputs.captures_only }}
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -318,7 +322,7 @@ jobs:
   # test asserts the setting it depends on, so default configuration cannot pass.
   accessibility:
     needs: build-tests
-    if: ${{ !github.event.inputs.only_test }}
+    if: ${{ !github.event.inputs.only_test && !github.event.inputs.captures_only }}
     runs-on: macos-15
     name: Accessibility (AX5, Reduce Motion, VoiceOver)
     steps:
