@@ -255,10 +255,6 @@ struct GlassPane: View {
     /// `34,38,45`. The rail band stays the desktop's light tint in both
     /// appearances; a sheet must not, or dark mode gets a near-white slab.
     var plate: Bool = false
-    /// A pane's fill alpha when it is neither the rail's .30 band nor a popup
-    /// plate: the tab chip is the desktop's translucent active-tab pane, and at
-    /// the band's .30 the page's own text read straight through its title.
-    var paneAlpha: Double? = nil
     /// The page as a blurred image (see `PanelBackdrop`). A popup over web content
     /// must be given this: `BackdropBlur` cannot sample a WKWebView, so with no
     /// snapshot the pane falls back to a flat material and reads as a slab again.
@@ -290,7 +286,6 @@ struct GlassPane: View {
     /// plate is the dark block in dark mode, and .30 over a white page left it
     /// light grey under white ink.
     private var tintAlpha: Double {
-        if let paneAlpha { return paneAlpha }
         if !plate { return Theme.railBaseAlpha }
         return colorScheme == .dark ? Theme.plateDarkAlpha : Theme.plateAlpha
     }
@@ -303,13 +298,7 @@ struct GlassPane: View {
                 // not glass: the page behind it must be blurred through the pane.
                 // Under Reduce Transparency there is no pane to see through, so
                 // there is no blur either — see `opaqueChrome`.
-                // A pane given its own fill cannot also host `BackdropBlur`: that
-                // material is a UIView, and in this ZStack it draws over the tint
-                // instead of under it. The chip measured pixel-identical at .30,
-                // .62 and .92 (runs 45762465464, 45867547477, 45875967088), with
-                // the page reading through all three — the material was the pane,
-                // not the tint. Panes with an explicit alpha are paint only.
-                if !opaqueChrome && paneAlpha == nil {
+                if !opaqueChrome {
                     backdropLayer(geo)
                 }
 
@@ -621,6 +610,38 @@ extension View {
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             )
         }
+    }
+}
+
+/// The active tab's plate: the app's pane with nothing to see through. It is the
+/// one pane on the page that must not transmit it, because the page scrolls under
+/// the chip and its own line crossed the title. Every see-through construction was
+/// measured against this chip and none of them held: `glassEffect` over a
+/// WKWebView draws a flat fill with no page in it; a snapshot backdrop renders
+/// nothing visible over the page (a card with one and a card without are
+/// pixel-identical); and `BackdropBlur`, a UIView, draws over the tint instead of
+/// under it — the chip measured identical at .30, .62 and .92 with the page
+/// reading through all three. The fill, the ramp and the hairline are literal, so
+/// what the desktop's blur hides, this chip's paint hides.
+struct TabChipPlate: View {
+    var cornerRadius: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(Theme.railBase)
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(LinearGradient(
+                        colors: [Theme.railRampTop, Theme.railRampBottom],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Theme.glassStroke, lineWidth: 1)
+            )
+            .allowsHitTesting(false)
     }
 }
 

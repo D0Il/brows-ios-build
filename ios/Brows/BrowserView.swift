@@ -356,8 +356,7 @@ struct TopStrip: View {
                 // chip rather than a slab. A non-hit-testing sibling: a glass
                 // *background* under these controls took the dock's taps and the
                 // pill's focus before (runs 44928536766, 44940653563, 44949151192).
-                GlassPane(cornerRadius: 9, paneAlpha: 0.94)
-                    .allowsHitTesting(false)
+                TabChipPlate(cornerRadius: 9)
             }
             .frame(maxWidth: 230, alignment: .leading)
 
