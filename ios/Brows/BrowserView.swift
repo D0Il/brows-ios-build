@@ -10,6 +10,9 @@ struct BrowserView: View {
     /// The probe counters must be published: a static read would freeze at the
     /// value the rail first laid out with.
     @ObservedObject private var debugCounters = DebugCounters.shared
+    /// The page behind the tab chip, published only to `TopStrip`: see `ChipGlass`
+    /// for why this is not a `BrowserModel` value.
+    @StateObject private var chipGlass = ChipGlass()
 
     /// Which layer is up, as one value per layer. SwiftUI animates a transition
     /// only when the change that inserts or removes the view is animated, and
@@ -80,7 +83,7 @@ struct BrowserView: View {
             page.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                TopStrip()
+                TopStrip(chipGlass: chipGlass)
                 if !model.settings.addressBarBottom {
                     BottomRail()
                 }
@@ -302,7 +305,7 @@ struct BrowserView: View {
     @ViewBuilder
     private var page: some View {
         if let tab = model.activeTab {
-            WebViewContainer(tabId: tab.id, model: model)
+            WebViewContainer(tabId: tab.id, model: model, chipGlass: chipGlass)
                 .id(tab.id)
                 .background(Color.black)
         } else {
@@ -315,6 +318,8 @@ struct BrowserView: View {
 /// the PRIVATE badge when the active tab is private, and page progress.
 struct TopStrip: View {
     @EnvironmentObject var model: BrowserModel
+    /// The page behind the chip, blurred. Only this strip observes it.
+    @ObservedObject var chipGlass: ChipGlass
 
     var body: some View {
         HStack(spacing: 8) {
@@ -344,13 +349,15 @@ struct TopStrip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background {
-                // Liquid Glass, not the rail's .30 band: the page runs under this
-                // chip, and a wash let the article's line read through the title
-                // (scrolled-light, scrolled-dark). A sibling layer with hit
-                // testing off, because a glass *background* under these controls
-                // is what swallowed the dock's taps and the pill's focus before
-                // (runs 44928536766, 44940653563, 44949151192).
-                TabChipGlass(cornerRadius: 9)
+                // The app's pane over the page's own blurred snapshot, the same
+                // construction the dock, panels and cards use. The system glass
+                // renders a flat fill over a WKWebView (run 45780486551) and the
+                // rail's .30 wash let the article's line read through the title
+                // (scrolled-light, scrolled-dark), so the pane carries both the
+                // blur and the fill. A non-hit-testing sibling: a glass
+                // *background* under these controls took the dock's taps and the
+                // pill's focus before (runs 44928536766, 44940653563, 44949151192).
+                GlassPane(cornerRadius: 9, paneAlpha: 0.62, backdrop: chipGlass.snapshot)
                     .allowsHitTesting(false)
             }
             .frame(maxWidth: 230, alignment: .leading)

@@ -255,6 +255,10 @@ struct GlassPane: View {
     /// `34,38,45`. The rail band stays the desktop's light tint in both
     /// appearances; a sheet must not, or dark mode gets a near-white slab.
     var plate: Bool = false
+    /// A pane's fill alpha when it is neither the rail's .30 band nor a popup
+    /// plate: the tab chip is the desktop's translucent active-tab pane, and at
+    /// the band's .30 the page's own text read straight through its title.
+    var paneAlpha: Double? = nil
     /// The page as a blurred image (see `PanelBackdrop`). A popup over web content
     /// must be given this: `BackdropBlur` cannot sample a WKWebView, so with no
     /// snapshot the pane falls back to a flat material and reads as a slab again.
@@ -263,10 +267,6 @@ struct GlassPane: View {
     /// offset, so the glass would crop the page from where the pane is not. The
     /// owner passes the same offset here and it is added to the crop's origin.
     var backdropOffset: CGSize = .zero
-    /// A pane's fill alpha when it is neither the rail's .30 band nor a popup
-    /// plate: the tab chip is the desktop's translucent active-tab pane, and at
-    /// the band's .30 the page's own text read straight through its title.
-    var paneAlpha: Double? = nil
 
     @Environment(\.colorScheme) private var colorScheme
     /// The user's Reduce Transparency setting. It is read here, not at each call
@@ -618,33 +618,6 @@ extension View {
     }
 }
 
-/// The active tab's pane: Apple's Liquid Glass, tinted white so the chip keeps
-/// the desktop's light pane and its fixed dark ink in both appearances, and drawn
-/// as a sibling layer that cannot take a tap (see `GlassLayer`). The page scrolls
-/// under this chip, so a real-time glass is the only pane that shows it blurred
-/// instead of reading the article's own line through the title.
-///
-/// The tint is what keeps the ink legible: the untinted system glass resolves
-/// against the appearance, and the chip's whole subtree was once resolved against
-/// the opposite one (authsave-light/dark, notice-light, run 45184392996).
-struct TabChipGlass: View {
-    var cornerRadius: CGFloat
-
-    var body: some View {
-        if #available(iOS 26.0, *) {
-            Color.clear
-                .glassEffect(
-                    .regular.tint(Color.white.opacity(0.55)),
-                    in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                )
-        } else {
-            // Pre-26 fallback: the app's pane cannot blur a web view, so it is
-            // raised to a mostly-white fill rather than the .30 band.
-            GlassPane(cornerRadius: cornerRadius, paneAlpha: 0.75)
-        }
-    }
-}
-
 /// Glass as a sibling layer behind card content. A glass *background* under a
 /// control takes that control's tap; a sibling layer does not.
 struct GlassLayer: View {
@@ -714,5 +687,39 @@ struct ScaledFont: ViewModifier {
 extension View {
     func scaledFont(_ size: CGFloat, _ weight: Font.Weight = .regular, design: Font.Design = .default) -> some View {
         modifier(ScaledFont(size: size, weight: weight, design: design))
+    }
+}
+
+/// The page under the tab chip, blurred, for the chip's glass.
+///
+/// The system's own glass is the design target (`browsGlass`), but over a
+/// `WKWebView` it cannot sample the web process: `glassEffect` on the chip
+/// rendered a flat tinted fill with no page in it at all (scrolled-light/
+/// scrolled-dark, run 45780486551), the same limitation the popup cards hit. So
+/// the chip takes the pane the dock, panels and cards use, and that pane needs a
+/// blurred page behind it — here, a snapshot of the page taken when it settles.
+///
+/// This object exists instead of a `BrowserModel` property on purpose. The chip
+/// is always on screen, so a snapshot published on the model invalidated every
+/// observer, and the focused address field's `updateUIView` then ran mid-typing:
+/// the pill stopped taking the address and one navigation stayed on the start
+/// page. That regression is why the chip was left without a backdrop; nothing
+/// but `TopStrip` observes this object.
+final class ChipGlass: ObservableObject {
+    @Published private(set) var snapshot: UIImage?
+    private var pending: DispatchWorkItem?
+
+    /// Debounced: a scroll changes `contentOffset` far faster than a snapshot can
+    /// be taken, and only the settled position matters.
+    func refresh(from webView: WKWebView?, after delay: TimeInterval = 0.2) {
+        pending?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            PanelBackdrop.capture(webView) { [weak self] image in
+                guard let self, let image else { return }
+                self.snapshot = image
+            }
+        }
+        pending = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 }
