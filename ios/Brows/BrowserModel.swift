@@ -447,6 +447,16 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             seedCaptureData()
         }
 
+        // The capture pass waits for `capture-sheet.txt` instead of a clock. Clear
+        // any previous run's file first: a stale marker made the wait return
+        // instantly and shot the panel mid-entrance (run 45741470428).
+        if arguments.contains("-BrowsUITestReset"),
+           let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            try? FileManager.default.removeItem(
+                at: documents.appendingPathComponent("capture-sheet.txt")
+            )
+        }
+
         if arguments.contains("-BrowsFocusPill") {
             focusPillOnLaunch = true
             // Wait for the page: the completions panel photographs its backdrop on
@@ -568,6 +578,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.loadSiteInfo() }
         default:
             break
+        }
+        // The sheet has been asked to present. The still is taken after this file
+        // appears and the entrance has settled, so a slow page cannot produce a
+        // half-faded panel (menu-light, history-light, workspaces-light, run
+        // 45743932187).
+        if let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            try? name.write(
+                to: documents.appendingPathComponent("capture-sheet.txt"),
+                atomically: true,
+                encoding: .utf8
+            )
         }
     }
 
