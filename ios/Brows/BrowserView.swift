@@ -43,7 +43,6 @@ struct BrowserView: View {
         content
             .environmentObject(model)
             .environment(\.panelDismiss, close)
-
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             // A full-screen Liquid Glass layer is far too heavy for a panel and
             // delayed the popup and notice flows (shards 2 and 3, run 44947410477);
@@ -179,6 +178,15 @@ struct BrowserView: View {
                 }
             }
             .animation(Motion.card, value: anyCardOpen)
+        }
+        // The cards are plates over the page, and a plate without the page's
+        // blurred snapshot behind it is a window: the article's letters stay crisp
+        // through the .62 fill and compete with the card's own text (dialog-light,
+        // notice-light, linknotice-light, suggest-light, auth-light, authsave-light,
+        // run 45756292542). Panels snapshot on their own `.onAppear`; the cards did
+        // not, and a launch hook presents one before any panel has.
+        .onChange(of: anyCardOpen) { open in
+            if open { model.refreshPanelBackdrop() }
         }
         .onChange(of: model.showingMenu) { open in
             if !open {
