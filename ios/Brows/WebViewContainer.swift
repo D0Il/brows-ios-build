@@ -16,15 +16,6 @@ struct WebViewContainer: UIViewRepresentable {
         let webView = model.webView(for: tabId)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
-        // The page moves under the chip as it scrolls: retake the chip's blurred
-        // backdrop when the offset settles. Observed, not delegated — WebKit keeps
-        // its own scroll delegate and the inset behaviour that depends on it.
-        context.coordinator.scrollObservation = webView.scrollView.observe(
-            \.contentOffset, options: [.new]
-        ) { [weak webView] _, _ in
-            guard let webView else { return }
-            ChipGlass.shared.refresh(from: webView)
-        }
         // The page reports what it is through this channel once its document is
         // ready. Reading it back from the navigation callback raced the load and
         // left every probe blank.
@@ -98,7 +89,6 @@ struct WebViewContainer: UIViewRepresentable {
         let tabId: UUID
         var observation: KVOObservation?
         var titleObservation: KVOObservation?
-        var scrollObservation: KVOObservation?
 
         private var downloadIds: [ObjectIdentifier: UUID] = [:]
         private var destinations: [ObjectIdentifier: URL] = [:]
@@ -128,10 +118,6 @@ struct WebViewContainer: UIViewRepresentable {
             if CommandLine.arguments.contains("-BrowsScrollPage") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     webView.evaluateJavaScript("window.scrollTo(0, 420)")
-                    // The audit photographs the chip over scrolled text, so the
-                    // chip's glass must be holding the scrolled page. After the
-                    // scroll has painted, and well clear of any panel capture.
-                    ChipGlass.shared.refresh(from: webView, after: 0.8)
                 }
             }
         }

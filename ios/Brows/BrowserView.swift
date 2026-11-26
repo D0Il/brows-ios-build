@@ -315,9 +315,6 @@ struct BrowserView: View {
 /// the PRIVATE badge when the active tab is private, and page progress.
 struct TopStrip: View {
     @EnvironmentObject var model: BrowserModel
-    /// The page behind the chip, blurred. Only this strip observes it: see
-    /// `ChipGlass` for why the browser and the model must not.
-    @ObservedObject private var chipGlass = ChipGlass.shared
 
     var body: some View {
         HStack(spacing: 8) {
@@ -347,16 +344,19 @@ struct TopStrip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background {
-                // The app's pane over the page's own blurred snapshot, the same
-                // construction the dock, panels and cards use. The system glass
-                // renders a flat fill over a WKWebView (run 45780486551) and the
-                // rail's .30 wash let the article's line read through the title
-                // (scrolled-light, scrolled-dark), so the pane carries both the
-                // blur and the fill. A non-hit-testing sibling: a glass
+                // The app's pane, with its fill carrying what the desktop's blur
+                // hides. iOS cannot blur the page under a pane: `glassEffect`
+                // over a WKWebView draws a flat tint with no page in it
+                // (scrolled stills, run 45780486551), and a snapshot backdrop
+                // renders nothing visible over the page — a card with one and a
+                // card without measured pixel-identical (runs 45762465464 and
+                // 45867547477). At the rail band's .30 the article's own line
+                // read straight through the chip's title, so the chip's pane is
+                // nearly opaque and keeps the ramp and hairline that make it a
+                // chip rather than a slab. A non-hit-testing sibling: a glass
                 // *background* under these controls took the dock's taps and the
                 // pill's focus before (runs 44928536766, 44940653563, 44949151192).
-                GlassPane(cornerRadius: 9, paneAlpha: 0.62,
-                          backdrop: chipGlass.snapshot ?? model.panelBackdrop)
+                GlassPane(cornerRadius: 9, paneAlpha: 0.92)
                     .allowsHitTesting(false)
             }
             .frame(maxWidth: 230, alignment: .leading)
