@@ -43,16 +43,7 @@ struct BrowserView: View {
         content
             .environmentObject(model)
             .environment(\.panelDismiss, close)
-            // Proves the pane got the page snapshot its glass draws. The probe
-            // lives inside the panel: the browser-level probes are covered while
-            // a panel is up and XCUITest cannot read them.
-            .overlay(alignment: .topLeading) {
-                Text("backdrop")
-                    .scaledFont(1)
-                    .opacity(0.01)
-                    .accessibilityIdentifier("debug.backdrop")
-                    .accessibilityLabel(model.panelBackdrop == nil ? "none" : "set")
-            }
+
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             // A full-screen Liquid Glass layer is far too heavy for a panel and
             // delayed the popup and notice flows (shards 2 and 3, run 44947410477);
