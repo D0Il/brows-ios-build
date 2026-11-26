@@ -179,6 +179,15 @@ struct BrowserView: View {
             }
             .animation(Motion.card, value: anyCardOpen)
         }
+        // The cards are plates over the page, and a plate without the page's
+        // blurred snapshot behind it is a window: the article's letters stay crisp
+        // through the .62 fill and compete with the card's own text (dialog-light,
+        // notice-light, linknotice-light, suggest-light, auth-light, authsave-light,
+        // run 45756292542). Panels snapshot on their own `.onAppear`; the cards did
+        // not, and a launch hook presents one before any panel has.
+        .onChange(of: anyCardOpen) { open in
+            if open { model.refreshPanelBackdrop() }
+        }
         .onChange(of: model.showingMenu) { open in
             if !open {
                 // A sheet cannot present while the menu sheet is still dismissing;
@@ -334,15 +343,21 @@ struct TopStrip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(
-                // The chip floats over the page once it scrolls under the strip,
-                // so it needs the page's blurred snapshot like the panels do. A
-                // material cannot sample a WKWebView and left the article's body
-                // line running through the tab title at full contrast
-                // (scrolled-light/dark, run 45718399985).
-                GlassPane(cornerRadius: 9, backdrop: model.panelBackdrop)
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-            )
+            .background {
+                // The app's pane, with its fill carrying what the desktop's blur
+                // hides. iOS cannot blur the page under a pane: `glassEffect`
+                // over a WKWebView draws a flat tint with no page in it
+                // (scrolled stills, run 45780486551), and a snapshot backdrop
+                // renders nothing visible over the page — a card with one and a
+                // card without measured pixel-identical (runs 45762465464 and
+                // 45867547477). At the rail band's .30 the article's own line
+                // read straight through the chip's title, so the chip's pane is
+                // nearly opaque and keeps the ramp and hairline that make it a
+                // chip rather than a slab. A non-hit-testing sibling: a glass
+                // *background* under these controls took the dock's taps and the
+                // pill's focus before (runs 44928536766, 44940653563, 44949151192).
+                TabChipPlate(cornerRadius: 9)
+            }
             .frame(maxWidth: 230, alignment: .leading)
 
             Spacer(minLength: 0)

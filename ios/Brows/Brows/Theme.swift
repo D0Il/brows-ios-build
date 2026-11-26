@@ -90,9 +90,13 @@ enum Theme {
     /// A plate inside a sheet is `rgba(var(--plate-rgb),.62)` (`brows_surface.css`):
     /// at .95 it read as a white slab on top of the sheet's own glass.
     static let plate = plateBase.opacity(0.30)
-    /// The pane's own tint. Light glass must stay see-through over a page;
-    /// the dark block keeps the desktop's heavier plate.
-    static let plateAlpha = 0.30
+    /// The pane's own tint, at the desktop's `rgba(plate,.62)`. At .30 the
+    /// light pane was a 30% wash: the page's body text stayed sharp and
+    /// full-contrast under every sheet and card, and the panel's own ink sat on
+    /// top of it (bookmarks-light, auth-light, dialog-light, run 45732960635).
+    /// The blur that should carry the see-through is not reaching these panes
+    /// yet; .62 keeps the glass reading as glass and the rows legible without it.
+    static let plateAlpha = 0.62
     /// The dark block's plate is nearly opaque. At .30 the pane over a white
     /// page measured ~176, so #f2f4f8 ink sat at 2.1:1 and #aab2be muted at
     /// 1.03:1 (captures menu-dark, history-dark, extensions-dark, run
@@ -606,6 +610,38 @@ extension View {
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             )
         }
+    }
+}
+
+/// The active tab's plate: the app's pane with nothing to see through. It is the
+/// one pane on the page that must not transmit it, because the page scrolls under
+/// the chip and its own line crossed the title. Every see-through construction was
+/// measured against this chip and none of them held: `glassEffect` over a
+/// WKWebView draws a flat fill with no page in it; a snapshot backdrop renders
+/// nothing visible over the page (a card with one and a card without are
+/// pixel-identical); and `BackdropBlur`, a UIView, draws over the tint instead of
+/// under it — the chip measured identical at .30, .62 and .92 with the page
+/// reading through all three. The fill, the ramp and the hairline are literal, so
+/// what the desktop's blur hides, this chip's paint hides.
+struct TabChipPlate: View {
+    var cornerRadius: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(Theme.railBase)
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(LinearGradient(
+                        colors: [Theme.railRampTop, Theme.railRampBottom],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Theme.glassStroke, lineWidth: 1)
+            )
+            .allowsHitTesting(false)
     }
 }
 
