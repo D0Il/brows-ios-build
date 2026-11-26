@@ -120,8 +120,6 @@ struct WebViewContainer: UIViewRepresentable {
             samplePageBackground(webView)
             model?.pageDidRender()
             model?.pageDidLoad(tabId)
-            // The page has painted: the chip's glass can show it.
-            ChipGlass.shared.refresh(from: webView, after: 0.35)
             // Capture hook (`-BrowsScrollPage`): the audit's scrolled frame. At
             // rest the article starts below the top strip by its content inset,
             // so only a scrolled page puts text under the strip and shows what
@@ -130,6 +128,10 @@ struct WebViewContainer: UIViewRepresentable {
             if CommandLine.arguments.contains("-BrowsScrollPage") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     webView.evaluateJavaScript("window.scrollTo(0, 420)")
+                    // The audit photographs the chip over scrolled text, so the
+                    // chip's glass must be holding the scrolled page. After the
+                    // scroll has painted, and well clear of any panel capture.
+                    ChipGlass.shared.refresh(from: webView, after: 0.8)
                 }
             }
         }

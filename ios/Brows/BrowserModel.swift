@@ -795,9 +795,14 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             pendingCaptureSheet = nil
             presentLaunchSheet(sheet, afterLayout: false)
         }
-        guard hasOpenPanel, !isEditingAddress else { return }
+        // The tab chip is always on screen and shows the page blurred behind it,
+        // so the page is captured after every load, not only when a panel is
+        // open. Not while the address is being edited: a snapshot taken then
+        // republished the model under the focused field, and the pill lost the
+        // address and the navigation that followed it.
+        guard !isEditingAddress else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
-            guard let self, self.hasOpenPanel else { return }
+            guard let self, !self.isEditingAddress else { return }
             self.refreshPanelBackdrop()
         }
     }

@@ -355,7 +355,8 @@ struct TopStrip: View {
                 // blur and the fill. A non-hit-testing sibling: a glass
                 // *background* under these controls took the dock's taps and the
                 // pill's focus before (runs 44928536766, 44940653563, 44949151192).
-                GlassPane(cornerRadius: 9, paneAlpha: 0.62, backdrop: chipGlass.snapshot)
+                GlassPane(cornerRadius: 9, paneAlpha: 0.62,
+                          backdrop: chipGlass.snapshot ?? model.panelBackdrop)
                     .allowsHitTesting(false)
             }
             .frame(maxWidth: 230, alignment: .leading)
