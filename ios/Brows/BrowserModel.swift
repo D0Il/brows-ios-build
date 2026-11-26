@@ -569,17 +569,6 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         default:
             break
         }
-        // The capture pass waits for this file: the page can take 15 s or more
-        // to finish on a loaded runner, and a fixed wait shot sheets mid-fade
-        // (menu-light, auth-light, dialog-light, run 45738838727). The file says
-        // the sheet has been asked to present, not that the page has loaded.
-        if let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            try? name.write(
-                to: documents.appendingPathComponent("capture-sheet.txt"),
-                atomically: true,
-                encoding: .utf8
-            )
-        }
     }
 
     // MARK: Derived
