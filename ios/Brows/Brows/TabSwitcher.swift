@@ -124,6 +124,10 @@ struct TabSwitcher: View {
                         .scaledFont(15)
                         .foregroundColor(secondary)
                 }
+                // A 15 pt glyph is the desktop's size, not a thumb's target: the
+                // tappable frame stays 44 pt square around it.
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .accessibilityLabel("Close tab")
                 .accessibilityIdentifier("tab.close")

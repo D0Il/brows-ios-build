@@ -14,6 +14,11 @@ xcrun simctl io "$DEVICE" screenshot brows-article.png
 # `-BrowsAppearance`, `-BrowsFocusPill`, `-BrowsScrollPage`,
 # `-BrowsReduceTransparency`) and never reachable from a page.
 mkdir -p captures
+# The app writes this file when a launch sheet is actually being presented.
+# The page request is a second early on a cold runner, so a fixed wait shot
+# sheets mid-entrance (menu-light, settings-light, tabs-dark, auth-light) or
+# before they appeared (history-dark, downloads-light) in run 45718399985.
+DATA_CONTAINER=$(xcrun simctl get_app_container "$DEVICE" dev.brows.ios data 2>/dev/null || true)
 for mode in light dark; do
   for sheet in menu bookmarks downloads history workspaces passwords siteinfo extensions settings tabs auth authsave dialog notice linknotice suggest pill scrolled reduced; do
     xcrun simctl terminate "$DEVICE" dev.brows.ios > /dev/null 2>&1 || true
@@ -32,6 +37,7 @@ for mode in light dark; do
     else
       args+=(-BrowsSheet "$sheet")
     fi
+    if [ -n "$DATA_CONTAINER" ]; then rm -f "$DATA_CONTAINER/Documents/capture-sheet.txt"; fi
     seen=$(grep -c "GET /article.html" fixtures/server.log 2>/dev/null || true)
     xcrun simctl launch "$DEVICE" dev.brows.ios "${args[@]}" > /dev/null
     # The page loads in the same launch as the sheet hook. A flat four
@@ -43,7 +49,18 @@ for mode in light dark; do
       if [ "${now:-0}" -gt "${seen:-0}" ]; then break; fi
       sleep 0.25
     done
-    sleep 3
+    if [ "$sheet" = "pill" ] || [ "$sheet" = "scrolled" ] || [ "$sheet" = "reduced" ]; then
+      # These hooks present no sheet: the page and the chrome are the whole
+      # surface and nothing animates after the first paint.
+      sleep 4
+    else
+      for _ in $(seq 1 80); do
+        if [ -n "$DATA_CONTAINER" ] && [ -f "$DATA_CONTAINER/Documents/capture-sheet.txt" ]; then break; fi
+        sleep 0.25
+      done
+      # The sheet's 0.35 s entrance, then the keyboard for `suggest`.
+      sleep 1.2
+    fi
     xcrun simctl io "$DEVICE" screenshot "captures/${sheet}-${mode}.png"
   done
 done

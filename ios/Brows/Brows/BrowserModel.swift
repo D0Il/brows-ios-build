@@ -569,6 +569,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
         default:
             break
         }
+        // A still is only trustworthy once the sheet is actually being presented:
+        // the capture pass waits for this file instead of guessing from the page
+        // request, which was up to a second early and shot sheets mid-fade
+        // (menu-light, settings-light, tabs-dark, auth-light, run 45718399985).
+        if let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            try? name.write(
+                to: documents.appendingPathComponent("capture-sheet.txt"),
+                atomically: true,
+                encoding: .utf8
+            )
+        }
     }
 
     // MARK: Derived
@@ -762,8 +773,17 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
             pendingCaptureSheet = nil
             presentLaunchSheet(sheet, afterLayout: false)
         }
+        // Every pane over the page reads this snapshot: the panels and cards, and
+        // the tab chip and dock. It must be taken after the first frame, not when a
+        // pane appears — a launch sheet's `.onAppear` runs before the page paints,
+        // and the pane kept the New Tab wallpaper behind its glass.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            self?.refreshPanelBackdrop()
+        }
         guard hasOpenPanel, !isEditingAddress else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+        // A cold runner can take longer than a beat to hand back the painted frame.
+        // Retake once more while a panel is up, inside the capture pass's wait.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { [weak self] in
             guard let self, self.hasOpenPanel else { return }
             self.refreshPanelBackdrop()
         }

@@ -335,7 +335,12 @@ struct TopStrip: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(
-                GlassPane(cornerRadius: 9)
+                // The chip floats over the page once it scrolls under the strip,
+                // so it needs the page's blurred snapshot like the panels do. A
+                // material cannot sample a WKWebView and left the article's body
+                // line running through the tab title at full contrast
+                // (scrolled-light/dark, run 45718399985).
+                GlassPane(cornerRadius: 9, backdrop: model.panelBackdrop)
                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
             )
             .frame(maxWidth: 230, alignment: .leading)
