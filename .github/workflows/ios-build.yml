@@ -226,7 +226,7 @@ jobs:
 
   ui-test:
     needs: build-tests
-    if: ${{ !github.event.inputs.only_test && !github.event.inputs.captures_only }}
+    if: ${{ github.event.inputs.only_test != 'true' && github.event.inputs.captures_only != 'true' }}
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -322,7 +322,7 @@ jobs:
   # test asserts the setting it depends on, so default configuration cannot pass.
   accessibility:
     needs: build-tests
-    if: ${{ !github.event.inputs.only_test && !github.event.inputs.captures_only }}
+    if: ${{ github.event.inputs.only_test != 'true' && github.event.inputs.captures_only != 'true' }}
     runs-on: macos-15
     name: Accessibility (AX5, Reduce Motion, VoiceOver)
     steps:
