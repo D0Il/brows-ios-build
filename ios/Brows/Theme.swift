@@ -263,6 +263,10 @@ struct GlassPane: View {
     /// offset, so the glass would crop the page from where the pane is not. The
     /// owner passes the same offset here and it is added to the crop's origin.
     var backdropOffset: CGSize = .zero
+    /// A pane's fill alpha when it is neither the rail's .30 band nor a popup
+    /// plate: the tab chip is the desktop's translucent active-tab pane, and at
+    /// the band's .30 the page's own text read straight through its title.
+    var paneAlpha: Double? = nil
 
     @Environment(\.colorScheme) private var colorScheme
     /// The user's Reduce Transparency setting. It is read here, not at each call
@@ -286,6 +290,7 @@ struct GlassPane: View {
     /// plate is the dark block in dark mode, and .30 over a white page left it
     /// light grey under white ink.
     private var tintAlpha: Double {
+        if let paneAlpha { return paneAlpha }
         if !plate { return Theme.railBaseAlpha }
         return colorScheme == .dark ? Theme.plateDarkAlpha : Theme.plateAlpha
     }
@@ -609,6 +614,33 @@ extension View {
                 GlassPane(cornerRadius: cornerRadius)
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             )
+        }
+    }
+}
+
+/// The active tab's pane: Apple's Liquid Glass, tinted white so the chip keeps
+/// the desktop's light pane and its fixed dark ink in both appearances, and drawn
+/// as a sibling layer that cannot take a tap (see `GlassLayer`). The page scrolls
+/// under this chip, so a real-time glass is the only pane that shows it blurred
+/// instead of reading the article's own line through the title.
+///
+/// The tint is what keeps the ink legible: the untinted system glass resolves
+/// against the appearance, and the chip's whole subtree was once resolved against
+/// the opposite one (authsave-light/dark, notice-light, run 45184392996).
+struct TabChipGlass: View {
+    var cornerRadius: CGFloat
+
+    var body: some View {
+        if #available(iOS 26.0, *) {
+            Color.clear
+                .glassEffect(
+                    .regular.tint(Color.white.opacity(0.55)),
+                    in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                )
+        } else {
+            // Pre-26 fallback: the app's pane cannot blur a web view, so it is
+            // raised to a mostly-white fill rather than the .30 band.
+            GlassPane(cornerRadius: cornerRadius, paneAlpha: 0.75)
         }
     }
 }

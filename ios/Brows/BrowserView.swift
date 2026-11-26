@@ -343,10 +343,16 @@ struct TopStrip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(
-                GlassPane(cornerRadius: 9)
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-            )
+            .background {
+                // Liquid Glass, not the rail's .30 band: the page runs under this
+                // chip, and a wash let the article's line read through the title
+                // (scrolled-light, scrolled-dark). A sibling layer with hit
+                // testing off, because a glass *background* under these controls
+                // is what swallowed the dock's taps and the pill's focus before
+                // (runs 44928536766, 44940653563, 44949151192).
+                TabChipGlass(cornerRadius: 9)
+                    .allowsHitTesting(false)
+            }
             .frame(maxWidth: 230, alignment: .leading)
 
             Spacer(minLength: 0)
