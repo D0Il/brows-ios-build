@@ -86,6 +86,11 @@ final class BrowsUITests: XCTestCase {
 
         app.buttons["rail.menu"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10), "menu did not open")
+        // The panel's glass is the page snapshot under a 30% plate. Without the
+        // snapshot the live page shows through sharp and the rows lose contrast.
+        let backdrop = app.staticTexts["debug.backdrop"]
+        XCTAssertTrue(backdrop.waitForExistence(timeout: 3), "no backdrop probe")
+        XCTAssertEqual(backdrop.label, "set", "the menu's glass has no page snapshot")
 
         app.staticTexts["Site information"].tap()
         XCTAssertTrue(app.staticTexts["Site information"].waitForExistence(timeout: 10), "site information panel missing")
