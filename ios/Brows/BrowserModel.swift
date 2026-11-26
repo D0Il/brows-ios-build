@@ -513,6 +513,18 @@ final class BrowserModel: NSObject, ObservableObject, WKScriptMessageHandler {
     /// has finished and laid out, so waiting again would put the pane's
     /// snapshot past the capture's 3 s window.
     private func presentLaunchSheetNow(_ name: String) {
+        // A still is not a motion test. Presenting a panel from inside the page's
+        // first render can leave its insertion transition frozen at a fraction of
+        // its opacity — menu-light, history-light and workspaces-light sat at a
+        // quarter opacity in two frames a second apart that were byte-identical
+        // (run 45746353044) — so the capture path applies the sheet with no
+        // animation at all and the photograph shows the panel at rest.
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { applyLaunchSheet(name) }
+    }
+
+    private func applyLaunchSheet(_ name: String) {
         switch name {
         case "menu": showingMenu = true
         case "bookmarks": showingBookmarks = true
