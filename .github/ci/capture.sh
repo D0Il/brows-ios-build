@@ -59,6 +59,17 @@ for mode in light dark; do
           echo "${sheet}-${mode}: the sheet never presented within 100 s"
         fi
         sleep 1
+        # `simctl io screenshot` can return the last composited frame, which on a
+        # loaded runner is a crossfade of the previous launch (menu-light and
+        # downloads-light carried the previous sheet's rows, run 45750306694).
+        # Toggling the appearance away and back forces a full redraw and a fresh
+        # commit; the sheet stays presented and the final appearance is the mode
+        # this iteration is photographing.
+        if [ "$mode" = "light" ]; then other=dark; else other=light; fi
+        xcrun simctl ui "$DEVICE" appearance "$other" > /dev/null 2>&1 || true
+        sleep 0.6
+        xcrun simctl ui "$DEVICE" appearance "$mode" > /dev/null 2>&1 || true
+        sleep 1.2
         settled=0
         prev=""
         for i in 1 2 3 4 5 6; do
